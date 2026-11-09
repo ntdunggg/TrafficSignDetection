@@ -36,6 +36,8 @@
 - Chốt C1: chưa gộp dataset, vì không có bộ 46 lớp và không có link bản gán nhãn của editor.
 
 **2026-11-10**
+- Viết kế hoạch làm việc cho từng người ở `ke_hoach/` (1 file chung, 4 file riêng). Chốt cách cắt ảnh cho hướng A (vuông, cạnh 1,2 × max(w, h), dùng manifest). Số tham số A0 (342.056) và A1 (2.397.780) ghi trong file của người 1 đã kiểm bằng PyTorch.
+- Cô trả lời: không được dùng mạng đã học trước. Bỏ A6 và B2b, mọi mạng train từ đầu. Thêm lần chạy ngắn chọn lr cho YOLO train từ đầu ở giai đoạn 0 (bạn đồng ý): AdamW 0.000179, AdamW 0.001, SGD 0.01, mỗi mức 30 epoch, chọn theo mAP50-95 val. Tên người, hạn nộp, tài khoản GPU: nhóm nói sau.
 - Bạn cho biết cô coi trọng xây dựng mạng và các câu hỏi đi kèm. Đọc tài liệu môn ở `/Users/tdu/2026.1/học sâu/`. Viết lại kế hoạch ở đầu mục E: hướng A (tự xây CNN phân loại, bậc A0–A7) làm chính, hướng B (YOLO mốc, hai giai đoạn, đầu P2, train từ đầu) bổ sung. Thí nghiệm 7 chuyển thành A5, Thí nghiệm 5 làm trên mạng phân loại trước, Thí nghiệm 1, 2, 4 thành phần làm thêm. Phân công 4 người theo hướng mới.
 
 **2026-11-09**
@@ -443,7 +445,7 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 
 #### Hướng A (chính): tự xây CNN phân loại 52 loại biển bằng PyTorch
 
-**Dữ liệu:** Cắt vùng biển từ `data/vn_signs_yolo`, giữ nguyên cách chia train/val/test (không rò rỉ, mục A1). Train 5621, val 1078, test 1630 ảnh cắt. Thêm lề 10% quanh box như GTSRB (A1, phần "Cơ sở bổ sung").
+**Dữ liệu:** Cắt vùng biển từ `data/vn_signs_yolo`, giữ nguyên cách chia train/val/test (không rò rỉ, mục A1). Train 5621, val 1078, test 1630 ảnh cắt. Thêm lề 10% quanh box như GTSRB (A1, phần "Cơ sở bổ sung"). Cụ thể (ghi 2026-11-10): cắt hình vuông có tâm là tâm box, cạnh 1,2 × max(w, h), đệm bằng pixel mép khi vượt ảnh, để biển không bị méo. Lưu PNG ở kích thước gốc, đổi về 64×64 lúc nạp dữ liệu. Dùng `manifest.csv` có `class_id` cố định thay cho `ImageFolder`, vì val chỉ có 35 lớp và test 41 lớp, `ImageFolder` sẽ đánh số lớp khác nhau giữa các tập.
 
 **Kích thước đầu vào 64×64.** Bằng chứng (đo 2026-11-10 trên ảnh gốc): cạnh dài của box có trung vị 36 px, p25 là 24 px, p75 là 58 px, p95 là 122 px. 78,1% box có cạnh dài ≤ 64 px, nên 64×64 giữ được gần hết chi tiết. Các box nhỏ (43,8% box ≤ 32 px) sẽ được phóng to, không thêm thông tin; đây là giới hạn của dữ liệu (B3).
 
@@ -461,7 +463,7 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 | A3 | Dropout và tăng cường dữ liệu | Overfitting là gì, giảm được bao nhiêu khoảng cách train và val | 4.7, 4.8 |
 | A4 | Khối residual, so mạng sâu có và không có kết nối tắt | Mạng sâu bị suy biến không? Học phần dư giúp gì | Slide ResNet |
 | A5 | Khởi tạo (He, Xavier), hàm kích hoạt (ReLU, LeakyReLU, Swish), optimizer và lịch lr | Thay cho Thí nghiệm 7 trên YOLO, xem ghi chú dưới | 4.1, 4.3, 4.5, 4.6 |
-| A6 | ResNet-18 học trước trên ImageNet, tinh chỉnh, so với mạng tự xây train từ đầu | Transfer learning lợi bao nhiêu khi dữ liệu ít | 4.10 |
+| ~~A6~~ | ~~ResNet-18 học trước trên ImageNet, tinh chỉnh~~ **Bỏ (2026-11-10):** cô không cho dùng mạng đã học trước | Transfer learning chỉ trả lời bằng lý thuyết | 4.10 |
 | A7 | Ensemble vài mạng tốt nhất | Kết hợp mô hình tăng được bao nhiêu, đổi lại tốn gì | 4.9 |
 
 **Thí nghiệm 7 chuyển sang A5.** Trên YOLO, Thí nghiệm 7 tốn khoảng 750–1050 epoch GPU. Trên mạng phân loại 64×64, mỗi lần train chỉ mất vài phút (chưa đo, ước lượng), nên chạy đủ 5 cấu hình × 3 seed và so được cả lịch giảm lr. Lưới cấu hình và quy tắc chọn giữ như Thí nghiệm 7 (lr của Adam 1e-3, 5e-4; SGD + momentum; lịch tuyến tính, cosin, theo bậc). YOLO giữ cấu hình tạm `optimizer=AdamW lr0=0.000179 momentum=0.9`, không chạy Thí nghiệm 7 trên YOLO nữa.
@@ -472,12 +474,18 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 
 | Bản | Làm gì | Câu hỏi của môn trả lời được | Bài giảng |
 |---|---|---|---|
-| B0 | YOLOv8s học trước trên COCO, 52 lớp, cấu hình tạm, 3 seed. Đây là mốc so sánh và là bản G của Thí nghiệm 5 | YOLO hoạt động thế nào: lưới, dự đoán ở nhiều tỉ lệ, NMS | 6.4 |
-| B1 | Hai giai đoạn: YOLO 1 lớp "biển báo" (`single_cls=True`) chỉ đề xuất vùng, mạng tốt nhất của hướng A phân loại vùng. So mAP với B0 trên cùng test | Hai giai đoạn và một giai đoạn khác nhau thế nào, lỗi có dồn tầng không. Trả lời câu H2 | 6.3, 6.4 |
-| B2a | Thêm đầu dò P2 (`yolov8-p2.yaml` có sẵn trong Ultralytics 8.4.191) cho biển nhỏ | Vì sao bản đồ đặc trưng độ phân giải cao giúp phát hiện vật nhỏ (lập luận của SSD, YOLOv3) | 6.4 |
-| B2b | Train YOLOv8s từ đầu (`yolov8s.yaml`) so với từ trọng số COCO | Transfer learning cho bài toán phát hiện | 4.10 |
+| B0 | YOLOv8s **train từ đầu** (`model=yolov8s.yaml`, không dùng trọng số COCO), 52 lớp, 3 seed. Đây là mốc so sánh và là bản G của Thí nghiệm 5 | YOLO hoạt động thế nào: lưới, dự đoán ở nhiều tỉ lệ, NMS | 6.4 |
+| B1 | Hai giai đoạn: YOLO 1 lớp "biển báo" (`single_cls=True`, train từ đầu) chỉ đề xuất vùng, mạng tốt nhất của hướng A phân loại vùng. So mAP với B0 trên cùng test | Hai giai đoạn và một giai đoạn khác nhau thế nào, lỗi có dồn tầng không. Trả lời câu H2 | 6.3, 6.4 |
+| B2a | Thêm đầu dò P2 (`yolov8-p2.yaml` có sẵn trong Ultralytics 8.4.191, cỡ s, train từ đầu) cho biển nhỏ | Vì sao bản đồ đặc trưng độ phân giải cao giúp phát hiện vật nhỏ (lập luận của SSD, YOLOv3) | 6.4 |
+| ~~B2b~~ | ~~Train từ đầu so với từ trọng số COCO~~ **Bỏ (2026-11-10):** cô không cho dùng YOLO đã học trước, mọi bản đều train từ đầu | | |
 
-Với E = 100 epoch, hướng B tốn khoảng 1200 epoch GPU (B0 3 seed, B1 1–3 seed, B2a 3 seed, B2b 3 seed), ít hơn nhiều so với 2550–2850 epoch của kế hoạch cũ. Train từ đầu có thể cần nhiều epoch hơn; đo ở bước chuẩn bị.
+**Câu trả lời của cô (2026-11-10): không được dùng mạng đã học trước.** Mọi mạng của cả hai hướng đều train từ đầu. Hệ quả:
+- Bỏ A6 và B2b. Câu hỏi transfer learning (giáo trình 4.10) chỉ trả lời bằng lý thuyết.
+- Lần chạy thử 1 epoch dùng `yolov8n.pt` (trọng số COCO) chỉ để kiểm tra quy trình, không dùng số liệu của nó.
+- YOLO train từ đầu trên 2138 ảnh cần nhiều epoch hơn và có thể đạt điểm thấp hơn nhiều so với khi tinh chỉnh. Đây là kết quả cần báo cáo, không phải lỗi. Hướng B1 (dùng mạng phân loại của hướng A) có thể bù một phần.
+- Hướng B còn B0, B1, B2a. Với E = 100 epoch là khoảng 900 epoch GPU. Nếu E phải lên 200–300 thì gấp 2–3 lần. Chốt E sau khi chạy thử ở giai đoạn 0.
+
+**Chọn lr cho YOLO train từ đầu (bạn đồng ý thêm, 2026-11-10):** Cấu hình tạm của YOLO (`AdamW lr0=0.000179`) là giá trị Ultralytics tự chọn cho lần chạy ngắn, vốn thường dùng khi tinh chỉnh từ trọng số có sẵn. Train từ đầu thường cần lr lớn hơn (giáo trình 4.10 khuyên lr thấp là cho tinh chỉnh). Ở giai đoạn 0, người 2 chạy ngắn khoảng 30 epoch, 1 seed, với 3 mức: AdamW 0.000179, AdamW 0.001, SGD 0.01 momentum 0.937. Chọn mức có mAP50-95 val cao nhất rồi cố định cho mọi bản YOLO (B0, B1, B2a), ghi giá trị vào lịch sử. Không chấm test ở bước này. Tốn khoảng 90 epoch. Hạn chế: chọn từ lần chạy ngắn, 1 seed, nên phải ghi rõ trong báo cáo.
 
 #### Các thí nghiệm cũ
 
@@ -493,26 +501,28 @@ Với E = 100 epoch, hướng B tốn khoảng 1200 epoch GPU (B0 3 seed, B1 1�
 
 | Giai đoạn | Việc | Cần xong trước |
 |---|---|---|
-| 0. Chuẩn bị | Đóng gói dataset, notebook YOLO mẫu, script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung (vòng train, đo, lưu kết quả). Đo thời gian 1 epoch YOLOv8s trên GPU Kaggle/Colab. Bắt đầu thu thập ảnh cho Thí nghiệm 6 | – |
+| 0. Chuẩn bị | Đóng gói dataset, notebook YOLO mẫu, chạy ngắn chọn lr cho YOLO train từ đầu (3 mức × 30 epoch), script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung (vòng train, đo, lưu kết quả). Đo thời gian 1 epoch YOLOv8s trên GPU Kaggle/Colab. Bắt đầu thu thập ảnh cho Thí nghiệm 6 | – |
 | 1 | A0–A4. B0. Thí nghiệm 5 trên mạng phân loại | 0 |
-| 2 | A5–A7. B2a, B2b. YOLO 1 lớp cho B1 | 1 |
+| 2 | A5, A7. B2a. YOLO 1 lớp cho B1 | 1 |
 | 3 | Ghép B1 với mạng tốt nhất của A. Chấm Thí nghiệm 6. Phân tích confusion matrix (Thí nghiệm 3) | 2 |
 | 4 | Viết báo cáo, điền H1–H4 | 3 |
 
 #### Phân công (chưa có tên)
 
+Kế hoạch chi tiết cho từng người (việc, lệnh, tiêu chí xong, bàn giao, câu hỏi phải trả lời) ở thư mục [`ke_hoach/`](ke_hoach/00_chung.md): `00_chung.md` và 4 file `nguoi_1` … `nguoi_4`. Khi kế hoạch đổi, sửa ở sổ này trước rồi sửa các file đó theo.
+
 | Người | Việc | Phần báo cáo |
 |---|---|---|
 | 1 | Phần dữ liệu còn lại (đóng gói, tải lên, các bản biến thể nếu cần), script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung. Làm A0–A2. Lập bảng kích thước đầu ra, số tham số, receptive field cho mọi mạng của hướng A | Chương dữ liệu (mục A–D, H1), A0–A2, bảng tham số |
-| 2 | Notebook YOLO, đo thời gian epoch. B0, B2a, B2b. Train YOLO 1 lớp cho B1. Giải thích kiến trúc YOLOv8 (backbone, neck, head, C2f, SPPF) | Hướng B phần phát hiện, kiến trúc YOLO |
-| 3 | A3–A7 (gồm A5 thay cho Thí nghiệm 7). Phân tích confusion matrix của mạng phân loại | A3–A7, câu hỏi về huấn luyện (chương 4) |
+| 2 | Notebook YOLO, đo thời gian epoch, chạy ngắn chọn lr cho YOLO train từ đầu. B0, B2a. Train YOLO 1 lớp cho B1. Giải thích kiến trúc YOLOv8 (backbone, neck, head, C2f, SPPF) | Hướng B phần phát hiện, kiến trúc YOLO |
+| 3 | A3, A4, A5 (thay cho Thí nghiệm 7), A7. Phân tích confusion matrix của mạng phân loại | A3–A5, A7, câu hỏi về huấn luyện (chương 4), transfer learning bằng lý thuyết |
 | 4 | Thu thập và gán nhãn ảnh cho Thí nghiệm 6 từ giai đoạn 0. Thí nghiệm 5 trên mạng phân loại. Ghép và chấm B1. Chấm Thí nghiệm 6 | H2, H3, H4, B1, Thí nghiệm 5, 6 |
 
-**Quy tắc chung cho cả nhóm:** Giữ các quy tắc ở đầu mục E (phiên bản tập nhãn, 3 seed, cùng test). YOLO cài đúng `ultralytics==8.4.191`, tham số cố định `imgsz=960 fliplr=0 optimizer=AdamW lr0=0.000179 momentum=0.9`. Không sửa `data/vn_signs_yolo`. Mỗi lần chạy ghi một dòng vào bảng kết quả chung. Ảnh tự chụp có người và biển số xe, không đăng công khai.
+**Quy tắc chung cho cả nhóm:** Giữ các quy tắc ở đầu mục E (phiên bản tập nhãn, 3 seed, cùng test). YOLO cài đúng `ultralytics==8.4.191`, train từ đầu bằng file `.yaml` (không dùng file `.pt` có sẵn), tham số cố định `imgsz=960 fliplr=0 optimizer=AdamW lr0=0.000179 momentum=0.9` (sẽ thay bằng mức thắng của lần chạy chọn lr ở giai đoạn 0). Không sửa `data/vn_signs_yolo`. Mỗi lần chạy ghi một dòng vào bảng kết quả chung. Ảnh tự chụp có người và biển số xe, không đăng công khai.
 
-**Cần hỏi cô:** có được dùng YOLO học trước làm mốc và làm bộ đề xuất vùng không; có bắt buộc train từ đầu không. Nếu bắt buộc train từ đầu thì bỏ A6 và B2b khỏi phần chính, B0 dùng `yolov8s.yaml`.
+**Đã hỏi cô (2026-11-10):** không được dùng mạng đã học trước. Đã bỏ A6, B2b; B0, B1, B2a train từ đầu.
 
-**Chưa biết, cần nhóm trả lời:** tên và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
+**Chưa biết, nhóm sẽ trả lời sau:** tên và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
 
 ### Chạy thử 1 epoch (2026-11-09) ✅
 **Mục đích:** Kiểm tra Ultralytics đọc đúng dataset và chạy hết quy trình train, chấm val, chấm test. Không dùng để đánh giá chất lượng model.
@@ -546,7 +556,7 @@ yolo detect val model=<...>/data/runs/sanity_1epoch/weights/best.pt data=<...>/d
 | test | 0,433 | 0,241 | 0,161 | 0,114 |
 
 **Phát hiện cần lưu ý cho lần train thật:**
-1. **Optimizer tự chọn.** Với `optimizer=auto`, Ultralytics chọn AdamW với `lr=0.000179` và bỏ qua `lr0=0.01`. Theo mã nguồn, lr này tính từ số lớp (`0.002 × 5 / (4 + nc)`), và AdamW được chọn khi tổng số bước dưới 10 000 (trên mức này là MuSGD, `lr=0.01`). Đã đối chiếu với `ultralytics/engine/trainer.py` bản 8.4.191. Mức ảnh hưởng nếu để `auto`: gộp S.505a (52 xuống 50 lớp) chỉ làm lr tăng 3,4% (0,000185), gần như không đáng kể; gộp còn khoảng 10 lớp thì lr tăng gấp 4; train từ 295 epoch trở lên thì đổi hẳn sang MuSGD `lr=0.01`; đổi phiên bản Ultralytics thì quy tắc có thể khác (bản cũ dùng SGD). Lý do cố định là để cấu hình không tự đổi và báo cáo ghi được giá trị cụ thể. **Quyết định (2026-11-09):** đặt cố định `optimizer` và `lr0` cho mọi thí nghiệm. Giá trị cố định được chọn bằng Thí nghiệm 7. **Trong lúc chờ Thí nghiệm 7** (bạn chọn "tạm dùng"): dùng `optimizer=AdamW lr0=0.000179 momentum=0.9`, tức cấu hình 1 (mốc) của Thí nghiệm 7. Phải ghi cả `momentum=0.9`, vì nếu chỉ ghi `optimizer=AdamW` thì Ultralytics lấy mặc định 0,937. Khi Thí nghiệm 7 có cấu hình thắng thì thay giá trị này và ghi vào lịch sử. **Cập nhật 2026-11-10:** Thí nghiệm 7 chuyển sang mạng phân loại (A5), nên YOLO dùng cấu hình này cố định cho mọi lần chạy.
+1. **Optimizer tự chọn.** Với `optimizer=auto`, Ultralytics chọn AdamW với `lr=0.000179` và bỏ qua `lr0=0.01`. Theo mã nguồn, lr này tính từ số lớp (`0.002 × 5 / (4 + nc)`), và AdamW được chọn khi tổng số bước dưới 10 000 (trên mức này là MuSGD, `lr=0.01`). Đã đối chiếu với `ultralytics/engine/trainer.py` bản 8.4.191. Mức ảnh hưởng nếu để `auto`: gộp S.505a (52 xuống 50 lớp) chỉ làm lr tăng 3,4% (0,000185), gần như không đáng kể; gộp còn khoảng 10 lớp thì lr tăng gấp 4; train từ 295 epoch trở lên thì đổi hẳn sang MuSGD `lr=0.01`; đổi phiên bản Ultralytics thì quy tắc có thể khác (bản cũ dùng SGD). Lý do cố định là để cấu hình không tự đổi và báo cáo ghi được giá trị cụ thể. **Quyết định (2026-11-09):** đặt cố định `optimizer` và `lr0` cho mọi thí nghiệm. Giá trị cố định được chọn bằng Thí nghiệm 7. **Trong lúc chờ Thí nghiệm 7** (bạn chọn "tạm dùng"): dùng `optimizer=AdamW lr0=0.000179 momentum=0.9`, tức cấu hình 1 (mốc) của Thí nghiệm 7. Phải ghi cả `momentum=0.9`, vì nếu chỉ ghi `optimizer=AdamW` thì Ultralytics lấy mặc định 0,937. Khi Thí nghiệm 7 có cấu hình thắng thì thay giá trị này và ghi vào lịch sử. **Cập nhật 2026-11-10:** Thí nghiệm 7 chuyển sang mạng phân loại (A5), nên YOLO dùng cấu hình này cố định cho mọi lần chạy. **Cập nhật tiếp 2026-11-10:** vì phải train từ đầu, giá trị này sẽ được chọn lại bằng lần chạy ngắn ở giai đoạn 0 (xem "Kế hoạch chính").
 2. **Mosaic bị tắt cả lần chạy thử:** `close_mosaic=10` tắt mosaic ở 10 epoch cuối, mà lần này chỉ có 1 epoch. Train thật thì không bị như vậy.
 3. **Không tái lập tuyệt đối trên MPS:** PyTorch cảnh báo hai phép tính (`scatter_reduce_mps`, `index_put_with_accumulate_mps`) không có bản tất định. Cùng seed vẫn có thể ra số hơi khác. Đây thêm một lý do để mỗi cấu hình chạy 3 seed.
 4. **Không dùng worker phụ trên MPS:** Log ghi `Using 0 dataloader workers` dù đặt `workers=4`, vì `ultralytics/engine/trainer.py` đặt `workers = 0` khi chạy trên CPU hoặc MPS. Đọc ảnh chạy chung luồng với train, đây là một phần lý do chậm.
