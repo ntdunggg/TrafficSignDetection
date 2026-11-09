@@ -11,10 +11,11 @@
 |---|---|---|
 | Dữ liệu gốc | `/Users/tdu/Downloads/archive` | Giữ nguyên, 6437 file khớp md5 (kiểm lại 2026-11-09) |
 | Dataset làm việc | `data/vn_signs_yolo/` | 3191 ảnh, 8329 box, 52 lớp, tên tiếng Việt; git ignore |
-| Catalog xem và sửa | `catalog/catalog.html` | 7,2 MB; git ignore. Dựng trước đợt sửa 2026-11-09 nên vẫn hiện ảnh chưa xoay và 3 box đã xoá |
+| Catalog xem và sửa | `catalog/catalog.html` | 7,2 MB; git ignore. Dựng trước đợt sửa 2026-11-09 nên vẫn hiện ảnh chưa xoay và 3 box đã xoá. Không dựng lại (bạn quyết định 2026-11-09) |
 | Kết quả catalog | `data/_build/catalog_ket_qua_2026-11-09.txt` | 683 box, dạng `khóa trạng_thái` (d đúng, k không rõ, s sai) |
 | Sao lưu trước đợt sửa | `data/_build/backup_truoc_catalog_2026-11-09/` | Nhãn, ảnh, data.yaml trước khi sửa |
 | Script, log, bằng chứng | `data/_build/` | git ignore |
+| Kết quả chạy Ultralytics | `data/runs/` | git ignore. `sanity_1epoch`, `sanity_test` (chạy thử, xem mục E) |
 
 | Tập | Ảnh | Tỉ lệ ảnh | Box |
 |---|---:|---:|---:|
@@ -34,6 +35,9 @@
 - Tạo catalog (B4, C3, C4, C5). Đo bằng chứng cho D2, D3.
 - Chốt C1: chưa gộp dataset, vì không có bộ 46 lớp và không có link bản gán nhãn của editor.
 
+**2026-11-10**
+- Bạn cho biết cô coi trọng xây dựng mạng và các câu hỏi đi kèm. Đọc tài liệu môn ở `/Users/tdu/2026.1/học sâu/`. Viết lại kế hoạch ở đầu mục E: hướng A (tự xây CNN phân loại, bậc A0–A7) làm chính, hướng B (YOLO mốc, hai giai đoạn, đầu P2, train từ đầu) bổ sung. Thí nghiệm 7 chuyển thành A5, Thí nghiệm 5 làm trên mạng phân loại trước, Thí nghiệm 1, 2, 4 thành phần làm thêm. Phân công 4 người theo hướng mới.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.
@@ -41,6 +45,15 @@
 - Thêm Thí nghiệm 4 vào kế hoạch (mục E): xoá cả 11 lớp không đánh giá được, so sánh giữ ảnh và bỏ ảnh.
 - Thêm mục A1b: cách xáo trộn khi nguồn là video, tên phương pháp, và đo độ ổn định của cách chia với 5 seed (thêm chế độ `seeds` vào `make_split.py`, không thay split đang dùng).
 - Ghi 4 câu hỏi cần trả lời trong báo cáo (mục H). Thêm quy tắc ghi phiên bản tập nhãn, Thí nghiệm 5 (ảnh không giống train) và 6 (ảnh ngoài phân phối).
+- Dọn sổ trước khi train: C3, C4 chuyển ✅; C5 thành ✅ catalog, 📝 Thí nghiệm 2. Không còn mục nào chờ bạn quyết định, trừ 3 câu ở mục F.
+- Catalog chưa dựng lại. Lý do: ảnh 2088 có 3 box, xoá box #1 làm box #2 thành #1. Nếu dựng lại mà vẫn dùng khóa lưu cũ (`vn_signs_catalog_v1`), đánh dấu "Sai" cũ của 2088#1 sẽ dính vào box khác. Kết quả xem đã lưu đủ trong `catalog_ket_qua_2026-11-09.txt`. **Quyết định của bạn:** không dựng lại; catalog giữ là bản trước đợt sửa.
+- Bạn trả lời F1 (đề tài môn Deep Learning ở HUST) và F2 (không có video gốc). Tìm thêm 6 nguồn làm cơ sở cho cách chia, ghi ở A1. Trả lời vì sao 11 lớp không có ở val/test (F3), F3 còn chờ quyết định.
+- Sắp xếp lại thí nghiệm và chia việc cho nhóm 4 người (đầu mục E): Thí nghiệm 7 làm trước, dùng cấu hình thắng làm bản nền, Thí nghiệm 3 chỉ còn phân tích confusion matrix, Thí nghiệm 6 bắt đầu ngay. Tên người, hạn nộp và tài khoản GPU chưa biết.
+- Cấu hình tạm cho mọi lần train trước khi có kết quả Thí nghiệm 7: `optimizer=AdamW lr0=0.000179 momentum=0.9` (bạn chọn). Sửa lưu ý 1 của phần chạy thử: gộp S.505a chỉ làm lr đổi 3,4%, trước đó ghi quá mức.
+- Chốt F3: giữ đủ 52 lớp, ghi rõ trong báo cáo rằng mAP test chỉ tính trên 41 lớp (bạn quyết định).
+- Repo gốc không có link tải bộ 46 lớp. Bạn quyết định không xin dữ liệu, không dùng model có sẵn của repo; dữ liệu duy nhất là `archive` (C1).
+- Bạn tự chạy thử Ultralytics trên máy (M2): train 1 epoch rồi chấm test. Ultralytics đọc đủ 3191 ảnh, 8329 box, 0 lỗi. Kết quả và các lưu ý cho lần train thật ở mục E, phần "Chạy thử 1 epoch". Thêm một dòng đính chính về GPU.
+- Bạn đồng ý cố định `optimizer` và `lr0` cho mọi thí nghiệm. Thêm Thí nghiệm 7 (mục E) để chọn giá trị cố định, dựa trên lý thuyết môn IT4653 (slide bài 5, giáo trình mục 4.5, 4.6). Đối chiếu mã nguồn: `momentum` là beta1 của AdamW, và `auto` vẫn là AdamW tới 294 epoch với dataset này.
 
 ## Đính chính
 
@@ -51,6 +64,7 @@ Các điều tôi từng nói sai hoặc suy luận chưa đúng. Không dùng c
 | W.246a là tránh sang phải, W.246c là tránh hai bên, nên hai lớp có thể gán sai tên (C3) | Ngược lại: W.246a là tránh hai bên, W.246c là tránh sang phải. Hai mã có vẻ đúng | [W.246a](https://hoatieu.vn/bieu-mau/bien-bao-chu-y-chuong-ngai-vat-w246a-168207), [W.246c](https://hoatieu.vn/bieu-mau/bien-bao-chu-y-chuong-ngai-vat-tranh-sang-ben-phai-w246c-168213), `data/_build/bang_chung_w246.jpg` |
 | Dùng hardlink thì ảnh gốc sẽ bị đổi nếu Ultralytics ghi đè JPEG lỗi (A4) | Sai với bản hiện tại: Ultralytics ghi file tạm rồi `os.replace`, nên hardlink không bị đổi. Dữ liệu cũng có 0 JPEG lỗi | [`ultralytics/data/utils.py`](https://raw.githubusercontent.com/ultralytics/ultralytics/main/ultralytics/data/utils.py), `verify_log.txt` |
 | Biển xa không có nhãn có thể do quy tắc 0–20 m của README (A3) | Không áp dụng: `archive` có gán cả biển rất xa (0562, 2668) và biển bị cắt ở mép (1318). README có vẻ mô tả bộ 46 lớp khác | 24 ảnh mẫu ở mục B4 |
+| Máy này không có GPU và chưa cài Ultralytics, phải train trên Colab/Kaggle (A4 và trả lời ngày 2026-11-09) | Sai: MacBook M2 có GPU dùng được qua MPS, `/opt/miniconda3` đã có Ultralytics 8.4.191 và PyTorch 2.14.1. Đã chạy thử được trên máy. Train nhiều lần vẫn nên dùng Colab/Kaggle vì chậm (xem mục E) | Log bạn chạy ngày 2026-11-09, `data/runs/sanity_1epoch/args.yaml` |
 
 ---
 
@@ -62,11 +76,32 @@ Các điều tôi từng nói sai hoặc suy luận chưa đúng. Không dùng c
 **Vấn đề:** Ảnh đánh số liền nhau là frame từ video. Split gốc chia ngẫu nhiên từng ảnh, nên 612/639 ảnh test có ảnh train số liền kề.
 
 **Tài liệu chọn:**
-- [Find the Leak, Fix the Split](https://arxiv.org/html/2511.13944v2) (Glazner và cộng sự, preprint, 2026): trích đặc trưng frame, giảm chiều bằng PaCMAP, gom cụm bằng HDBSCAN, gán nguyên cụm vào một tập. Bài không đo ảnh hưởng lên model và không nêu chi tiết cách gán cụm.
+- [Find the Leak, Fix the Split](https://arxiv.org/html/2511.13944v2) (Glazner và cộng sự, preprint arXiv, đăng lần đầu 11/2025): trích đặc trưng frame, giảm chiều bằng PaCMAP, gom cụm bằng HDBSCAN, gán nguyên cụm vào một tập. Bài không đo ảnh hưởng lên model và không nêu chi tiết cách gán cụm.
 - [Roberts et al. 2017, Ecography](https://pred.uni-regensburg.de/id/eprint/1455/): cơ sở lý thuyết về chia theo khối khi dữ liệu phụ thuộc nhau.
 - [Ultralytics Academy](https://academy.ultralytics.com/courses/dataset-readiness-for-yolo/split-the-dataset-correctly): khuyến nghị chia theo cảnh hoặc video.
 
 Mới đọc tóm tắt hoặc trang HTML qua công cụ, cần đọc toàn văn trước khi trích dẫn.
+
+**Cơ sở bổ sung (tìm thêm 2026-11-09, vì không có video gốc):** Bạn yêu cầu tìm nguồn chứng minh cách chia có cơ sở.
+
+| Nguồn | Đã đọc | Nội dung chính | Liên hệ với dataset này |
+|---|---|---|---|
+| Stallkamp và cộng sự, *The German Traffic Sign Recognition Benchmark*, IJCNN 2011 ([PDF](https://www.ini.rub.de/upload/file/1470692848_f03494010c16c36bab9e/StallkampEtAl_GTSRB_IJCNN2011.pdf)) | Toàn văn (bản trích chữ lưu ở `data/_build/nguon_gtsrb_ijcnn2011.txt`) | Mỗi biển thật được quay thành một chuỗi ảnh gọi là *track*. Train/test chia "theo lớp và theo track", để giữ phân bố lớp và để mọi ảnh của một biển nằm cùng một tập. Bài cũng nói frame liền nhau của biển đi qua chậm rất giống nhau, không làm dữ liệu đa dạng hơn. Lớp có dưới 9 track bị loại khỏi dataset | Cùng bài toán biển báo. Nhóm frame của mình đóng vai trò track. Cân lớp khi chia giống "class-wise". Việc loại lớp ít track là tiền lệ cho câu F3 |
+| Figueiredo và Mendes, IEEE Access 2024, DOI [10.1109/ACCESS.2024.3383047](https://doi.org/10.1109/ACCESS.2024.3383047) | Chỉ tóm tắt qua kết quả tìm kiếm | Dataset phát hiện đối tượng dựng từ frame video mà chia ngẫu nhiên thì bị rò rỉ. Họ gom cụm ảnh (đặc trưng CLIP, t-SNE, DBSCAN/OPTICS/Agglomerative), gán nguyên cụm vào train/val/test, thử bằng YOLOv8 | Gần nhất với dataset này: phát hiện đối tượng, nguồn video, YOLOv8 |
+| Barz và Denzler, *Do We Train on Test Data? Purging CIFAR of Near-Duplicates*, J. Imaging 2020 ([arXiv](https://arxiv.org/abs/1902.00423)) | Tóm tắt | 3,3% ảnh test CIFAR-10 và 10% của CIFAR-100 có ảnh gần trùng trong train. Thay chúng bằng ảnh mới thì độ chính xác giảm 9–14% (tương đối) | Bằng chứng định lượng rằng ảnh gần trùng làm điểm test bị thổi phồng. Split gốc của mình có 30,7% ảnh test gần trùng train, cao hơn nhiều |
+| scikit-learn, [Cross-validation iterators for grouped data](https://scikit-learn.org/stable/modules/cross_validation.html) | Đã đọc trang | Giả định độc lập (i.i.d.) bị phá khi dữ liệu có nhóm mẫu phụ thuộc nhau. Mẫu ở tập đánh giá phải đến từ nhóm không có mặt trong train. `StratifiedGroupKFold` vừa giữ nhóm vừa cố giữ phân bố lớp | Định nghĩa chuẩn của group split và stratified group split |
+| Kapoor và Narayanan, *Leakage and the Reproducibility Crisis in ML-based Science*, Patterns 2023 ([arXiv](https://arxiv.org/abs/2207.07048)) | Tóm tắt | Rò rỉ dữ liệu gây lỗi tái lập ở ít nhất 294 bài thuộc 17 ngành. Bài phân loại 8 kiểu rò rỉ | Rò rỉ là lỗi phổ biến, nên ghi rõ cách chống trong báo cáo |
+| Babu và cộng sự, *Improving Image Data Leakage Detection in Automotive Software*, arXiv 2410.23312 (2024) | Tóm tắt | Phương pháp phát hiện rò rỉ ảnh cho dữ liệu xe tự lái, tìm ra rò rỉ chưa ai biết trong KITTI | Dữ liệu quay từ xe cũng gặp đúng vấn đề này, kể cả bộ nổi tiếng |
+
+**Cách làm của mình khớp với tài liệu ở đâu:**
+- Chia theo nhóm ảnh phụ thuộc, không chia từng ảnh: GTSRB (track), Figueiredo 2024 và Glazner (cụm), scikit-learn (group).
+- Cân phân bố lớp khi chia: GTSRB ("class-wise"), `StratifiedGroupKFold`.
+- Kiểm chứng bằng cách đo ảnh gần trùng giữa các tập: cùng tinh thần với Barz và Denzler. Kết quả: 30,7% xuống 0%.
+
+**Khác với tài liệu, và hạn chế:**
+- Không có video gốc nên không có track thật như GTSRB. Nhóm được suy từ độ giống ảnh.
+- Đặc trưng đơn giản (ảnh thu nhỏ xám) thay vì CLIP hoặc DINO. Nếu cùng một biển được quay hai lần ở góc khác nhau, độ giống có thể dưới 0,95 nên không bị gộp, và vẫn còn một ít rò rỉ mà phép đo không thấy.
+- Chỉ GTSRB và trang scikit-learn được đọc toàn văn. Các nguồn còn lại mới đọc tóm tắt, cần đọc toàn văn trước khi trích số liệu vào báo cáo.
 
 **Cách làm:** Cùng ý tưởng "giữ nguyên cụm" của bài báo, nhưng dùng đặc trưng đơn giản hơn.
 1. Tính tương quan giữa ảnh thu nhỏ xám 64×36 của mọi cặp ảnh.
@@ -170,11 +205,7 @@ Mới đọc tóm tắt hoặc trang HTML qua công cụ, cần đọc toàn vă
 - 0 ảnh khác nội dung so với gốc, 0 ảnh dùng chung inode, 0 JPEG lỗi.
 - `archive` khớp md5 trước và sau: 6437 file (`archive_md5_truoc.txt`).
 
-**Chưa kiểm tra:** Chưa chạy bằng Ultralytics thật vì máy này chưa cài. Cấu trúc được đối chiếu với mã nguồn `check_det_dataset` và `img2label_paths`. Lệnh thử đầu tiên khi có môi trường:
-
-```bash
-yolo detect train data=data/vn_signs_yolo/data.yaml imgsz=960 fliplr=0 epochs=1
-```
+**Kiểm tra bằng Ultralytics (2026-11-09):** Đã chạy thật trên máy (trước đó tôi ghi nhầm là máy chưa cài, xem Đính chính). Ultralytics đọc đúng cấu trúc, `data.yaml` không có `path` vẫn chạy. Chi tiết ở mục E, phần "Chạy thử 1 epoch".
 
 ---
 
@@ -250,6 +281,13 @@ Chưa tải và chưa kiểm tra chất lượng các bộ trên.
 
 **Hệ quả:** Lớp hiếm vẫn giữ nguyên số mẫu hiện có. Các lớp chỉ có ở train (xem A1) vẫn chưa đánh giá được.
 
+**Cập nhật 2026-11-09:** Repo gốc ([thuanvipghe/Traffic-sign-VietNam-recognition](https://github.com/thuanvipghe/Traffic-sign-VietNam-recognition)) không có thư mục dữ liệu, không có bản phát hành, không có link tải bộ 46 lớp. Repo chỉ còn model đã train (`YOLOV8/*.pt`, Faster R-CNN), `results.csv` và ảnh minh hoạ.
+
+**Quyết định của bạn (2026-11-09):**
+- Không xin bộ 46 lớp từ tác giả.
+- Không dùng model có sẵn trong repo làm model của đề tài, vì đề tài phải tự xây và tự train model. Model và `results.csv` cũ chỉ dùng làm tài liệu tham khảo (xem H4).
+- Dữ liệu duy nhất của đề tài là `archive`, sau khi làm sạch thành `data/vn_signs_yolo`.
+
 ### 🟠 C2. Tên lớp ✅
 **Ghi chú của bạn:** Dùng tên tiếng Việt.
 
@@ -257,7 +295,7 @@ Chưa tải và chưa kiểm tra chất lượng các bộ trên.
 
 **Lệch giữa file Anh và Việt (nhận định theo hiểu biết, chưa đối chiếu nguồn):** id 1, 22, 37.
 
-### 🟠 C3. W.246a và W.246c ✅ kiểm tra, ⏳ đặt lại tên
+### 🟠 C3. W.246a và W.246c ✅
 **Ghi chú của bạn:** Check 0961–0964 có phải box nhỏ không. Nếu gán sai thì đổi tên hay gán lại. Cho vào catalog để vừa nhìn vừa sửa.
 
 **0961–0964:** Có. Box lớp 26 chỉ 13–15 × 11–12 px trên ảnh 960×540. Lớp 26 có 41/80 box nhỏ, lớp 51 có 5/5. Các box lớn hơn mới thấy rõ biển (1120, 1221, 1006).
@@ -274,7 +312,7 @@ Nguồn là trang tra cứu [hoatieu.vn](https://hoatieu.vn/bieu-mau/bien-bao-ch
 
 **Thay đổi:** Đổi tên lớp 26 trong `data.yaml` thành "Chú ý chướng ngại vật, vòng tránh hai bên" (bạn đồng ý). `classes_vie.txt` trong `archive` giữ nguyên.
 
-### 🟠 C4. Mã không chuẩn và dấu `*` ⏳
+### 🟠 C4. Mã không chuẩn và dấu `*` ✅
 **Ghi chú của bạn:**
 - `*` có thể để phân biệt cùng loại biển nhưng khác thông số, như 40–50–60 km/h.
 - id 31 có biển đó thật.
@@ -308,7 +346,7 @@ Nguồn là trang tra cứu [hoatieu.vn](https://hoatieu.vn/bieu-mau/bien-bao-ch
 
 **Kiểm tra rò rỉ sau khi xoay:** Độ giống lớn nhất của 39 ảnh với train là 0,761 (median 0,656), với val là 0,684. Không ảnh nào vượt 0,95.
 
-### 🟠 C5. Biển phụ S.505a ⏳
+### 🟠 C5. Biển phụ S.505a ✅ catalog, 📝 Thí nghiệm 2
 **Ghi chú của bạn:** Ghi lại để thử hai bản như B3. Gộp một lớp có đảm bảo tốt hơn và lọc 100% không. Thêm phần trong catalog để bạn lọc giúp.
 
 **Trả lời:** Không đảm bảo, phải đo. Không thể lọc 100%: detector luôn có sót và nhầm. Gộp cũng làm mất thông tin loại xe.
@@ -395,7 +433,126 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 |---|---|---|---|---|
 | 1 | B3 | Có box nhỏ và không có box nhỏ | AP theo cỡ box | Nếu chỉ xoá nhãn mà giữ ảnh, model học coi biển thật là nền. Nên so cả phương án bỏ nguyên ảnh. Định nghĩa COCO loại gần nửa số box nên cần ngưỡng hẹp hơn, ví dụ dưới 8 px ở imgsz train |
 | 2 | C5 | 3 lớp S.505a và gộp 1 lớp | Recall biển phụ, nhầm với biển chính | Muốn so công bằng, gộp kết quả của bản 3 lớp về 1 lớp rồi mới tính |
-| 3 | C6 | Dataset chưa lọc và đã lọc | Confusion matrix nhóm dễ nhầm | Tôi hiểu "đã lọc" là sau khi áp dụng kết quả catalog. Nếu có gộp lớp thì so như Thí nghiệm 2 |
+| 3 | C6 | ~~Dataset chưa lọc và đã lọc~~ Từ 2026-11-09: chỉ phân tích confusion matrix nhóm dễ nhầm, không train lại | Confusion matrix nhóm dễ nhầm | Lý do bỏ phần train lại: chỉ 6/2138 ảnh train khác nhãn giữa hai bản (7 dòng), chênh lệch sẽ chìm trong dao động giữa seed; test của hai bản khác nhau (39 ảnh xoay) nên không chấm chung được (đo 2026-11-09) |
+
+### Kế hoạch chính: xây dựng mạng (2026-11-10)
+
+**Vì sao đổi:** Bạn cho biết cô coi trọng nhất phần **xây dựng mạng** và **trả lời các câu hỏi đi kèm trong quá trình**. Kế hoạch ngày 2026-11-09 (bản sao lưu ở scratchpad, tên `DATASET_REVIEW_truoc_huongAB.md`) gần như chỉ chạy YOLO có sẵn rồi đổi dữ liệu hoặc optimizer, nhóm không tự xây phần mạng nào. Đối chiếu với tài liệu môn ở `/Users/tdu/2026.1/học sâu/` (slide bài 3, 4, 5, 8; giáo trình `dl_lecturenotes` chương 3, 4, 6; các đề thi). Đề thi hỏi nhiều về tính số tham số và kích thước đầu ra của lớp tích chập, tham số BatchNorm, receptive field, khối ResNet, overfitting và cách chữa, focal loss.
+
+**Quyết định của bạn (2026-11-10):** Hướng A làm chính, thêm hướng B.
+
+#### Hướng A (chính): tự xây CNN phân loại 52 loại biển bằng PyTorch
+
+**Dữ liệu:** Cắt vùng biển từ `data/vn_signs_yolo`, giữ nguyên cách chia train/val/test (không rò rỉ, mục A1). Train 5621, val 1078, test 1630 ảnh cắt. Thêm lề 10% quanh box như GTSRB (A1, phần "Cơ sở bổ sung").
+
+**Kích thước đầu vào 64×64.** Bằng chứng (đo 2026-11-10 trên ảnh gốc): cạnh dài của box có trung vị 36 px, p25 là 24 px, p75 là 58 px, p95 là 122 px. 78,1% box có cạnh dài ≤ 64 px, nên 64×64 giữ được gần hết chi tiết. Các box nhỏ (43,8% box ≤ 32 px) sẽ được phóng to, không thêm thông tin; đây là giới hạn của dữ liệu (B3).
+
+**Quy tắc chung của hướng A:**
+- Không lật ngang (D1). Tăng cường dữ liệu chỉ dùng xoay nhỏ, dịch, co giãn, đổi độ sáng.
+- Mỗi bậc chạy 3 seed. Chọn trên val, test chỉ chấm một lần ở cuối cho các mạng đã chốt.
+- Đo: accuracy và macro-F1 trên các lớp có mặt (val 35 lớp, test 41 lớp), confusion matrix, số tham số, thời gian train. Ghi đường cong loss và accuracy của train và val để thấy overfitting.
+- Với mỗi mạng, báo cáo có **bảng từng lớp**: kích thước đầu ra (tính tay bằng `(N+2P−F)/stride+1`), số tham số (tính tay, rồi kiểm lại bằng code), receptive field. Đây đúng dạng câu hỏi trong đề thi.
+
+| Bậc | Thay đổi so với bậc trước | Câu hỏi của môn trả lời được | Bài giảng |
+|---|---|---|---|
+| A0 | Mạng kiểu LeNet: 2 conv 5×5, pooling, 2 FC | Mạng tích chập cơ bản đạt bao nhiêu? Đếm tham số, kích thước đầu ra | Chương 3, LeNet-5 |
+| A1 | Các khối conv 3×3 kiểu VGG, sâu hơn | Vì sao chồng nhiều 3×3 thay cho một lớp lớn? Ít tham số hơn mà receptive field như nhau | Slide VGG |
+| A2 | Thêm BatchNorm | BN có bao nhiêu tham số, khác nhau thế nào giữa lúc train và lúc suy diễn, có hội tụ nhanh hơn không | 4.4 |
+| A3 | Dropout và tăng cường dữ liệu | Overfitting là gì, giảm được bao nhiêu khoảng cách train và val | 4.7, 4.8 |
+| A4 | Khối residual, so mạng sâu có và không có kết nối tắt | Mạng sâu bị suy biến không? Học phần dư giúp gì | Slide ResNet |
+| A5 | Khởi tạo (He, Xavier), hàm kích hoạt (ReLU, LeakyReLU, Swish), optimizer và lịch lr | Thay cho Thí nghiệm 7 trên YOLO, xem ghi chú dưới | 4.1, 4.3, 4.5, 4.6 |
+| A6 | ResNet-18 học trước trên ImageNet, tinh chỉnh, so với mạng tự xây train từ đầu | Transfer learning lợi bao nhiêu khi dữ liệu ít | 4.10 |
+| A7 | Ensemble vài mạng tốt nhất | Kết hợp mô hình tăng được bao nhiêu, đổi lại tốn gì | 4.9 |
+
+**Thí nghiệm 7 chuyển sang A5.** Trên YOLO, Thí nghiệm 7 tốn khoảng 750–1050 epoch GPU. Trên mạng phân loại 64×64, mỗi lần train chỉ mất vài phút (chưa đo, ước lượng), nên chạy đủ 5 cấu hình × 3 seed và so được cả lịch giảm lr. Lưới cấu hình và quy tắc chọn giữ như Thí nghiệm 7 (lr của Adam 1e-3, 5e-4; SGD + momentum; lịch tuyến tính, cosin, theo bậc). YOLO giữ cấu hình tạm `optimizer=AdamW lr0=0.000179 momentum=0.9`, không chạy Thí nghiệm 7 trên YOLO nữa.
+
+**Thí nghiệm 5 (rò rỉ) làm trên mạng phân loại trước.** Train cùng một mạng trên ảnh cắt chia ngẫu nhiên theo ảnh (split gốc) và chia theo nhóm (split hiện tại). Rẻ, mà vẫn trả lời câu H4. Bản trên YOLO thành phần làm thêm.
+
+#### Hướng B (bổ sung): phát hiện đối tượng
+
+| Bản | Làm gì | Câu hỏi của môn trả lời được | Bài giảng |
+|---|---|---|---|
+| B0 | YOLOv8s học trước trên COCO, 52 lớp, cấu hình tạm, 3 seed. Đây là mốc so sánh và là bản G của Thí nghiệm 5 | YOLO hoạt động thế nào: lưới, dự đoán ở nhiều tỉ lệ, NMS | 6.4 |
+| B1 | Hai giai đoạn: YOLO 1 lớp "biển báo" (`single_cls=True`) chỉ đề xuất vùng, mạng tốt nhất của hướng A phân loại vùng. So mAP với B0 trên cùng test | Hai giai đoạn và một giai đoạn khác nhau thế nào, lỗi có dồn tầng không. Trả lời câu H2 | 6.3, 6.4 |
+| B2a | Thêm đầu dò P2 (`yolov8-p2.yaml` có sẵn trong Ultralytics 8.4.191) cho biển nhỏ | Vì sao bản đồ đặc trưng độ phân giải cao giúp phát hiện vật nhỏ (lập luận của SSD, YOLOv3) | 6.4 |
+| B2b | Train YOLOv8s từ đầu (`yolov8s.yaml`) so với từ trọng số COCO | Transfer learning cho bài toán phát hiện | 4.10 |
+
+Với E = 100 epoch, hướng B tốn khoảng 1200 epoch GPU (B0 3 seed, B1 1–3 seed, B2a 3 seed, B2b 3 seed), ít hơn nhiều so với 2550–2850 epoch của kế hoạch cũ. Train từ đầu có thể cần nhiều epoch hơn; đo ở bước chuẩn bị.
+
+#### Các thí nghiệm cũ
+
+| Thí nghiệm | Trạng thái mới |
+|---|---|
+| 1 (box nhỏ), 2 (gộp S.505a), 4 (xoá cả lớp) | Làm thêm nếu còn thời gian. Thí nghiệm 4 bản C đã có bằng chứng là tệ hơn trước khi train |
+| 3 (nhóm dễ nhầm) | Chỉ phân tích confusion matrix, trên cả mạng phân loại và B0 |
+| 5 (ảnh không giống train) | Làm trên mạng phân loại trước, YOLO là phần làm thêm |
+| 6 (ảnh ngoài phân phối) | Giữ. Chấm cả B0 và B1 |
+| 7 (optimizer) | Chuyển thành A5 |
+
+#### Thứ tự
+
+| Giai đoạn | Việc | Cần xong trước |
+|---|---|---|
+| 0. Chuẩn bị | Đóng gói dataset, notebook YOLO mẫu, script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung (vòng train, đo, lưu kết quả). Đo thời gian 1 epoch YOLOv8s trên GPU Kaggle/Colab. Bắt đầu thu thập ảnh cho Thí nghiệm 6 | – |
+| 1 | A0–A4. B0. Thí nghiệm 5 trên mạng phân loại | 0 |
+| 2 | A5–A7. B2a, B2b. YOLO 1 lớp cho B1 | 1 |
+| 3 | Ghép B1 với mạng tốt nhất của A. Chấm Thí nghiệm 6. Phân tích confusion matrix (Thí nghiệm 3) | 2 |
+| 4 | Viết báo cáo, điền H1–H4 | 3 |
+
+#### Phân công (chưa có tên)
+
+| Người | Việc | Phần báo cáo |
+|---|---|---|
+| 1 | Phần dữ liệu còn lại (đóng gói, tải lên, các bản biến thể nếu cần), script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung. Làm A0–A2. Lập bảng kích thước đầu ra, số tham số, receptive field cho mọi mạng của hướng A | Chương dữ liệu (mục A–D, H1), A0–A2, bảng tham số |
+| 2 | Notebook YOLO, đo thời gian epoch. B0, B2a, B2b. Train YOLO 1 lớp cho B1. Giải thích kiến trúc YOLOv8 (backbone, neck, head, C2f, SPPF) | Hướng B phần phát hiện, kiến trúc YOLO |
+| 3 | A3–A7 (gồm A5 thay cho Thí nghiệm 7). Phân tích confusion matrix của mạng phân loại | A3–A7, câu hỏi về huấn luyện (chương 4) |
+| 4 | Thu thập và gán nhãn ảnh cho Thí nghiệm 6 từ giai đoạn 0. Thí nghiệm 5 trên mạng phân loại. Ghép và chấm B1. Chấm Thí nghiệm 6 | H2, H3, H4, B1, Thí nghiệm 5, 6 |
+
+**Quy tắc chung cho cả nhóm:** Giữ các quy tắc ở đầu mục E (phiên bản tập nhãn, 3 seed, cùng test). YOLO cài đúng `ultralytics==8.4.191`, tham số cố định `imgsz=960 fliplr=0 optimizer=AdamW lr0=0.000179 momentum=0.9`. Không sửa `data/vn_signs_yolo`. Mỗi lần chạy ghi một dòng vào bảng kết quả chung. Ảnh tự chụp có người và biển số xe, không đăng công khai.
+
+**Cần hỏi cô:** có được dùng YOLO học trước làm mốc và làm bộ đề xuất vùng không; có bắt buộc train từ đầu không. Nếu bắt buộc train từ đầu thì bỏ A6 và B2b khỏi phần chính, B0 dùng `yolov8s.yaml`.
+
+**Chưa biết, cần nhóm trả lời:** tên và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
+
+### Chạy thử 1 epoch (2026-11-09) ✅
+**Mục đích:** Kiểm tra Ultralytics đọc đúng dataset và chạy hết quy trình train, chấm val, chấm test. Không dùng để đánh giá chất lượng model.
+
+**Môi trường:** MacBook M2, RAM 16 GB, GPU qua MPS. Python 3.14.7, PyTorch 2.14.1, Ultralytics 8.4.191 (đã có bản 8.4.208, nhưng giữ 8.4.191 cho mọi thí nghiệm để kết quả tái lập được). Bạn tự chạy trong Terminal, kết quả ở `data/runs/`.
+
+```bash
+yolo detect train data=<đường dẫn tuyệt đối>/data/vn_signs_yolo/data.yaml model=yolov8n.pt epochs=1 imgsz=960 batch=8 fliplr=0 device=mps workers=4 project=<...>/data/runs name=sanity_1epoch
+yolo detect val model=<...>/data/runs/sanity_1epoch/weights/best.pt data=<...>/data.yaml split=test imgsz=960 batch=8 device=mps project=<...>/data/runs name=sanity_test
+```
+
+**Ultralytics đọc dữ liệu** (số lấy từ file `labels/{train,val,test}.cache` do Ultralytics tạo):
+
+| Tập | Ảnh | Thiếu nhãn | Nhãn rỗng | Hỏng | Cảnh báo | Box | Số lớp có box |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| train | 2138 | 0 | 0 | 0 | 0 | 5621 | |
+| val | 474 | 0 | 0 | 0 | 0 | 1078 | 35 |
+| test | 579 | 0 | 0 | 0 | 0 | 1630 | 41 |
+
+- Khớp `verify_dataset.py`: 3191 ảnh, 8329 box. Không ảnh nào bị Ultralytics loại.
+- Nhận đúng 52 lớp (`Overriding model.yaml nc=80 with nc=52`). Tên tiếng Việt hiển thị đúng trong bảng kết quả.
+- Test có 41 lớp, đúng như dự kiến (52 trừ 11 lớp không đánh giá được). File `splits/class_counts.csv` còn ghi 42 lớp vì được tạo trước khi chuyển 1193#2 sang lớp 30.
+
+**Thời gian và bộ nhớ:** 1 epoch train mất 551 giây (268 lượt × 1,9 giây, batch 8), chấm val 25 giây, chấm test 28 giây. GPU dùng 5,28 GB. Ước tính thô: 100 epoch khoảng 16 giờ cho mỗi lần chạy trên M2. Kế hoạch mục E có hàng chục lần chạy, nên train thật vẫn cần Colab/Kaggle; M2 dùng cho các lần thử ngắn.
+
+**Kết quả sau 1 epoch** (chỉ để biết quy trình chạy được):
+
+| Tập | P | R | mAP50 | mAP50-95 |
+|---|---:|---:|---:|---:|
+| val | 0,460 | 0,302 | 0,235 | 0,162 |
+| test | 0,433 | 0,241 | 0,161 | 0,114 |
+
+**Phát hiện cần lưu ý cho lần train thật:**
+1. **Optimizer tự chọn.** Với `optimizer=auto`, Ultralytics chọn AdamW với `lr=0.000179` và bỏ qua `lr0=0.01`. Theo mã nguồn, lr này tính từ số lớp (`0.002 × 5 / (4 + nc)`), và AdamW được chọn khi tổng số bước dưới 10 000 (trên mức này là MuSGD, `lr=0.01`). Đã đối chiếu với `ultralytics/engine/trainer.py` bản 8.4.191. Mức ảnh hưởng nếu để `auto`: gộp S.505a (52 xuống 50 lớp) chỉ làm lr tăng 3,4% (0,000185), gần như không đáng kể; gộp còn khoảng 10 lớp thì lr tăng gấp 4; train từ 295 epoch trở lên thì đổi hẳn sang MuSGD `lr=0.01`; đổi phiên bản Ultralytics thì quy tắc có thể khác (bản cũ dùng SGD). Lý do cố định là để cấu hình không tự đổi và báo cáo ghi được giá trị cụ thể. **Quyết định (2026-11-09):** đặt cố định `optimizer` và `lr0` cho mọi thí nghiệm. Giá trị cố định được chọn bằng Thí nghiệm 7. **Trong lúc chờ Thí nghiệm 7** (bạn chọn "tạm dùng"): dùng `optimizer=AdamW lr0=0.000179 momentum=0.9`, tức cấu hình 1 (mốc) của Thí nghiệm 7. Phải ghi cả `momentum=0.9`, vì nếu chỉ ghi `optimizer=AdamW` thì Ultralytics lấy mặc định 0,937. Khi Thí nghiệm 7 có cấu hình thắng thì thay giá trị này và ghi vào lịch sử. **Cập nhật 2026-11-10:** Thí nghiệm 7 chuyển sang mạng phân loại (A5), nên YOLO dùng cấu hình này cố định cho mọi lần chạy.
+2. **Mosaic bị tắt cả lần chạy thử:** `close_mosaic=10` tắt mosaic ở 10 epoch cuối, mà lần này chỉ có 1 epoch. Train thật thì không bị như vậy.
+3. **Không tái lập tuyệt đối trên MPS:** PyTorch cảnh báo hai phép tính (`scatter_reduce_mps`, `index_put_with_accumulate_mps`) không có bản tất định. Cùng seed vẫn có thể ra số hơi khác. Đây thêm một lý do để mỗi cấu hình chạy 3 seed.
+4. **Không dùng worker phụ trên MPS:** Log ghi `Using 0 dataloader workers` dù đặt `workers=4`, vì `ultralytics/engine/trainer.py` đặt `workers = 0` khi chạy trên CPU hoặc MPS. Đọc ảnh chạy chung luồng với train, đây là một phần lý do chậm.
+5. **File `.cache` trong dataset:** Ultralytics tạo `labels/train.cache`, `val.cache`, `test.cache`. Khi tính md5 thư mục `labels` theo quy tắc ở đầu mục E, phải bỏ qua file `.cache`. Khi đóng gói zip cũng nên bỏ chúng.
+6. **Cách đọc bảng từng lớp:** Lớp có P = 1 và R = 0 nghĩa là model chưa dự đoán box nào cho lớp đó. Ultralytics quy ước như vậy, không phải model đoán đúng hết.
+7. Ultralytics tải `yolov8n.pt` (6,2 MB) vào `data/runs/` và tải một font Unicode (22 MB) để vẽ chữ tiếng Việt, nên lần chạy đầu cần mạng.
 
 ### Thí nghiệm 4: xoá cả lớp (thêm 2026-11-09)
 
@@ -476,6 +633,62 @@ Nguồn gợi ý, chưa thu thập:
 
 **Đo:** mAP trên tập này so với test G, số phát hiện nhầm trên ảnh không có biển, và độ tin cậy của các phát hiện nhầm đó.
 
+### Thí nghiệm 7: chọn optimizer và lr0 (thêm 2026-11-09)
+
+**Cập nhật 2026-11-10:** Chuyển sang mạng phân loại tự xây (bậc A5, xem "Kế hoạch chính" ở đầu mục E). Không chạy trên YOLO nữa; YOLO giữ cấu hình tạm. Phần dưới giữ làm cơ sở lý thuyết và quy tắc chọn cho A5.
+
+**Yêu cầu của bạn:** Lý thuyết của môn nói optimizer và tốc độ học là siêu tham số phải chọn, vậy làm thành một thí nghiệm để quyết định giá trị cố định (xem lưu ý 1 của phần chạy thử).
+
+**Cơ sở lý thuyết** (môn Học sâu và ứng dụng IT4653: slide bài 5 `l5_training_neural_networks_part_2`, slide 22, 27–33, 51–53; giáo trình `dl_lecturenotes` mục 4.5, 4.6, 4.10):
+- Adam với beta1 = 0,9, beta2 = 0,999, lr = 1e-3 hoặc 5e-4 là mặc định tốt cho nhiều mô hình. Adam là lựa chọn mặc định tốt. SGD + momentum thường tốt hơn Adam nhưng phải tinh chỉnh lr và chọn lịch giảm lr hợp lý.
+- Tốc độ học là một trong những siêu tham số quan trọng nhất. Lr quá lớn thì loss dao động hoặc vượt qua cực tiểu, quá nhỏ thì hội tụ chậm. Bốn lịch giảm lr: theo bậc, cosin, tuyến tính, tỉ lệ nghịch căn bậc hai số epoch.
+- Optimizer, lr và lịch giảm lr là siêu tham số, chọn trên tập val. Slide khuyên random search hơn grid search. Ở đây dùng lưới nhỏ vì mỗi lần chạy tốn nhiều giờ GPU.
+- Tinh chỉnh từ mô hình có sẵn nên dùng lr thấp (4.10).
+
+**Thứ tự:** Chạy **trước** Thí nghiệm 1–6, vì các thí nghiệm đó cần cấu hình đã cố định. Việc của người 2 (huấn luyện YOLO), xem phân công ở đầu mục E.
+
+**Giữ cố định:** split seed 0, `data/vn_signs_yolo` (52 lớp), YOLOv8s từ trọng số COCO, `imgsz=960`, `fliplr=0`, cùng `batch`, `nbs=64`, `weight_decay=0.0005`, `warmup_epochs=3`, Ultralytics 8.4.191.
+
+**Giai đoạn 1: lọc thô** (1 seed, 30 epoch):
+
+| # | `optimizer` | `lr0` | `momentum` | Lịch giảm lr | Lấy từ đâu |
+|---|---|---:|---:|---|---|
+| 1 | `auto` (thành AdamW) | 0,000179, tự tính | 0,9 | tuyến tính | Mốc: cái Ultralytics tự chọn |
+| 2 | AdamW | 0,001 | 0,9 | tuyến tính | Mặc định trong slide |
+| 3 | AdamW | 0,0005 | 0,9 | tuyến tính | Mặc định trong slide |
+| 4 | SGD | 0,01 | 0,937 | tuyến tính | Mặc định của Ultralytics |
+| 5 | SGD | 0,01 | 0,937 | cosin (`cos_lr=True`) | Slide: SGD cần lịch giảm lr hợp lý |
+
+Giữ lại 2 cấu hình có mAP50-95 trên val cao nhất.
+
+**Giai đoạn 2: xác nhận** (3 seed, đủ số epoch): Chạy 2 cấu hình còn lại. Nếu cấu hình thắng là AdamW, thêm một bản AdamW với `cos_lr=True` để so lịch giảm lr.
+
+**Quy tắc chọn (đặt trước khi chạy):**
+- Chọn cấu hình có trung bình mAP50-95 trên val cao nhất qua 3 seed.
+- Nếu chênh lệch nhỏ hơn độ dao động giữa các seed, coi như hoà và chọn cấu hình có độ lệch chuẩn nhỏ hơn.
+- **Không chấm test** trong thí nghiệm này. Test chỉ dùng cho Thí nghiệm 1–6.
+- Sau khi chốt, ghi `optimizer`, `lr0`, `momentum`, `cos_lr` bằng giá trị cụ thể cho mọi thí nghiệm, kể cả khi cấu hình 1 thắng. Lý do: Thí nghiệm 2 và 4 đổi số lớp, để `auto` thì lr tự đổi theo.
+
+**Đo gì:**
+1. mAP50, mAP50-95 trên val: trung bình và độ lệch chuẩn qua 3 seed.
+2. Đường cong train loss, val loss và lr theo epoch của từng cấu hình. Đây là phần nối với lý thuyết 4.5 (lr lớn thì dao động, lr nhỏ thì giảm chậm).
+3. Epoch đạt mAP val tốt nhất, để so tốc độ hội tụ.
+
+**Câu hỏi trả lời trong báo cáo:**
+- Câu "SGD + momentum tốt hơn Adam nhưng khó chỉnh" có đúng với bài toán này không?
+- Lr 1e-3 của slide có quá lớn khi fine-tune từ trọng số COCO không (so cấu hình 1 và 2)?
+- Lịch cosin hay tuyến tính tốt hơn?
+
+**Chi tiết kỹ thuật đã đối chiếu mã nguồn** (`ultralytics/engine/trainer.py` và `cfg/default.yaml`, bản 8.4.191):
+- `momentum` được dùng làm **beta1 của Adam/AdamW**. Mặc định là 0,937, nên các cấu hình AdamW phải đặt `momentum=0.9` thì mới đúng beta1 trong slide.
+- `auto` chọn AdamW khi số bước tối ưu ≤ 10 000, ngược lại chọn MuSGD với `lr=0.01`. Số bước tính bằng `ceil(số ảnh train / max(batch, nbs)) × epochs` = 34 × epochs. Vậy với 2138 ảnh train, `auto` vẫn là AdamW tới 294 epoch, nên cấu hình 1 giữ nguyên AdamW ở cả hai giai đoạn.
+- Lịch mặc định là giảm tuyến tính từ `lr0` về `lr0 × lrf` (`lrf=0.01`). `cos_lr=True` đổi thành cosin.
+
+**Lưu ý:**
+- Thứ hạng ở 30 epoch có thể khác ở 100 epoch, nhất là với lr nhỏ, vốn hội tụ chậm. Vì vậy cần giai đoạn 2.
+- Chi phí: giai đoạn 1 là 150 epoch, giai đoạn 2 khoảng 600–900 epoch. Trên M2 (9 phút/epoch) không khả thi, phải chạy trên Colab hoặc Kaggle. Đo thời gian 1 epoch trên T4 trước rồi mới chốt số epoch.
+- Nếu không đủ thời gian: chỉ chạy giai đoạn 1, chọn cấu hình đứng đầu và cố định luôn. Khi đó phải ghi trong báo cáo là cấu hình được chọn từ lần chạy ngắn, 1 seed.
+
 **Chưa chạy thí nghiệm nào.**
 
 ## G. Box "Không rõ" trong catalog
@@ -545,6 +758,34 @@ Mô hình hiện tại (YOLO) làm cả hai việc cùng lúc: một lần chạ
 
 ## F. Câu hỏi còn mở
 
-1. Dataset dùng cho mục đích gì (đồ án, so sánh model, triển khai thật)?
-2. Bạn có video gốc không? Nếu có, nên chia lại theo video thật thay vì suy từ độ giống ảnh.
-3. Giữ đủ 52 lớp hay gộp lại? 11 lớp hiện không đánh giá được, xem A1.
+1. ✅ **Dataset dùng cho mục đích gì?** Đề tài môn Deep Learning ở HUST (bạn trả lời 2026-11-09). Hệ quả: ưu tiên thí nghiệm sạch, giải thích được, đủ bằng chứng cho báo cáo. Không cần tối ưu tốc độ triển khai.
+2. ✅ **Có video gốc không?** Không (bạn trả lời 2026-11-09). Giữ cách chia suy từ độ giống ảnh (A1). Theo yêu cầu của bạn, đã tìm thêm nguồn làm cơ sở, ghi ở A1 phần "Cơ sở bổ sung".
+3. ✅ **Giữ đủ 52 lớp hay gộp lại?** Bạn hỏi vì sao 11 lớp không có box ở val và test.
+
+   **Trả lời:** Mỗi lớp trong 11 lớp này chỉ xuất hiện trong **đúng một nhóm frame**, tức một đoạn quay liên tục. Một nhóm phải nằm trọn trong một tập, nếu không ảnh gần như giống hệt sẽ có ở cả train và test (rò rỉ, mục A1). Nên toàn bộ box của lớp chỉ ở được một tập. Thuật toán chia đặt các nhóm này vào train để model còn học được lớp đó. Đặt vào test thì model không bao giờ thấy lớp này khi học, AP gần như chắc chắn bằng 0 và không nói lên điều gì.
+
+   | Lớp | Tên | Box | Dải ảnh | Số ảnh trong nhóm |
+   |---:|---|---:|---|---:|
+   | 15 | Đường bị thu hẹp về phía phải | 29 | 0435–0463 | 29 |
+   | 21 | Đường bị thu hẹp về phía trái | 11 | 0730–0740 | 11 |
+   | 24 | Kiểm tra | 56 | 0751–0809 | 66 |
+   | 27 | Trẻ em | 36 | 1064–1099 | 98 |
+   | 28 | Xe tải và xe công* | 26 | 2888–2913 | 54 |
+   | 29 | Cấm mô tô và xe máy | 45 | 1516–1702 | 215 |
+   | 42 | Các xe chỉ được rẽ trái | 21 | 0357–0377 | 21 |
+   | 44 | Nguy hiểm khác | 3 | 0670–0672 | 10 |
+   | 47 | Cấm ô tô quay đầu xe (được rẽ trái) | 16 | 3175–3190 | 25 |
+   | 48 | Giao nhau với đường sắt có rào chắn | 41 | 3085–3125 | 45 |
+   | 51 | Chú ý chướng ngại vật, vòng tránh sang bên phải | 5 | 0530–0534 | 37 |
+
+   Số liệu tính trên `data/vn_signs_yolo` hiện tại và `splits/groups.csv` (2026-11-09). Nhiều khả năng mỗi lớp là một biển thật duy nhất được quay khi xe đi qua.
+
+   - Trong 52 lớp: 11 lớp có 1 nhóm, 4 lớp có 2 nhóm (11, 20, 33, 43: có ở train và test, thiếu val), còn lại từ 3 nhóm trở lên. Lớp 38 và 50 có từ 3 nhóm nhưng vẫn thiếu val hoặc test, do thuật toán phải cân với tỉ lệ ảnh và box.
+   - Trong split gốc (chia ngẫu nhiên từng ảnh), các lớp này có mặt ở test, nhưng chỉ vì frame kề nhau rơi vào hai tập. Điểm đo được khi đó là đo trên ảnh gần như đã thấy.
+   - Tiền lệ: GTSRB loại hẳn lớp có dưới 9 track (A1, phần "Cơ sở bổ sung").
+   - Muốn đánh giá được các lớp này phải có thêm ảnh từ đoạn quay khác. Cách khác là cắt đôi đoạn quay, bỏ một khoảng frame ở giữa làm vùng đệm, nhưng hai nửa vẫn là cùng một biển nên điểm vẫn bị thổi phồng.
+
+   **Quyết định của bạn (2026-11-09): Giữ, ghi rõ.**
+   - Giữ đủ 52 lớp. 11 lớp này vẫn nằm trong train để model học, không gộp, không xoá.
+   - Mọi kết quả trong báo cáo ghi rõ: mAP trên test chỉ tính trên 41 lớp có box; 11 lớp còn lại chưa đánh giá được vì mỗi lớp chỉ có một đoạn quay, kèm bảng trên làm bằng chứng.
+   - Thí nghiệm 4 (xoá cả lớp) vẫn giữ trong kế hoạch như một thí nghiệm phụ, để trả lời "xoá nhãn thì có hệ quả gì", không thay đổi dataset chính.
