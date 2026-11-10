@@ -4,7 +4,7 @@
 1. **Tự xây dựng mạng.**
 2. **Trả lời được các câu hỏi đi kèm trong quá trình làm.** Mỗi lựa chọn thiết kế phải giải thích được bằng kiến thức của môn: kích thước đầu ra, số tham số, BatchNorm, overfitting, optimizer...
 
-Mọi quyết định, bằng chứng và lịch sử thay đổi nằm trong [`NHAT_KY.md`](../NHAT_KY.md), là bản ghi duy nhất của nhóm. Kế hoạch đầy đủ ở mục E, phần "Kế hoạch chính: xây dựng mạng". Các file trong thư mục này chỉ tách kế hoạch đó thành việc cụ thể cho từng người.
+Mọi quyết định, bằng chứng và lịch sử thay đổi nằm trong [`NHAT_KY.md`](../NHAT_KY.md), là sổ chung của nhóm, Dũng giữ. Ba bạn còn lại ghi chi tiết vào sổ riêng trong [`nhat_ky/`](../nhat_ky/), Dũng chép phần quan trọng sang sổ chung. Cách ghi và luật cho AI agent ở [`AGENTS.md`](../AGENTS.md). Kế hoạch đầy đủ ở mục E, phần "Kế hoạch chính: xây dựng mạng". Các file trong thư mục này chỉ tách kế hoạch đó thành việc cụ thể cho từng người.
 
 | File | Người | Phần việc |
 |---|---|---|
@@ -70,7 +70,8 @@ Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoả
 7. **Lưu đủ để chạy lại:** code (commit), file cấu hình, `results.csv` hoặc log theo epoch, trọng số tốt nhất. Trọng số không commit vào git (để trên Kaggle hoặc Drive của nhóm).
 8. **Mỗi người giữ một mục "Câu hỏi và trả lời" trong phần báo cáo của mình.** Mỗi câu trả lời kèm số liệu hoặc hình làm bằng chứng. Câu hỏi gợi ý có trong file của từng người. Dạng câu hỏi lấy từ đề thi trong `/Users/tdu/2026.1/học sâu/`.
 9. **Riêng tư:** ảnh có người và biển số xe. Không đăng dataset, ảnh cắt hay ảnh tự chụp lên chỗ công khai. Dataset trên Kaggle để chế độ riêng tư.
-10. **Thay đổi kế hoạch** thì báo cả nhóm và ghi vào `NHAT_KY.md` (Dũng giữ sổ).
+10. **Ghi chép:** mỗi việc, thay đổi, quyết định ghi vào sổ của mình (`nhat_ky/<tên>.md`, Dũng ghi thẳng `NHAT_KY.md`) theo mẫu trong `AGENTS.md`. Thay đổi kế hoạch thì báo cả nhóm, đánh dấu "Chuyển vào NHAT_KY.md: có" để Dũng chép sang sổ chung. Không sửa sổ của người khác.
+11. **Dùng AI agent:** agent phải đọc `AGENTS.md` (Claude Code đọc qua `CLAUDE.md`). Agent hỏi trước khi đổi kế hoạch, không tự dùng trọng số có sẵn hay lật ảnh.
 
 ## Môi trường
 

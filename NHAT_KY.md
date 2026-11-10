@@ -1,6 +1,6 @@
 # Nhật ký dự án: nhận diện biển báo giao thông Việt Nam
 
-Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soát dataset `archive`, mục E là kế hoạch và thí nghiệm, mục F–H là câu hỏi.
+Sổ chung của nhóm, Dũng giữ. Sổ riêng của từng người ở `nhat_ky/`, cách ghi ở `AGENTS.md`. Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soát dataset `archive`, mục E là kế hoạch và thí nghiệm, mục F–H là câu hỏi.
 
 Đây là bản ghi duy nhất cho từng ghi chú, quyết định và thay đổi, dùng để viết báo cáo cùng sản phẩm.
 
@@ -48,6 +48,10 @@ Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soá
   - Chuyển script, file chia tập và log từ `data/_build/` (git ignore) sang `du_lieu/scripts/`, `du_lieu/splits/`, `du_lieu/log/` để có trong git. Lý do: bạn cùng nhóm cần `groups.csv` và cần dựng lại được dataset. Ảnh bằng chứng, `meta.npz`, md5 của `archive`, bản trích bài báo và bản sao lưu vẫn ở `data/_build/`. Các script nhận đường dẫn qua tham số, nên chuyển chỗ không phải sửa code.
   - Đổi tên sổ `DATASET_REVIEW.md` thành `NHAT_KY.md`, vì sổ giờ ghi cả kế hoạch, thí nghiệm và câu hỏi báo cáo. Sửa mọi đường dẫn trong sổ và `ke_hoach/`.
 - Chốt phân công (bạn đồng ý): Người 1 Dũng, Người 2 Sỹ Nguyên, Người 3 Minh Quân, Người 4 Anh Đức. Lý do xếp: Dũng đã nắm dữ liệu, cách chia và sổ, nên làm giai đoạn 0 (việc gấp nhất) nhanh nhất. Ba vai còn lại xếp theo thứ tự tên bạn đưa, vì chưa biết thế mạnh từng người; nếu cần đổi thì vai Người 3 nên cho người chắc lý thuyết môn nhất, vai Người 2 cho người có nhiều quota GPU. Đổi tên 4 file kế hoạch theo tên người (ví dụ `nguoi_1_dung_du_lieu_va_A0-A2.md`), trong file gọi bằng tên thay cho số. Điền tên vào README. MSSV, hạn nộp, tài khoản GPU: chưa có.
+- Thêm luật cho AI agent và đổi cách ghi chép (bạn chọn cách a). Lý do: cả nhóm dùng AI agent, nhưng luật "hỏi trước khi làm", "ghi mọi thay đổi" mới chỉ nằm trong trí nhớ agent trên máy Dũng; agent của người khác không thấy và có thể tự thêm trọng số có sẵn hoặc lật ảnh. Nếu 4 agent cùng sửa `NHAT_KY.md` thì dễ xung đột khi gộp nhánh.
+  - `AGENTS.md`: đọc gì đầu phiên, việc cấm, cách làm, mẫu ghi chép, quy tắc git. `CLAUDE.md` chỉ có dòng `@AGENTS.md` để Claude Code đọc; Codex, Cursor, Copilot đọc thẳng `AGENTS.md`.
+  - Sổ riêng `nhat_ky/sy_nguyen.md`, `nhat_ky/minh_quan.md`, `nhat_ky/anh_duc.md`. Mỗi người chỉ sửa sổ của mình, mục mới ở trên. Mục ghi "Chuyển vào NHAT_KY.md: có" thì Dũng chép sang sổ này, ghi nguồn. Dũng ghi thẳng vào sổ này.
+  - Sửa quy tắc 10, thêm quy tắc 11 trong `ke_hoach/00_chung.md`; sửa chỗ "gửi Dũng ghi vào sổ" trong file của Sỹ Nguyên và Anh Đức.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.

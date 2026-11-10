@@ -48,7 +48,7 @@ yolo detect train data=.../data.yaml model=yolov8s.yaml epochs=30 imgsz=960 batc
 
 - Phải ghi cả `momentum`. Với AdamW, Ultralytics dùng `momentum` làm beta1, nên bỏ trống sẽ thành 0,937.
 - **Chọn mức có mAP50-95 trên val cao nhất ở epoch cuối. Không chấm test.**
-- Gửi kết quả cho Dũng ghi vào sổ, rồi báo cả nhóm.
+- Ghi kết quả vào `nhat_ky/sy_nguyen.md` (đánh dấu chuyển vào sổ chung), rồi báo cả nhóm.
 - Hạn chế cần nêu trong báo cáo: lr được chọn từ lần chạy ngắn, 1 seed.
 
 ### 0.3. Chốt số epoch E

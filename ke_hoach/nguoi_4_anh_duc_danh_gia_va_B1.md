@@ -93,7 +93,7 @@ Gom phần của cả 4 người thành một báo cáo:
 - Thống nhất ký hiệu (A0–A7, B0–B2a, Thí nghiệm 3, 5, 6).
 - Mọi số liệu lấy từ `ket_qua/ket_qua.csv`.
 - Mọi mAP của test ghi rõ "trên 41 lớp".
-- Điền số liệu thật vào câu trả lời H1–H4 trong sổ.
+- Soạn câu trả lời H1–H4 có số liệu thật trong `nhat_ky/anh_duc.md`, đánh dấu chuyển để Dũng chép vào mục H của sổ chung.
 
 Đề xuất bố cục:
 1. Giới thiệu và dữ liệu.

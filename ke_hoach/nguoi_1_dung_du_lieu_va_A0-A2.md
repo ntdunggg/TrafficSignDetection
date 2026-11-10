@@ -104,7 +104,7 @@ Kiểm tra: tỉ lệ vùng cắt ở test có ảnh gốc liền số với m�
 
 - Lập **bảng tham số cho mọi mạng của hướng A**, kể cả mạng của Minh Quân: kích thước đầu ra, số tham số, receptive field từng lớp. Tính tay và kiểm bằng `src/summary.py`. Đây là dạng câu hỏi hay gặp trong đề thi.
 - Nếu nhóm còn thời gian cho Thí nghiệm 1, 2, 4 thì dựng các bản dataset biến thể. Cách làm và bằng chứng có sẵn ở mục E của sổ.
-- Giữ sổ `NHAT_KY.md`: mỗi thay đổi kế hoạch hoặc kết quả quan trọng ghi một dòng vào lịch sử.
+- Giữ sổ `NHAT_KY.md`: mỗi thay đổi kế hoạch hoặc kết quả quan trọng ghi một dòng vào lịch sử. Định kỳ (ví dụ mỗi tuần) đọc các mục "Chuyển vào NHAT_KY.md: có" trong `nhat_ky/` và chép sang, ghi nguồn.
 
 ## Phần báo cáo của bạn
 

@@ -57,7 +57,10 @@ Mọi mAP và macro-F1 trên test chỉ tính trên 41 lớp có mặt (sổ, m�
 
 ```
 README.md            # file này
-NHAT_KY.md           # sổ ghi duy nhất của nhóm: quyết định, bằng chứng, kế hoạch, thí nghiệm, câu hỏi báo cáo
+AGENTS.md            # luật cho AI agent: đọc gì, cấm gì, ghi chép thế nào
+CLAUDE.md            # một dòng trỏ tới AGENTS.md, để Claude Code đọc
+NHAT_KY.md           # sổ chung (Dũng giữ): quyết định, bằng chứng, kế hoạch, thí nghiệm, câu hỏi báo cáo
+nhat_ky/             # sổ riêng của Sỹ Nguyên, Minh Quân, Anh Đức; phần quan trọng được chép sang NHAT_KY.md
 ke_hoach/            # kế hoạch chung và việc của từng người
 du_lieu/
   scripts/           # script dựng dataset từ archive, chia tập, kiểm tra, đo, catalog
@@ -87,7 +90,8 @@ Sau đó chạy `apply_catalog.py` để áp các sửa sau đợt xem catalog n
 1. **Train từ đầu.** YOLO tạo bằng `model=yolov8s.yaml`, mạng PyTorch khởi tạo ngẫu nhiên.
 2. **Không lật ngang ảnh**, vì nhiều lớp chỉ khác nhau ở chiều trái/phải.
 3. **Chọn trên val, chấm test một lần.** Mỗi cấu hình chạy 3 seed.
-4. **Mọi thay đổi ghi vào `NHAT_KY.md`.**
+4. **Mọi việc và thay đổi đều ghi lại:** vào sổ riêng trong `nhat_ky/`, phần quan trọng chép sang `NHAT_KY.md`. Mẫu ghi ở `AGENTS.md`.
+5. **Dùng AI agent thì agent phải theo [`AGENTS.md`](AGENTS.md).** Claude Code tự đọc qua `CLAUDE.md`. Công cụ khác chưa tự đọc thì bảo agent đọc file này đầu mỗi phiên.
 
 ## Nguồn gốc repo
 
