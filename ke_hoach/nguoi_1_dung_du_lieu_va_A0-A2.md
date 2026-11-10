@@ -1,10 +1,10 @@
-# Người 1: dữ liệu, khung code, mạng A0–A2
+# Người 1 (Dũng): dữ liệu, khung code, mạng A0–A2
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
 - [`NHAT_KY.md`](../NHAT_KY.md): tóm tắt hiện trạng, mục A (cách chia), D1 (không lật ngang), mục E phần "Kế hoạch chính".
 
-Vai trò: người giữ dữ liệu và nền móng code. Hai bạn Người 3 và Người 4 chờ phần của bạn để bắt đầu, nên **giai đoạn 0 là việc gấp nhất**.
+Vai trò: người giữ dữ liệu và nền móng code. Hai bạn Minh Quân và Anh Đức chờ phần của bạn để bắt đầu, nên **giai đoạn 0 là việc gấp nhất**.
 
 ## Giai đoạn 0: chuẩn bị (gấp)
 
@@ -17,7 +17,7 @@ cd data && zip -0 -r vn_signs_yolo.zip vn_signs_yolo -x "*.cache"
 ```
 
 - Tải lên Kaggle bằng **New Dataset**, để **Private**, rồi thêm 3 bạn còn lại làm collaborator.
-- Xuất file `classes.txt`: 52 dòng theo đúng thứ tự id trong `data.yaml`. Người 4 cần file này để gán nhãn bằng LabelImg.
+- Xuất file `classes.txt`: 52 dòng theo đúng thứ tự id trong `data.yaml`. Anh Đức cần file này để gán nhãn bằng LabelImg.
 - Tạo `ket_qua/ket_qua.csv` với dòng tiêu đề như trong `00_chung.md`.
 
 **Xong khi:** cả nhóm mở được dataset trên Kaggle, giải nén ra đủ 3191 ảnh, có `classes.txt` và `ket_qua/ket_qua.csv`.
@@ -26,7 +26,7 @@ cd data && zip -0 -r vn_signs_yolo.zip vn_signs_yolo -x "*.cache"
 
 Viết `src/data/make_crops.py`. Script đọc `data/vn_signs_yolo` và ghi ra `data/vn_signs_crops/`. Thư mục `data/` đã được git ignore.
 
-**Cách cắt** (Người 4 dùng lại đúng hàm này cho B1, nên viết thành hàm riêng `crop_box(img, box)`):
+**Cách cắt** (Anh Đức dùng lại đúng hàm này cho B1, nên viết thành hàm riêng `crop_box(img, box)`):
 - Cắt hình vuông có tâm là tâm box, cạnh = 1,2 × max(w, h). Như vậy mỗi phía có lề 10%, giống GTSRB (NHAT_KY mục A1). Cắt vuông để biển không bị méo khi đổi kích thước.
 - Phần vượt ra ngoài ảnh thì đệm bằng cách lặp lại pixel ở mép.
 - Lưu PNG ở **kích thước gốc**, chưa đổi về 64×64. Việc đổi kích thước làm lúc nạp dữ liệu, để sau này thử được 32×32 hoặc 48×48 mà không phải cắt lại.
@@ -62,15 +62,15 @@ src/
   summary.py             # in từng lớp: kích thước đầu ra, số tham số (dùng forward hook)
 ```
 
-- `train.py` nhận cấu hình qua tham số dòng lệnh, ví dụ `--model a2 --opt adam --lr 1e-3 --epochs 30 --seed 0`, để Người 3 chạy các biến thể mà không phải sửa code.
+- `train.py` nhận cấu hình qua tham số dòng lệnh, ví dụ `--model a2 --opt adam --lr 1e-3 --epochs 30 --seed 0`, để Minh Quân chạy các biến thể mà không phải sửa code.
 - Chuẩn hóa ảnh theo mean và std **tính trên tập train** (giáo trình 4.2). Lưu hai giá trị này vào file để mọi người dùng chung.
 - Cố định seed cho `random`, `numpy`, `torch`.
 
-**Xong khi:** Người 3 và Người 4 tự chạy được `python -m src.train --model a0 --epochs 1` trên máy của mình.
+**Xong khi:** Minh Quân và Anh Đức tự chạy được `python -m src.train --model a0 --epochs 1` trên máy của mình.
 
 ## Giai đoạn 1: mạng A0, A1, A2
 
-Cấu hình train giữ cố định cho A0–A4, đến khi Người 3 làm A5:
+Cấu hình train giữ cố định cho A0–A4, đến khi Minh Quân làm A5:
 - Optimizer Adam, lr 1e-3 (mặc định trong slide bài 5), batch 128, 30 epoch, hàm mất mát cross-entropy.
 - Chưa tăng cường dữ liệu (để dành cho A3).
 - Chọn epoch tốt nhất theo val macro-F1.
@@ -89,9 +89,9 @@ Cấu hình train giữ cố định cho A0–A4, đến khi Người 3 làm A5:
 
 **Receptive field:** tính bằng `r_ra = r_vào + (k − 1) × j_vào` và `j_ra = j_vào × s`, bắt đầu từ r = 1, j = 1. Ghi giá trị ở lớp cuối của mỗi mạng.
 
-Bàn giao cho Người 3: code A2 và kết quả 3 seed, vì Người 3 bắt đầu A3 từ A2.
+Bàn giao cho Minh Quân: code A2 và kết quả 3 seed, vì Minh Quân bắt đầu A3 từ A2.
 
-### Bản ảnh cắt chia ngẫu nhiên cho Thí nghiệm 5 (giao Người 4)
+### Bản ảnh cắt chia ngẫu nhiên cho Thí nghiệm 5 (giao Anh Đức)
 
 Viết `manifest_random.csv`, cùng cột với `manifest.csv` nhưng chia theo split gốc của archive:
 - Test: các ảnh trong `/Users/tdu/Downloads/archive/split_dataset/test_files.txt`.
@@ -102,7 +102,7 @@ Kiểm tra: tỉ lệ vùng cắt ở test có ảnh gốc liền số với m�
 
 ## Giai đoạn 2–3
 
-- Lập **bảng tham số cho mọi mạng của hướng A**, kể cả mạng của Người 3: kích thước đầu ra, số tham số, receptive field từng lớp. Tính tay và kiểm bằng `src/summary.py`. Đây là dạng câu hỏi hay gặp trong đề thi.
+- Lập **bảng tham số cho mọi mạng của hướng A**, kể cả mạng của Minh Quân: kích thước đầu ra, số tham số, receptive field từng lớp. Tính tay và kiểm bằng `src/summary.py`. Đây là dạng câu hỏi hay gặp trong đề thi.
 - Nếu nhóm còn thời gian cho Thí nghiệm 1, 2, 4 thì dựng các bản dataset biến thể. Cách làm và bằng chứng có sẵn ở mục E của sổ.
 - Giữ sổ `NHAT_KY.md`: mỗi thay đổi kế hoạch hoặc kết quả quan trọng ghi một dòng vào lịch sử.
 

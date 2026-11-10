@@ -47,6 +47,7 @@ Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soá
   - Xoá khỏi repo `YOLOV8/` (3 file `.pt`), `Faster R-CNN MobileNetV3/` (`.pth` và code), `Picture/`, `traffic_labels.jpg`, `Traffic_Sign_VN_Colab_Kaggle.ipynb`. Lý do: cô không cho dùng mạng đã học trước, giữ trọng số và notebook chạy chúng dễ gây hiểu nhầm. Giữ làm bản lưu ở nhánh `de-tai-cu` (commit `7dde2b3`, đẩy lên GitHub). Không viết lại lịch sử git.
   - Chuyển script, file chia tập và log từ `data/_build/` (git ignore) sang `du_lieu/scripts/`, `du_lieu/splits/`, `du_lieu/log/` để có trong git. Lý do: bạn cùng nhóm cần `groups.csv` và cần dựng lại được dataset. Ảnh bằng chứng, `meta.npz`, md5 của `archive`, bản trích bài báo và bản sao lưu vẫn ở `data/_build/`. Các script nhận đường dẫn qua tham số, nên chuyển chỗ không phải sửa code.
   - Đổi tên sổ `DATASET_REVIEW.md` thành `NHAT_KY.md`, vì sổ giờ ghi cả kế hoạch, thí nghiệm và câu hỏi báo cáo. Sửa mọi đường dẫn trong sổ và `ke_hoach/`.
+- Chốt phân công (bạn đồng ý): Người 1 Dũng, Người 2 Sỹ Nguyên, Người 3 Minh Quân, Người 4 Anh Đức. Lý do xếp: Dũng đã nắm dữ liệu, cách chia và sổ, nên làm giai đoạn 0 (việc gấp nhất) nhanh nhất. Ba vai còn lại xếp theo thứ tự tên bạn đưa, vì chưa biết thế mạnh từng người; nếu cần đổi thì vai Người 3 nên cho người chắc lý thuyết môn nhất, vai Người 2 cho người có nhiều quota GPU. Đổi tên 4 file kế hoạch theo tên người (ví dụ `nguoi_1_dung_du_lieu_va_A0-A2.md`), trong file gọi bằng tên thay cho số. Điền tên vào README. MSSV, hạn nộp, tài khoản GPU: chưa có.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
@@ -515,22 +516,22 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 | 3 | Ghép B1 với mạng tốt nhất của A. Chấm Thí nghiệm 6. Phân tích confusion matrix (Thí nghiệm 3) | 2 |
 | 4 | Viết báo cáo, điền H1–H4 | 3 |
 
-#### Phân công (chưa có tên)
+#### Phân công (chốt tên 2026-11-10)
 
 Kế hoạch chi tiết cho từng người (việc, lệnh, tiêu chí xong, bàn giao, câu hỏi phải trả lời) ở thư mục [`ke_hoach/`](ke_hoach/00_chung.md): `00_chung.md` và 4 file `nguoi_1` … `nguoi_4`. Khi kế hoạch đổi, sửa ở sổ này trước rồi sửa các file đó theo.
 
 | Người | Việc | Phần báo cáo |
 |---|---|---|
-| 1 | Phần dữ liệu còn lại (đóng gói, tải lên, các bản biến thể nếu cần), script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung. Làm A0–A2. Lập bảng kích thước đầu ra, số tham số, receptive field cho mọi mạng của hướng A | Chương dữ liệu (mục A–D, H1), A0–A2, bảng tham số |
-| 2 | Notebook YOLO, đo thời gian epoch, chạy ngắn chọn lr cho YOLO train từ đầu. B0, B2a. Train YOLO 1 lớp cho B1. Giải thích kiến trúc YOLOv8 (backbone, neck, head, C2f, SPPF) | Hướng B phần phát hiện, kiến trúc YOLO |
-| 3 | A3, A4, A5 (thay cho Thí nghiệm 7), A7. Phân tích confusion matrix của mạng phân loại | A3–A5, A7, câu hỏi về huấn luyện (chương 4), transfer learning bằng lý thuyết |
-| 4 | Thu thập và gán nhãn ảnh cho Thí nghiệm 6 từ giai đoạn 0. Thí nghiệm 5 trên mạng phân loại. Ghép và chấm B1. Chấm Thí nghiệm 6 | H2, H3, H4, B1, Thí nghiệm 5, 6 |
+| 1 (Dũng) | Phần dữ liệu còn lại (đóng gói, tải lên, các bản biến thể nếu cần), script dựng bộ ảnh cắt và kiểm tra, khung code PyTorch chung. Làm A0–A2. Lập bảng kích thước đầu ra, số tham số, receptive field cho mọi mạng của hướng A | Chương dữ liệu (mục A–D, H1), A0–A2, bảng tham số |
+| 2 (Sỹ Nguyên) | Notebook YOLO, đo thời gian epoch, chạy ngắn chọn lr cho YOLO train từ đầu. B0, B2a. Train YOLO 1 lớp cho B1. Giải thích kiến trúc YOLOv8 (backbone, neck, head, C2f, SPPF) | Hướng B phần phát hiện, kiến trúc YOLO |
+| 3 (Minh Quân) | A3, A4, A5 (thay cho Thí nghiệm 7), A7. Phân tích confusion matrix của mạng phân loại | A3–A5, A7, câu hỏi về huấn luyện (chương 4), transfer learning bằng lý thuyết |
+| 4 (Anh Đức) | Thu thập và gán nhãn ảnh cho Thí nghiệm 6 từ giai đoạn 0. Thí nghiệm 5 trên mạng phân loại. Ghép và chấm B1. Chấm Thí nghiệm 6 | H2, H3, H4, B1, Thí nghiệm 5, 6 |
 
 **Quy tắc chung cho cả nhóm:** Giữ các quy tắc ở đầu mục E (phiên bản tập nhãn, 3 seed, cùng test). YOLO cài đúng `ultralytics==8.4.191`, train từ đầu bằng file `.yaml` (không dùng file `.pt` có sẵn), tham số cố định `imgsz=960 fliplr=0 optimizer=AdamW lr0=0.000179 momentum=0.9` (sẽ thay bằng mức thắng của lần chạy chọn lr ở giai đoạn 0). Không sửa `data/vn_signs_yolo`. Mỗi lần chạy ghi một dòng vào bảng kết quả chung. Ảnh tự chụp có người và biển số xe, không đăng công khai.
 
 **Đã hỏi cô (2026-11-10):** không được dùng mạng đã học trước. Đã bỏ A6, B2b; B0, B1, B2a train từ đầu.
 
-**Chưa biết, nhóm sẽ trả lời sau:** tên và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
+**Chưa biết, nhóm sẽ trả lời sau:** MSSV và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
 
 ### Chạy thử 1 epoch (2026-11-09) ✅
 **Mục đích:** Kiểm tra Ultralytics đọc đúng dataset và chạy hết quy trình train, chấm val, chấm test. Không dùng để đánh giá chất lượng model.

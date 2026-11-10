@@ -1,7 +1,7 @@
-# Người 3: mạng phân loại A3–A5, A7 (hướng A)
+# Người 3 (Minh Quân): mạng phân loại A3–A5, A7 (hướng A)
 
 Đọc trước:
-- [`00_chung.md`](00_chung.md) và [`nguoi_1_du_lieu_va_A0-A2.md`](nguoi_1_du_lieu_va_A0-A2.md). Bạn dùng bộ ảnh cắt, khung code `src/` và mạng A2 của Người 1.
+- [`00_chung.md`](00_chung.md) và [`nguoi_1_dung_du_lieu_va_A0-A2.md`](nguoi_1_dung_du_lieu_va_A0-A2.md). Bạn dùng bộ ảnh cắt, khung code `src/` và mạng A2 của Dũng.
 - [`NHAT_KY.md`](../NHAT_KY.md): D1 (không lật ngang), C6 (nhóm lớp dễ nhầm), mục E phần "Thí nghiệm 7". Phần này là cơ sở lý thuyết và quy tắc chọn cho A5.
 - Slide bài 4, bài 5 và giáo trình chương 4 (4.1–4.9).
 
@@ -20,7 +20,7 @@ Cấu hình nền (giữ cố định cho A3, A4, chỉ đổi ở A5):
 
 ## Giai đoạn 0
 
-- Chạy thử khung code của Người 1 trên máy bạn: `python -m src.train --model a0 --epochs 1`.
+- Chạy thử khung code của Dũng trên máy bạn: `python -m src.train --model a0 --epochs 1`.
 - Đọc lại phần lý thuyết bên dưới.
 - Viết sẵn phần tăng cường dữ liệu và khối residual để vào giai đoạn 1 là chạy ngay.
 
@@ -84,7 +84,7 @@ Xuất phát từ bản tốt nhất của A4. Đổi **từng yếu tố một*
 - Lấy 3–5 mạng tốt nhất (khác seed hoặc khác kiến trúc), lấy trung bình softmax.
 - So với mạng đơn tốt nhất về macro-F1, số tham số và thời gian suy diễn.
 
-### Bàn giao cho Người 4 (hết giai đoạn 2)
+### Bàn giao cho Anh Đức (hết giai đoạn 2)
 
 Giao mạng phân loại tốt nhất cho B1:
 - Code mạng.

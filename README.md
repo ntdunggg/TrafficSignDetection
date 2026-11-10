@@ -8,10 +8,10 @@ Nhóm **tự xây dựng và train từ đầu** mọi mạng. Không dùng mạ
 
 | Người | Họ tên | MSSV | Phần việc |
 |---|---|---|---|
-| Người 1 | (chưa điền) | | Dữ liệu, khung code, mạng A0–A2 |
-| Người 2 | (chưa điền) | | YOLO train từ đầu (hướng B) |
-| Người 3 | (chưa điền) | | Mạng A3–A5, A7 |
-| Người 4 | (chưa điền) | | Đánh giá, ảnh ngoài phân phối, hệ hai giai đoạn B1, ghép báo cáo |
+| Người 1 | Dũng | | [Dữ liệu, khung code, mạng A0–A2](ke_hoach/nguoi_1_dung_du_lieu_va_A0-A2.md) |
+| Người 2 | Sỹ Nguyên | | [YOLO train từ đầu (hướng B)](ke_hoach/nguoi_2_sy_nguyen_yolo.md) |
+| Người 3 | Minh Quân | | [Mạng A3–A5, A7](ke_hoach/nguoi_3_minh_quan_A3-A7.md) |
+| Người 4 | Anh Đức | | [Đánh giá, ảnh ngoài phân phối, hệ hai giai đoạn B1, ghép báo cáo](ke_hoach/nguoi_4_anh_duc_danh_gia_va_B1.md) |
 
 ## Bài toán và hai hướng làm
 
@@ -28,7 +28,7 @@ Nhóm **tự xây dựng và train từ đầu** mọi mạng. Không dùng mạ
   - B1: hệ hai giai đoạn. YOLO 1 lớp tìm vùng có biển, mạng của hướng A phân loại vùng đó.
   - B2a: YOLO có thêm đầu dò P2 cho biển nhỏ.
 
-Kế hoạch chi tiết và lý do của từng lựa chọn nằm ở [`NHAT_KY.md`](NHAT_KY.md), mục E. Việc của từng người nằm trong [`ke_hoach/`](ke_hoach/).
+Kế hoạch chi tiết và lý do của từng lựa chọn nằm ở [`NHAT_KY.md`](NHAT_KY.md), mục E. Việc của từng người nằm trong [`ke_hoach/`](ke_hoach/00_chung.md).
 
 ## Dữ liệu
 

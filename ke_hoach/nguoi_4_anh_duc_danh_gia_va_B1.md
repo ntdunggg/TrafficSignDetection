@@ -1,4 +1,4 @@
-# Người 4: đánh giá, ảnh mới, hệ hai giai đoạn B1, ghép báo cáo
+# Người 4 (Anh Đức): đánh giá, ảnh mới, hệ hai giai đoạn B1, ghép báo cáo
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
@@ -17,7 +17,7 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 - Thêm khoảng 30 ảnh **không có biển nào trong 52 lớp** nhưng có vật dễ nhầm: biển hiệu cửa hàng tròn màu đỏ, đèn giao thông, biển báo loại khác. Nhóm ảnh này dùng để đếm số lần báo nhầm.
 
 **Gán nhãn:**
-- Dùng LabelImg, định dạng YOLO, với `classes.txt` của Người 1 (đúng thứ tự id 52 lớp).
+- Dùng LabelImg, định dạng YOLO, với `classes.txt` của Dũng (đúng thứ tự id 52 lớp).
 - Gán **mọi** biển thuộc 52 lớp nhìn thấy được, kể cả biển xa. `archive` cũng gán cả biển rất xa (NHAT_KY, bảng Đính chính).
 - Biển không thuộc 52 lớp thì **không gán**, nhưng đếm riêng: biển gì, bao nhiêu.
 - Box ôm sát biển, không lấy cột.
@@ -28,7 +28,7 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 
 **Riêng tư:** ảnh có người và biển số xe, không đăng công khai.
 
-**Xong khi:** đủ ảnh, đã tự xem lại nhãn một lượt, giao cho Người 2 và Người 3 trước giai đoạn 3.
+**Xong khi:** đủ ảnh, đã tự xem lại nhãn một lượt, giao cho Sỹ Nguyên và Minh Quân trước giai đoạn 3.
 
 ## Giai đoạn 1: Thí nghiệm 5 trên mạng phân loại (trả lời câu H4)
 
@@ -37,9 +37,9 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 | Bản | Train và val | Test |
 |---|---|---|
 | G | `manifest.csv` (chia theo nhóm frame, không rò rỉ) | test của G |
-| R | `manifest_random.csv` (chia ngẫu nhiên theo ảnh như split gốc, Người 1 dựng) | test của R |
+| R | `manifest_random.csv` (chia ngẫu nhiên theo ảnh như split gốc, Dũng dựng) | test của R |
 
-- Dùng cùng mạng (A2 của Người 1) và cùng cấu hình train. Mỗi bản 3 seed.
+- Dùng cùng mạng (A2 của Dũng) và cùng cấu hình train. Mỗi bản 3 seed.
 - Tính macro-F1 trên **cùng tập lớp**: các lớp có ở cả hai test.
 - **Đọc kết quả:** R cao hơn G bao nhiêu thì đó là phần mô hình "nhớ cảnh đã thấy" chứ không phải nhận biết biển tốt hơn.
 - Kèm số liệu rò rỉ: tỉ lệ ảnh test có ảnh train gần trùng. Split gốc 30,7%, split nhóm 0% (NHAT_KY mục A1).
@@ -48,9 +48,9 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 ## Giai đoạn 2: script đánh giá cho B1
 
 B1 là hệ hai giai đoạn:
-1. YOLO 1 lớp (Người 2 train, `single_cls=True`) tìm vùng có biển.
-2. Cắt từng vùng **bằng đúng hàm `crop_box` của Người 1**.
-3. Mạng phân loại tốt nhất của Người 3 cho ra lớp.
+1. YOLO 1 lớp (Sỹ Nguyên train, `single_cls=True`) tìm vùng có biển.
+2. Cắt từng vùng **bằng đúng hàm `crop_box` của Dũng**.
+3. Mạng phân loại tốt nhất của Minh Quân cho ra lớp.
 
 - Lớp của mỗi box là lớp có xác suất lớn nhất.
 - Điểm của box = độ tin cậy của YOLO × xác suất của lớp đó.
@@ -60,7 +60,7 @@ Viết `src/eval_b1.py`:
 - Tính mAP50 và mAP50-95 **bằng cùng cách Ultralytics tính**: ghép box dự đoán với box thật theo IoU, rồi dùng `ultralytics.utils.metrics.ap_per_class`.
 
 **Kiểm tra script trước khi tin:**
-1. Cho dự đoán của B0 (Người 2) đi qua script của bạn.
+1. Cho dự đoán của B0 (Sỹ Nguyên) đi qua script của bạn.
 2. Số ra phải khớp với số `yolo val split=test` của B0, sai lệch rất nhỏ.
 
 Chưa khớp thì chưa dùng script cho B1.

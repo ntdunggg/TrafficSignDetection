@@ -8,12 +8,12 @@ Mọi quyết định, bằng chứng và lịch sử thay đổi nằm trong [`
 
 | File | Người | Phần việc |
 |---|---|---|
-| [`nguoi_1_du_lieu_va_A0-A2.md`](nguoi_1_du_lieu_va_A0-A2.md) | Người 1 | Dữ liệu, bộ ảnh cắt, khung code PyTorch, mạng A0–A2, bảng tham số |
-| [`nguoi_2_yolo.md`](nguoi_2_yolo.md) | Người 2 | YOLO train từ đầu: chọn lr, B0, B2a, YOLO 1 lớp cho B1, giải thích kiến trúc |
-| [`nguoi_3_A3-A7.md`](nguoi_3_A3-A7.md) | Người 3 | Mạng A3–A5, A7 (A5 thay cho Thí nghiệm 7), confusion matrix của mạng phân loại |
-| [`nguoi_4_danh_gia_va_B1.md`](nguoi_4_danh_gia_va_B1.md) | Người 4 | Ảnh ngoài phân phối, Thí nghiệm 5, hệ hai giai đoạn B1, ghép báo cáo |
+| [`nguoi_1_dung_du_lieu_va_A0-A2.md`](nguoi_1_dung_du_lieu_va_A0-A2.md) | Người 1 (Dũng) | Dữ liệu, bộ ảnh cắt, khung code PyTorch, mạng A0–A2, bảng tham số |
+| [`nguoi_2_sy_nguyen_yolo.md`](nguoi_2_sy_nguyen_yolo.md) | Người 2 (Sỹ Nguyên) | YOLO train từ đầu: chọn lr, B0, B2a, YOLO 1 lớp cho B1, giải thích kiến trúc |
+| [`nguoi_3_minh_quan_A3-A7.md`](nguoi_3_minh_quan_A3-A7.md) | Người 3 (Minh Quân) | Mạng A3–A5, A7 (A5 thay cho Thí nghiệm 7), confusion matrix của mạng phân loại |
+| [`nguoi_4_anh_duc_danh_gia_va_B1.md`](nguoi_4_anh_duc_danh_gia_va_B1.md) | Người 4 (Anh Đức) | Ảnh ngoài phân phối, Thí nghiệm 5, hệ hai giai đoạn B1, ghép báo cáo |
 
-Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì điền vào bảng trên và vào sổ.
+Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoản GPU. Khi nhóm chốt thì điền vào bảng trên, README và sổ.
 
 ## Hai hướng
 
@@ -24,7 +24,7 @@ Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì
 
 ## Các giai đoạn và việc bàn giao
 
-| Giai đoạn | Người 1 | Người 2 | Người 3 | Người 4 |
+| Giai đoạn | Người 1 (Dũng) | Người 2 (Sỹ Nguyên) | Người 3 (Minh Quân) | Người 4 (Anh Đức) |
 |---|---|---|---|---|
 | 0. Chuẩn bị | Đóng gói dataset, dựng bộ ảnh cắt, khung code chung | Notebook YOLO, đo thời gian epoch, chạy chọn lr | Đọc code chung, chuẩn bị A3–A5 | Bắt đầu thu thập và gán nhãn ảnh ngoài phân phối |
 | 1 | A0, A1, A2. Dựng bản ảnh cắt chia ngẫu nhiên cho Thí nghiệm 5 | B0 (3 seed) | A3, A4 (bắt đầu từ A2) | Thí nghiệm 5 trên mạng phân loại |
@@ -36,20 +36,20 @@ Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì
 
 | Từ | Cho | Thứ gì | Hết giai đoạn |
 |---|---|---|---|
-| Người 1 | Cả nhóm | Dataset trên Kaggle (riêng tư), `classes.txt` | 0 |
-| Người 1 | Người 3, 4 | Bộ ảnh cắt `data/vn_signs_crops/` và file `manifest.csv`, khung code `src/` | 0 |
-| Người 1 | Người 3 | Mạng A2 và kết quả của nó | 1 |
-| Người 1 | Người 4 | `manifest_random.csv` (chia ngẫu nhiên cho Thí nghiệm 5) | 1 |
-| Người 2 | Cả nhóm | Mức lr đã chọn cho YOLO, số epoch E | 0 |
-| Người 2 | Người 4 | Trọng số B0 và YOLO 1 lớp (`best.pt`) | 2 |
-| Người 3 | Người 4 | Mạng phân loại tốt nhất (code, trọng số, cách tiền xử lý) | 2 |
-| Người 4 | Người 2, 3 | Bộ ảnh ngoài phân phối đã gán nhãn | 3 |
+| Dũng | Cả nhóm | Dataset trên Kaggle (riêng tư), `classes.txt` | 0 |
+| Dũng | Minh Quân, Anh Đức | Bộ ảnh cắt `data/vn_signs_crops/` và file `manifest.csv`, khung code `src/` | 0 |
+| Dũng | Minh Quân | Mạng A2 và kết quả của nó | 1 |
+| Dũng | Anh Đức | `manifest_random.csv` (chia ngẫu nhiên cho Thí nghiệm 5) | 1 |
+| Sỹ Nguyên | Cả nhóm | Mức lr đã chọn cho YOLO, số epoch E | 0 |
+| Sỹ Nguyên | Anh Đức | Trọng số B0 và YOLO 1 lớp (`best.pt`) | 2 |
+| Minh Quân | Anh Đức | Mạng phân loại tốt nhất (code, trọng số, cách tiền xử lý) | 2 |
+| Anh Đức | Sỹ Nguyên, Minh Quân | Bộ ảnh ngoài phân phối đã gán nhãn | 3 |
 
 ## Quy tắc chung
 
 1. **Không dùng trọng số đã học trước.** YOLO tạo bằng `model=yolov8s.yaml` (hoặc `yolov8s-p2.yaml`). Mạng PyTorch khởi tạo ngẫu nhiên.
 2. **Không lật ngang ảnh.** Nhiều lớp chỉ khác nhau ở chiều trái/phải (NHAT_KY mục D1). YOLO đặt `fliplr=0`. Mạng phân loại không dùng `RandomHorizontalFlip`.
-3. **Không sửa `data/vn_signs_yolo`.** Cần bản biến thể thì nhờ Người 1 dựng thư mục riêng.
+3. **Không sửa `data/vn_signs_yolo`.** Cần bản biến thể thì nhờ Dũng dựng thư mục riêng.
 4. **Chọn trên val, test chỉ chấm một lần** cho cấu hình đã chốt. Mỗi cấu hình chạy 3 seed (0, 1, 2), báo cáo trung bình ± độ lệch chuẩn.
 5. **Ghi phiên bản tập nhãn** mỗi lần chạy, bằng mã md5 của thư mục `labels` (bỏ qua file `.cache`):
 
@@ -70,7 +70,7 @@ Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì
 7. **Lưu đủ để chạy lại:** code (commit), file cấu hình, `results.csv` hoặc log theo epoch, trọng số tốt nhất. Trọng số không commit vào git (để trên Kaggle hoặc Drive của nhóm).
 8. **Mỗi người giữ một mục "Câu hỏi và trả lời" trong phần báo cáo của mình.** Mỗi câu trả lời kèm số liệu hoặc hình làm bằng chứng. Câu hỏi gợi ý có trong file của từng người. Dạng câu hỏi lấy từ đề thi trong `/Users/tdu/2026.1/học sâu/`.
 9. **Riêng tư:** ảnh có người và biển số xe. Không đăng dataset, ảnh cắt hay ảnh tự chụp lên chỗ công khai. Dataset trên Kaggle để chế độ riêng tư.
-10. **Thay đổi kế hoạch** thì báo cả nhóm và ghi vào `NHAT_KY.md` (Người 1 giữ sổ).
+10. **Thay đổi kế hoạch** thì báo cả nhóm và ghi vào `NHAT_KY.md` (Dũng giữ sổ).
 
 ## Môi trường
 

@@ -1,4 +1,4 @@
-# Người 2: YOLO train từ đầu (hướng B)
+# Người 2 (Sỹ Nguyên): YOLO train từ đầu (hướng B)
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
@@ -15,7 +15,7 @@ Tham số cố định cho mọi lần chạy: `ultralytics==8.4.191`, `imgsz=96
 
 Notebook gồm các bước:
 1. Cài đúng `pip install ultralytics==8.4.191`.
-2. Lấy dataset riêng tư mà Người 1 chia sẻ.
+2. Lấy dataset riêng tư mà Dũng chia sẻ.
 3. Tính md5 thư mục nhãn.
 4. Train.
 5. Lưu `results.csv`, `args.yaml`, `weights/best.pt` vào output.
@@ -48,7 +48,7 @@ yolo detect train data=.../data.yaml model=yolov8s.yaml epochs=30 imgsz=960 batc
 
 - Phải ghi cả `momentum`. Với AdamW, Ultralytics dùng `momentum` làm beta1, nên bỏ trống sẽ thành 0,937.
 - **Chọn mức có mAP50-95 trên val cao nhất ở epoch cuối. Không chấm test.**
-- Gửi kết quả cho Người 1 ghi vào sổ, rồi báo cả nhóm.
+- Gửi kết quả cho Dũng ghi vào sổ, rồi báo cả nhóm.
 - Hạn chế cần nêu trong báo cáo: lr được chọn từ lần chạy ngắn, 1 seed.
 
 ### 0.3. Chốt số epoch E
@@ -72,7 +72,7 @@ yolo detect train data=.../data.yaml model=yolov8s.yaml epochs=E imgsz=960 batch
 
 - Lưu AP từng lớp và confusion matrix.
 - Test chỉ có 41 lớp (NHAT_KY, F3). Báo cáo phải ghi rõ mAP tính trên 41 lớp.
-- Giao `best.pt` của B0 cho Người 4 (dùng ở Thí nghiệm 6 và để kiểm tra script đánh giá B1).
+- Giao `best.pt` của B0 cho Anh Đức (dùng ở Thí nghiệm 6 và để kiểm tra script đánh giá B1).
 
 ## Giai đoạn 2
 
@@ -86,19 +86,19 @@ Ultralytics 8.4.191 tự hiểu `yolov8s-p2.yaml` là file `yolov8-p2.yaml` vớ
 
 So với B0 ở các điểm sau:
 - mAP chung.
-- Recall theo cỡ box: cạnh dài < 32 px, 32–64 px, > 64 px. Ultralytics không tính sẵn, nên viết script nhỏ hoặc nhờ Người 4 dùng chung script đánh giá.
+- Recall theo cỡ box: cạnh dài < 32 px, 32–64 px, > 64 px. Ultralytics không tính sẵn, nên viết script nhỏ hoặc nhờ Anh Đức dùng chung script đánh giá.
 - Số tham số, GFLOPs, thời gian mỗi epoch, bộ nhớ GPU.
 
 ### YOLO 1 lớp cho B1
 
 Cùng lệnh như B0 nhưng thêm `single_cls=True`: mọi box thành một lớp "biển báo".
 - Chạy 1 seed. Còn quota thì chạy 3 seed.
-- Giao `best.pt` cho Người 4.
+- Giao `best.pt` cho Anh Đức.
 
 ## Giai đoạn 3
 
 - **Phân tích confusion matrix của B0 (Thí nghiệm 3).** Tập trung các nhóm lớp dễ nhầm ở mục C6 của sổ: nhóm cấm rẽ và cấm quay đầu, các cặp trái/phải.
-- **Chấm B0 trên bộ ảnh ngoài phân phối** của Người 4 (Thí nghiệm 6).
+- **Chấm B0 trên bộ ảnh ngoài phân phối** của Anh Đức (Thí nghiệm 6).
 
 ## Giải thích kiến trúc YOLOv8 (phần lý thuyết, làm rải rác)
 
