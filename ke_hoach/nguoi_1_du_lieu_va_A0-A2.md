@@ -2,7 +2,7 @@
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
-- [`DATASET_REVIEW.md`](../DATASET_REVIEW.md): tóm tắt hiện trạng, mục A (cách chia), D1 (không lật ngang), mục E phần "Kế hoạch chính".
+- [`NHAT_KY.md`](../NHAT_KY.md): tóm tắt hiện trạng, mục A (cách chia), D1 (không lật ngang), mục E phần "Kế hoạch chính".
 
 Vai trò: người giữ dữ liệu và nền móng code. Hai bạn Người 3 và Người 4 chờ phần của bạn để bắt đầu, nên **giai đoạn 0 là việc gấp nhất**.
 
@@ -27,7 +27,7 @@ cd data && zip -0 -r vn_signs_yolo.zip vn_signs_yolo -x "*.cache"
 Viết `src/data/make_crops.py`. Script đọc `data/vn_signs_yolo` và ghi ra `data/vn_signs_crops/`. Thư mục `data/` đã được git ignore.
 
 **Cách cắt** (Người 4 dùng lại đúng hàm này cho B1, nên viết thành hàm riêng `crop_box(img, box)`):
-- Cắt hình vuông có tâm là tâm box, cạnh = 1,2 × max(w, h). Như vậy mỗi phía có lề 10%, giống GTSRB (DATASET_REVIEW mục A1). Cắt vuông để biển không bị méo khi đổi kích thước.
+- Cắt hình vuông có tâm là tâm box, cạnh = 1,2 × max(w, h). Như vậy mỗi phía có lề 10%, giống GTSRB (NHAT_KY mục A1). Cắt vuông để biển không bị méo khi đổi kích thước.
 - Phần vượt ra ngoài ảnh thì đệm bằng cách lặp lại pixel ở mép.
 - Lưu PNG ở **kích thước gốc**, chưa đổi về 64×64. Việc đổi kích thước làm lúc nạp dữ liệu, để sau này thử được 32×32 hoặc 48×48 mà không phải cắt lại.
 
@@ -35,7 +35,7 @@ Viết `src/data/make_crops.py`. Script đọc `data/vn_signs_yolo` và ghi ra `
 
 `path,split,class_id,stem,line,group,box_w_px,box_h_px`
 
-- `group` lấy từ `data/_build/splits/groups.csv`.
+- `group` lấy từ `du_lieu/splits/groups.csv`.
 - `line` là số thứ tự dòng trong file nhãn, khớp với khóa `stem#line` mà catalog đã dùng.
 
 Không dùng `torchvision.datasets.ImageFolder`. Lý do: val chỉ có 35 lớp và test chỉ có 41 lớp, nên mỗi tập sẽ tự đánh số lớp khác nhau. Dùng `manifest.csv` với `class_id` cố định.
@@ -96,15 +96,15 @@ Bàn giao cho Người 3: code A2 và kết quả 3 seed, vì Người 3 bắt �
 Viết `manifest_random.csv`, cùng cột với `manifest.csv` nhưng chia theo split gốc của archive:
 - Test: các ảnh trong `/Users/tdu/Downloads/archive/split_dataset/test_files.txt`.
 - Train và val: các ảnh trong `train_files.txt`. Lấy ngẫu nhiên 15% số ảnh làm val (seed 0, chia theo ảnh). Cố ý giữ kiểu chia ngẫu nhiên này để thấy rò rỉ.
-- Bỏ 25 ảnh có nhãn rỗng (danh sách ở `data/_build/splits/excluded_empty.txt`).
+- Bỏ 25 ảnh có nhãn rỗng (danh sách ở `du_lieu/splits/excluded_empty.txt`).
 
-Kiểm tra: tỉ lệ vùng cắt ở test có ảnh gốc liền số với một ảnh train. Split gốc có 612/639 ảnh test như vậy (DATASET_REVIEW mục A1).
+Kiểm tra: tỉ lệ vùng cắt ở test có ảnh gốc liền số với một ảnh train. Split gốc có 612/639 ảnh test như vậy (NHAT_KY mục A1).
 
 ## Giai đoạn 2–3
 
 - Lập **bảng tham số cho mọi mạng của hướng A**, kể cả mạng của Người 3: kích thước đầu ra, số tham số, receptive field từng lớp. Tính tay và kiểm bằng `src/summary.py`. Đây là dạng câu hỏi hay gặp trong đề thi.
 - Nếu nhóm còn thời gian cho Thí nghiệm 1, 2, 4 thì dựng các bản dataset biến thể. Cách làm và bằng chứng có sẵn ở mục E của sổ.
-- Giữ sổ `DATASET_REVIEW.md`: mỗi thay đổi kế hoạch hoặc kết quả quan trọng ghi một dòng vào lịch sử.
+- Giữ sổ `NHAT_KY.md`: mỗi thay đổi kế hoạch hoặc kết quả quan trọng ghi một dòng vào lịch sử.
 
 ## Phần báo cáo của bạn
 

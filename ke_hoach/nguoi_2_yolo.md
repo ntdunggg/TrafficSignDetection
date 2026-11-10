@@ -2,7 +2,7 @@
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
-- [`DATASET_REVIEW.md`](../DATASET_REVIEW.md): D1 và D2 (không lật ngang, `imgsz=960`), mục E phần "Chạy thử 1 epoch" (7 lưu ý khi train thật) và phần "Kế hoạch chính".
+- [`NHAT_KY.md`](../NHAT_KY.md): D1 và D2 (không lật ngang, `imgsz=960`), mục E phần "Chạy thử 1 epoch" (7 lưu ý khi train thật) và phần "Kế hoạch chính".
 - Giáo trình `dl_lecturenotes` chương 6.3–6.4 (R-CNN, YOLO, SSD).
 
 Vai trò: mọi việc liên quan đến YOLO. **Không dùng file `.pt` có sẵn** (cô không cho dùng mạng đã học trước). Tạo mạng bằng file `.yaml`.
@@ -32,7 +32,7 @@ Ghi lại GPU nào (T4, P100...), thời gian, bộ nhớ GPU. Nếu thiếu b�
 
 ### 0.2. Chọn lr cho YOLO train từ đầu
 
-Lý do (DATASET_REVIEW, "Kế hoạch chính"): cấu hình tạm `AdamW lr0=0.000179` là giá trị Ultralytics tự chọn khi tinh chỉnh ngắn. Train từ đầu thường cần lr lớn hơn.
+Lý do (NHAT_KY, "Kế hoạch chính"): cấu hình tạm `AdamW lr0=0.000179` là giá trị Ultralytics tự chọn khi tinh chỉnh ngắn. Train từ đầu thường cần lr lớn hơn.
 
 Chạy 3 mức, mỗi mức 30 epoch, seed 0:
 
@@ -71,7 +71,7 @@ yolo detect train data=.../data.yaml model=yolov8s.yaml epochs=E imgsz=960 batch
   ```
 
 - Lưu AP từng lớp và confusion matrix.
-- Test chỉ có 41 lớp (DATASET_REVIEW, F3). Báo cáo phải ghi rõ mAP tính trên 41 lớp.
+- Test chỉ có 41 lớp (NHAT_KY, F3). Báo cáo phải ghi rõ mAP tính trên 41 lớp.
 - Giao `best.pt` của B0 cho Người 4 (dùng ở Thí nghiệm 6 và để kiểm tra script đánh giá B1).
 
 ## Giai đoạn 2
@@ -117,7 +117,7 @@ In cấu trúc mạng bằng `model.info(detailed=True)` hoặc đọc `ultralyt
 2. **Kết quả:** B0, B2a (kèm 3 seed), so sánh theo cỡ box, confusion matrix.
 3. **Câu hỏi và trả lời** (mỗi câu kèm số liệu):
    - YOLO là mạng một giai đoạn: khác Faster R-CNN (hai giai đoạn) ở đâu?
-   - Vì sao dự đoán ở nhiều tỉ lệ? Biển nhỏ nhất (cạnh dài khoảng 12–14 px, DATASET_REVIEW mục B3) chiếm bao nhiêu ô ở stride 8 và ở stride 4?
+   - Vì sao dự đoán ở nhiều tỉ lệ? Biển nhỏ nhất (cạnh dài khoảng 12–14 px, NHAT_KY mục B3) chiếm bao nhiêu ô ở stride 8 và ở stride 4?
    - Thêm P2 có giúp biển nhỏ không, đổi lại tốn thêm bao nhiêu tính toán?
    - Train từ đầu trên 2138 ảnh: có overfitting không? Đọc đường cong train loss và val loss.
    - Vì sao lr của lần train từ đầu khác lr Ultralytics tự chọn khi tinh chỉnh? (giáo trình 4.5, 4.10)

@@ -4,7 +4,7 @@
 1. **Tự xây dựng mạng.**
 2. **Trả lời được các câu hỏi đi kèm trong quá trình làm.** Mỗi lựa chọn thiết kế phải giải thích được bằng kiến thức của môn: kích thước đầu ra, số tham số, BatchNorm, overfitting, optimizer...
 
-Mọi quyết định, bằng chứng và lịch sử thay đổi nằm trong [`DATASET_REVIEW.md`](../DATASET_REVIEW.md), là bản ghi duy nhất của nhóm. Kế hoạch đầy đủ ở mục E, phần "Kế hoạch chính: xây dựng mạng". Các file trong thư mục này chỉ tách kế hoạch đó thành việc cụ thể cho từng người.
+Mọi quyết định, bằng chứng và lịch sử thay đổi nằm trong [`NHAT_KY.md`](../NHAT_KY.md), là bản ghi duy nhất của nhóm. Kế hoạch đầy đủ ở mục E, phần "Kế hoạch chính: xây dựng mạng". Các file trong thư mục này chỉ tách kế hoạch đó thành việc cụ thể cho từng người.
 
 | File | Người | Phần việc |
 |---|---|---|
@@ -48,7 +48,7 @@ Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì
 ## Quy tắc chung
 
 1. **Không dùng trọng số đã học trước.** YOLO tạo bằng `model=yolov8s.yaml` (hoặc `yolov8s-p2.yaml`). Mạng PyTorch khởi tạo ngẫu nhiên.
-2. **Không lật ngang ảnh.** Nhiều lớp chỉ khác nhau ở chiều trái/phải (DATASET_REVIEW mục D1). YOLO đặt `fliplr=0`. Mạng phân loại không dùng `RandomHorizontalFlip`.
+2. **Không lật ngang ảnh.** Nhiều lớp chỉ khác nhau ở chiều trái/phải (NHAT_KY mục D1). YOLO đặt `fliplr=0`. Mạng phân loại không dùng `RandomHorizontalFlip`.
 3. **Không sửa `data/vn_signs_yolo`.** Cần bản biến thể thì nhờ Người 1 dựng thư mục riêng.
 4. **Chọn trên val, test chỉ chấm một lần** cho cấu hình đã chốt. Mỗi cấu hình chạy 3 seed (0, 1, 2), báo cáo trung bình ± độ lệch chuẩn.
 5. **Ghi phiên bản tập nhãn** mỗi lần chạy, bằng mã md5 của thư mục `labels` (bỏ qua file `.cache`):
@@ -70,7 +70,7 @@ Chưa có tên người, hạn nộp và tài khoản GPU. Khi nhóm chốt thì
 7. **Lưu đủ để chạy lại:** code (commit), file cấu hình, `results.csv` hoặc log theo epoch, trọng số tốt nhất. Trọng số không commit vào git (để trên Kaggle hoặc Drive của nhóm).
 8. **Mỗi người giữ một mục "Câu hỏi và trả lời" trong phần báo cáo của mình.** Mỗi câu trả lời kèm số liệu hoặc hình làm bằng chứng. Câu hỏi gợi ý có trong file của từng người. Dạng câu hỏi lấy từ đề thi trong `/Users/tdu/2026.1/học sâu/`.
 9. **Riêng tư:** ảnh có người và biển số xe. Không đăng dataset, ảnh cắt hay ảnh tự chụp lên chỗ công khai. Dataset trên Kaggle để chế độ riêng tư.
-10. **Thay đổi kế hoạch** thì báo cả nhóm và ghi vào `DATASET_REVIEW.md` (Người 1 giữ sổ).
+10. **Thay đổi kế hoạch** thì báo cả nhóm và ghi vào `NHAT_KY.md` (Người 1 giữ sổ).
 
 ## Môi trường
 

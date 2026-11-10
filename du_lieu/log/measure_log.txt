@@ -1,0 +1,40 @@
+=== Độ phân giải ảnh
+  (960, 540) 2347
+  (1920, 1080) 805
+  (540, 960) 39
+
+=== D2: kích thước box sau khi đưa về imgsz (cạnh dài ảnh = imgsz)
+imgsz | median cạnh ngắn box | cạnh ngắn <8px | <16px | <32px
+  640 |   17.7 px |   9.7% |  44.6% |  80.2%
+  960 |   26.5 px |   0.9% |  19.5% |  61.3%
+ 1280 |   35.3 px |   0.0% |   9.7% |  44.6%
+
+=== B3: box 'nhỏ' theo COCO (diện tích <32x32 px trên ảnh gốc): 3894 / 8332 (46.7%), trong 1764 ảnh
+box có cạnh ngắn <8px ở imgsz 640: 811, trong 483 ảnh
+10 lớp có tỉ lệ box nhỏ cao nhất (id: nhỏ/tổng): [(51, '5/5'), (20, '41/52'), (18, '162/214'), (2, '341/470'), (3, '322/454'), (24, '39/56'), (15, '20/29'), (25, '17/25'), (22, '87/131'), (40, '138/210')]
+
+=== C3: ảnh 0961-0964 và lớp 26, 51
+  0961 (train) lớp 13: 14x12 px trên ảnh 960x540 | ở imgsz 960: 14x12 | COCO nhỏ: True
+  0961 (train) lớp 26: 13x12 px trên ảnh 960x540 | ở imgsz 960: 13x12 | COCO nhỏ: True
+  0961 (train) lớp 10: 8x5 px trên ảnh 960x540 | ở imgsz 960: 8x5 | COCO nhỏ: True
+  0962 (train) lớp 13: 13x13 px trên ảnh 960x540 | ở imgsz 960: 13x13 | COCO nhỏ: True
+  0962 (train) lớp 26: 13x12 px trên ảnh 960x540 | ở imgsz 960: 13x12 | COCO nhỏ: True
+  0962 (train) lớp 10: 7x7 px trên ảnh 960x540 | ở imgsz 960: 7x7 | COCO nhỏ: True
+  0963 (train) lớp 13: 14x13 px trên ảnh 960x540 | ở imgsz 960: 14x13 | COCO nhỏ: True
+  0963 (train) lớp 26: 15x11 px trên ảnh 960x540 | ở imgsz 960: 15x11 | COCO nhỏ: True
+  0963 (train) lớp 10: 7x7 px trên ảnh 960x540 | ở imgsz 960: 7x7 | COCO nhỏ: True
+  0964 (train) lớp 13: 15x13 px trên ảnh 960x540 | ở imgsz 960: 15x13 | COCO nhỏ: True
+  0964 (train) lớp 26: 15x11 px trên ảnh 960x540 | ở imgsz 960: 15x11 | COCO nhỏ: True
+  0964 (train) lớp 10: 7x6 px trên ảnh 960x540 | ở imgsz 960: 7x6 | COCO nhỏ: True
+  lớp 26: 80 box, median 31x~ px, số box COCO nhỏ: 41
+  lớp 51: 5 box, median 27x~ px, số box COCO nhỏ: 5
+
+=== D3: dung lượng
+tổng ảnh: 788 MB, 3191 ảnh
+ảnh có cạnh dài >1280: 805 ảnh, 385 MB
+resize về 1280, JPEG q95: mẫu 100 ảnh còn 55% | ước tính tổng: 615 MB
+resize về 1280, JPEG q90: mẫu 100 ảnh còn 38% | ước tính tổng: 549 MB
+nén zip (deflate) trên JPEG: còn 99.8%
+
+=== B4: mẫu ngẫu nhiên
+0009 0128 0295 0512 0562 0734 0802 1129 1318 1433 1552 2108 2199 2396 2531 2548 2668 2728 2892 2923 3036 3042 3048 3062

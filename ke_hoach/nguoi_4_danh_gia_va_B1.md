@@ -2,7 +2,7 @@
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md).
-- [`DATASET_REVIEW.md`](../DATASET_REVIEW.md): mục A1 (rò rỉ dữ liệu), mục E phần Thí nghiệm 5 và 6, mục H (4 câu hỏi cho báo cáo).
+- [`NHAT_KY.md`](../NHAT_KY.md): mục A1 (rò rỉ dữ liệu), mục E phần Thí nghiệm 5 và 6, mục H (4 câu hỏi cho báo cáo).
 - Giáo trình 6.3–6.4 (mạng hai giai đoạn và một giai đoạn).
 
 Vai trò: kiểm tra mô hình có tốt thật không, trên ảnh mới và khi chia dữ liệu đúng cách. Ghép hệ hai giai đoạn. Cuối cùng ghép báo cáo của cả nhóm.
@@ -18,7 +18,7 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 
 **Gán nhãn:**
 - Dùng LabelImg, định dạng YOLO, với `classes.txt` của Người 1 (đúng thứ tự id 52 lớp).
-- Gán **mọi** biển thuộc 52 lớp nhìn thấy được, kể cả biển xa. `archive` cũng gán cả biển rất xa (DATASET_REVIEW, bảng Đính chính).
+- Gán **mọi** biển thuộc 52 lớp nhìn thấy được, kể cả biển xa. `archive` cũng gán cả biển rất xa (NHAT_KY, bảng Đính chính).
 - Biển không thuộc 52 lớp thì **không gán**, nhưng đếm riêng: biển gì, bao nhiêu.
 - Box ôm sát biển, không lấy cột.
 
@@ -42,7 +42,7 @@ Việc này không cần GPU nhưng tốn nhiều ngày công, nên làm từ đ
 - Dùng cùng mạng (A2 của Người 1) và cùng cấu hình train. Mỗi bản 3 seed.
 - Tính macro-F1 trên **cùng tập lớp**: các lớp có ở cả hai test.
 - **Đọc kết quả:** R cao hơn G bao nhiêu thì đó là phần mô hình "nhớ cảnh đã thấy" chứ không phải nhận biết biển tốt hơn.
-- Kèm số liệu rò rỉ: tỉ lệ ảnh test có ảnh train gần trùng. Split gốc 30,7%, split nhóm 0% (DATASET_REVIEW mục A1).
+- Kèm số liệu rò rỉ: tỉ lệ ảnh test có ảnh train gần trùng. Split gốc 30,7%, split nhóm 0% (NHAT_KY mục A1).
 - Vẽ đường cong train và val của cả hai bản. Ở bản R, val cũng bị rò rỉ, nên đường cong trông "đẹp" mà không phát hiện được overfitting.
 
 ## Giai đoạn 2: script đánh giá cho B1

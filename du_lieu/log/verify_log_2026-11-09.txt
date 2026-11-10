@@ -1,0 +1,13 @@
+data.yaml: {'train': 'images/train', 'val': 'images/val', 'test': 'images/test'} | số tên lớp: 52 | lớp 23: Cấm xe hai và ba bánh
+train: 2138 cặp ảnh/nhãn, 5621 box
+val  : 474 cặp ảnh/nhãn, 1078 box
+test : 579 cặp ảnh/nhãn, 1630 box
+tổng ảnh: 3191 | archive: 3216 | rỗng trong archive: 25 | khớp archive - rỗng: True
+tổng box: 8329 (archive 8334, mong đợi 8332)
+box lỗi biên/định dạng: []
+ảnh dùng chung inode với archive: 0 | ảnh khác nội dung: 39
+JPEG thiếu marker kết thúc (Ultralytics sẽ tự ghi lại): 0 []
+lớp 14: 84 lớp 23: 465 lớp 34: 81 lớp 49: 221
+1965 train ['10 0.382468 0.15453 0.061387 0.109847', '23 0.384909 0.273301 0.063068 0.112993']
+2095 train ['10 0.458543 0.168265 0.045944 0.088599', '23 0.458187 0.260112 0.039941 0.085526']
+0248 train ['49 0.982813 0.345370 0.034375 0.101852', '49 0.333854 0.342593 0.046875 0.088889']

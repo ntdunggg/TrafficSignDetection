@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog biển báo</title>
+<style>
+:root{--bg:#f6f6f4;--card:#fff;--ink:#1c1c1a;--mute:#66665f;--line:#deddd6;--accent:#1f5fbf;--accent-ink:#fff;--ok:#1d7a46;--bad:#b3261e;--warn:#8a5a00;--warn-bg:#fdf1d7;--maybe:#6b4fa0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#222220;--ink:#ecebe6;--mute:#a5a49c;--line:#3a3a36;--accent:#7fb0f5;--accent-ink:#10233f;--ok:#62c48d;--bad:#f0897f;--warn:#f0c674;--warn-bg:#3a2f14;--maybe:#b9a3e3}}
+:root[data-theme="dark"]{--bg:#171716;--card:#222220;--ink:#ecebe6;--mute:#a5a49c;--line:#3a3a36;--accent:#7fb0f5;--accent-ink:#10233f;--ok:#62c48d;--bad:#f0897f;--warn:#f0c674;--warn-bg:#3a2f14;--maybe:#b9a3e3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0}
+#progress{color:var(--mute);font-size:13px}
+nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+main{padding:16px;max-width:1280px;margin:0 auto}
+.lead{color:var(--mute);margin:0 0 14px;max-width:80ch}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+input[type=search],input[type=text],textarea,select{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+input[type=search]{width:min(320px,100%)}
+.cls{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.id{font-weight:700;font-variant-numeric:tabular-nums}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--mute)}
+.name{flex:1 1 260px;min-width:0;font-weight:600}
+.name.edited{border-color:var(--accent)}
+.sub{color:var(--mute);font-size:13px;margin:6px 0}
+.warn{display:inline-block;background:var(--warn-bg);color:var(--warn);border-radius:4px;padding:0 6px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:10px 0}
+.tile{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.tile.ok{border-color:var(--ok)}.tile.bad{border-color:var(--bad)}.tile.maybe{border-color:var(--maybe)}
+.pic{height:160px;display:flex;align-items:center;justify-content:center;background:#000}
+.pic img{max-width:100%;max-height:100%;display:block}
+.meta{font-size:12px;color:var(--mute);padding:4px 6px;font-variant-numeric:tabular-nums}
+.acts{display:flex;flex-wrap:wrap;gap:4px;padding:0 6px 6px}
+.acts button{padding:1px 6px;font-size:12px}
+.acts button.ok.on{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.acts button.bad.on{background:var(--bad);border-color:var(--bad);color:var(--card)}
+.acts button.maybe.on{background:var(--maybe);border-color:var(--maybe);color:var(--card)}
+.acts select{width:100%;font-size:12px;padding:1px}
+.moved{font-size:12px;color:var(--bad);padding:0 6px 6px}
+textarea{width:100%;min-height:38px;resize:vertical;display:block}
+dialog{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;width:min(720px,calc(100vw - 32px))}
+dialog textarea{height:280px;font:12px ui-monospace,Menlo,Consolas,monospace}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+#banner{display:none;background:var(--warn-bg);color:var(--warn);padding:6px 16px;font-size:13px}
+</style>
+</head>
+<body>
+<div id="banner">Trình duyệt không cho lưu tạm. Hãy bấm "Xuất kết quả" trước khi đóng trang.</div>
+<header>
+  <div class="top">
+    <h1>Catalog biển báo</h1>
+    <div class="row" style="margin:0">
+      <span id="progress"></span>
+      <button id="export">Xuất kết quả</button>
+    </div>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+<main id="main"></main>
+<dialog id="dlg">
+  <strong>Kết quả của bạn</strong>
+  <p class="sub">Tải file về rồi báo tôi đường dẫn, hoặc sao chép và dán vào khung chat.</p>
+  <textarea id="out" readonly></textarea>
+  <div class="row"><button id="dl">Tải file</button><button id="cp">Sao chép</button><span id="cpmsg" class="sub"></span><button id="close" style="margin-left:auto">Đóng</button></div>
+</dialog>
+<script>
+const DATA = /*__DATA__*/null;
+const KEY = 'vn_signs_catalog_v1';
+const LEADS = {
+  all: 'Mỗi lớp có tên, mã và ảnh cắt từ dataset (khung đỏ là box đã gán). Sửa tên trực tiếp trong ô, thêm ghi chú nếu cần. Đây là tên tiếng Việt lấy từ classes_vie.txt.',
+  c3: 'Xem hướng mũi tên. Theo hoatieu.vn: W.246a là vòng tránh hai bên, W.246c là tránh sang bên phải, nên cả hai mã có vẻ đúng. Lớp 26 đang có tên chung chung, bạn có thể sửa thành tên đầy đủ. Chỉ đánh dấu Sai hoặc đổi lớp với những box lẫn biển khác.',
+  c4: 'Các lớp mang mã không chuẩn (31 Camera, 34 B.8a) và các lớp có dấu * (14, 16, 17, 43). Kiểm tra xem dấu * có đúng là một loại biển gồm nhiều biến thể không, rồi ghi vào ô ghi chú của lớp.',
+  c5: 'Khung đỏ là biển phụ, phần phía trên cho thấy biển chính đi kèm. Đánh dấu Đúng nếu đúng loại xe của lớp, Sai nếu không phải, hoặc đổi sang lớp khác.'
+};
+let state = {names:{}, notes:{}, boxes:{}};
+let storageOk = true;
+try { const s = localStorage.getItem(KEY); if (s) state = Object.assign(state, JSON.parse(s)); } catch (e) { storageOk = false; }
+if (!storageOk) document.getElementById('banner').style.display = 'block';
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { document.getElementById('banner').style.display = 'block'; } progress(); }
+
+const main = document.getElementById('main');
+const byId = Object.fromEntries(DATA.classes.map(c => [c.id, c]));
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const nameOf = c => state.names[c.id] ?? c.vi;
+const tabsDef = [{key:'all', title:'Tất cả biển (52)'}, ...DATA.sections.map(s => ({key:s.key, title:s.title}))];
+let tab = 'all', query = '', filters = {};
+try { tab = localStorage.getItem(KEY + '_tab') || 'all'; } catch (e) {}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = tabsDef.map(t => `<button data-tab="${t.key}" class="${t.key === tab ? 'on' : ''}" aria-pressed="${t.key === tab}">${esc(t.title)}</button>`).join('');
+}
+function progress() {
+  const total = Object.values(DATA.review).reduce((a, v) => a + v.length, 0);
+  const done = Object.values(state.boxes).filter(b => b.status || b.to !== undefined).length;
+  const ren = Object.entries(state.names).filter(([id, n]) => n !== byId[id].vi).length;
+  document.getElementById('progress').textContent = `Đã xem ${done}/${total} box, đã đổi tên ${ren} lớp`;
+}
+function head(c) {
+  const edited = nameOf(c) !== c.vi;
+  const miss = [c.val === 0 ? 'val' : null, c.test === 0 ? 'test' : null].filter(Boolean);
+  return `<div class="head"><span class="id">#${c.id}</span><span class="code">${esc(c.code)}</span>
+    <input type="text" class="name ${edited ? 'edited' : ''}" data-name="${c.id}" value="${esc(nameOf(c))}" aria-label="Tên lớp ${c.id}"></div>
+    <div class="sub">${esc(c.en)} · ${c.total} box (train ${c.train}, val ${c.val}, test ${c.test}) · ${c.small} box nhỏ
+    ${miss.length ? `<span class="warn">không có ở ${miss.join(' và ')}</span>` : ''}${edited ? ` · tên gốc: ${esc(c.vi)}` : ''}</div>`;
+}
+function noteBox(c) { return `<textarea data-note="${c.id}" placeholder="Ghi chú cho lớp này" aria-label="Ghi chú lớp ${c.id}">${esc(state.notes[c.id] ?? '')}</textarea>`; }
+function sampleTile(b) { return `<div class="tile"><div class="pic"><img src="${b.img}" alt="Ảnh ${b.s}"></div><div class="meta">${b.s} · ${b.sp} · ${b.pw}×${b.ph} px</div></div>`; }
+function renderAll() {
+  const q = query.trim().toLowerCase();
+  const list = DATA.classes.filter(c => !q || `${c.id} ${c.code} ${c.en} ${c.vi} ${nameOf(c)}`.toLowerCase().includes(q));
+  main.innerHTML = `<p class="lead">${LEADS.all}</p><div class="tools"><input type="search" id="q" placeholder="Tìm theo tên, mã hoặc id" value="${esc(query)}" aria-label="Tìm biển"></div>` +
+    (list.length ? list.map(c => `<section class="cls">${head(c)}<div class="grid">${c.samples.map(sampleTile).join('')}</div>${noteBox(c)}</section>`).join('') : '<p class="lead">Không có lớp nào khớp.</p>');
+}
+function statusOf(b) { return state.boxes[b.k] || {}; }
+function boxTile(b) {
+  const st = statusOf(b);
+  const cls = st.status ? {'dung':'ok','sai':'bad','khongro':'maybe'}[st.status] : '';
+  return `<div class="tile ${cls}" data-box="${b.k}"><div class="pic"><img src="${b.img}" alt="Ảnh ${b.s}"></div>
+    <div class="meta">${b.s} · ${b.sp} · ${b.pw}×${b.ph} px${b.small ? ' · nhỏ' : ''}</div>
+    <div class="acts"><button class="ok ${st.status === 'dung' ? 'on' : ''}" data-set="dung">Đúng</button><button class="bad ${st.status === 'sai' ? 'on' : ''}" data-set="sai">Sai</button><button class="maybe ${st.status === 'khongro' ? 'on' : ''}" data-set="khongro">Không rõ</button><button data-move="1">Đổi lớp</button></div>
+    ${st.to !== undefined ? `<div class="moved">Đổi sang #${st.to} ${esc(nameOf(byId[st.to]))}</div>` : ''}</div>`;
+}
+function matches(b, f) {
+  const st = statusOf(b);
+  if (f.small && !b.small) return false;
+  if (f.show === 'chua') return !st.status && st.to === undefined;
+  if (f.show && f.show !== 'all') return st.status === f.show;
+  return true;
+}
+function gridOf(id) {
+  const f = filters[id] || {show:'all'};
+  const list = DATA.review[id].filter(b => matches(b, f));
+  return list.length ? list.map(boxTile).join('') : '<p class="sub">Không có box nào khớp bộ lọc.</p>';
+}
+function filterBar(id) {
+  const f = filters[id] || {show:'all'};
+  const opts = [['all','Tất cả'],['chua','Chưa xem'],['dung','Đúng'],['sai','Sai'],['khongro','Không rõ']];
+  return `<div class="tools" style="margin:10px 0 0">${opts.map(([k, t]) => `<button data-filter="${id}" data-val="${k}" class="${f.show === k ? 'on' : ''}">${t}</button>`).join('')}
+    <button data-small="${id}" class="${f.small ? 'on' : ''}">Chỉ box nhỏ</button><button data-bulk="${id}" style="margin-left:auto">Đánh dấu Đúng cho box chưa xem</button></div>`;
+}
+function renderSection(sec) {
+  main.innerHTML = `<p class="lead">${LEADS[sec.key]}</p>` + sec.ids.map(id => {
+    const c = byId[id];
+    return `<section class="cls" data-cls="${id}">${head(c)}${noteBox(c)}${filterBar(id)}<div class="grid" data-grid="${id}">${gridOf(id)}</div></section>`;
+  }).join('');
+}
+function render() {
+  renderTabs(); progress();
+  const sec = DATA.sections.find(s => s.key === tab);
+  if (sec) renderSection(sec); else { tab = 'all'; renderAll(); }
+}
+function refreshSection(id) {
+  const c = document.querySelector(`[data-cls="${id}"]`);
+  if (!c) return;
+  c.querySelector(`[data-grid="${id}"]`).innerHTML = gridOf(id);
+  c.querySelector('.tools').outerHTML = filterBar(id);
+}
+const classOfBox = k => Object.keys(DATA.review).find(id => DATA.review[id].some(b => b.k === k));
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.dataset.tab) { tab = t.dataset.tab; try { localStorage.setItem(KEY + '_tab', tab); } catch (err) {} render(); scrollTo(0, 0); return; }
+  if (t.dataset.set) {
+    const k = t.closest('[data-box]').dataset.box;
+    const cur = state.boxes[k] || {};
+    state.boxes[k] = Object.assign({}, cur, {status: cur.status === t.dataset.set ? undefined : t.dataset.set});
+    save();
+    const tile = t.closest('[data-box]');
+    const b = DATA.review[classOfBox(k)].find(x => x.k === k);
+    tile.outerHTML = boxTile(b);
+    return;
+  }
+  if (t.dataset.move) {
+    const tile = t.closest('[data-box]');
+    const k = tile.dataset.box;
+    const st = statusOf({k});
+    t.parentElement.innerHTML = `<select data-to="${k}" aria-label="Đổi sang lớp"><option value="">Giữ lớp hiện tại</option>${DATA.classes.map(c => `<option value="${c.id}" ${st.to === c.id ? 'selected' : ''}>#${c.id} ${esc(nameOf(c))}</option>`).join('')}</select>`;
+    return;
+  }
+  if (t.dataset.filter) { const id = t.dataset.filter; filters[id] = Object.assign({show:'all'}, filters[id], {show: t.dataset.val}); refreshSection(id); return; }
+  if (t.dataset.small) { const id = t.dataset.small; filters[id] = Object.assign({show:'all'}, filters[id]); filters[id].small = !filters[id].small; refreshSection(id); return; }
+  if (t.dataset.bulk) {
+    const id = t.dataset.bulk;
+    DATA.review[id].forEach(b => { const st = statusOf(b); if (!st.status && st.to === undefined) state.boxes[b.k] = {status: 'dung'}; });
+    save(); refreshSection(id); return;
+  }
+});
+document.addEventListener('change', e => {
+  const k = e.target.dataset.to;
+  if (k !== undefined) {
+    const cur = state.boxes[k] || {};
+    const next = Object.assign({}, cur);
+    if (e.target.value === '') delete next.to; else next.to = Number(e.target.value);
+    state.boxes[k] = next; save();
+    e.target.closest('[data-box]').outerHTML = boxTile(DATA.review[classOfBox(k)].find(x => x.k === k));
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q') { query = t.value; const pos = t.selectionStart; renderAll(); const q = document.getElementById('q'); q.focus(); q.setSelectionRange(pos, pos); return; }
+  if (t.dataset.name !== undefined) { const c = byId[t.dataset.name]; if (t.value === c.vi) delete state.names[c.id]; else state.names[c.id] = t.value; t.classList.toggle('edited', t.value !== c.vi); save(); }
+  if (t.dataset.note !== undefined) { if (t.value) state.notes[t.dataset.note] = t.value; else delete state.notes[t.dataset.note]; save(); }
+});
+
+function result() {
+  const boxes = {};
+  for (const [k, v] of Object.entries(state.boxes)) if (v.status || v.to !== undefined) boxes[k] = v;
+  const names = {};
+  for (const [id, n] of Object.entries(state.names)) names[id] = {tu: byId[id].vi, thanh: n};
+  return JSON.stringify({catalog: 'vn_signs_yolo', ghi_chu_khoa: 'khóa box = tên ảnh#số dòng (từ 0) trong nhãn của data/vn_signs_yolo', doi_ten: names, ghi_chu: state.notes, box: boxes}, null, 1);
+}
+const dlg = document.getElementById('dlg');
+document.getElementById('export').onclick = () => { document.getElementById('out').value = result(); document.getElementById('cpmsg').textContent = ''; dlg.showModal(); };
+document.getElementById('close').onclick = () => dlg.close();
+document.getElementById('dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([result()], {type: 'application/json'})); a.download = 'catalog_ket_qua.json'; a.click(); };
+document.getElementById('cp').onclick = async () => {
+  const out = document.getElementById('out'); const msg = document.getElementById('cpmsg');
+  try { await navigator.clipboard.writeText(out.value); msg.textContent = 'Đã sao chép'; }
+  catch (e) { out.select(); msg.textContent = 'Hãy nhấn Cmd+C để sao chép'; }
+};
+render();
+</script>
+</body>
+</html>

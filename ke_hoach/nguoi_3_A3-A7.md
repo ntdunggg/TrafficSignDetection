@@ -2,7 +2,7 @@
 
 Đọc trước:
 - [`00_chung.md`](00_chung.md) và [`nguoi_1_du_lieu_va_A0-A2.md`](nguoi_1_du_lieu_va_A0-A2.md). Bạn dùng bộ ảnh cắt, khung code `src/` và mạng A2 của Người 1.
-- [`DATASET_REVIEW.md`](../DATASET_REVIEW.md): D1 (không lật ngang), C6 (nhóm lớp dễ nhầm), mục E phần "Thí nghiệm 7". Phần này là cơ sở lý thuyết và quy tắc chọn cho A5.
+- [`NHAT_KY.md`](../NHAT_KY.md): D1 (không lật ngang), C6 (nhóm lớp dễ nhầm), mục E phần "Thí nghiệm 7". Phần này là cơ sở lý thuyết và quy tắc chọn cho A5.
 - Slide bài 4, bài 5 và giáo trình chương 4 (4.1–4.9).
 
 Vai trò: phần "huấn luyện mạng" của môn. Mỗi bậc đổi **một yếu tố** so với bậc trước, chạy 3 seed, rồi trả lời câu hỏi bằng số liệu.
