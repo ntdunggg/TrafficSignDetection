@@ -18,7 +18,8 @@ cd data && zip -0 -r vn_signs_yolo.zip vn_signs_yolo -x "*.cache"
 
 - Tải lên Kaggle bằng **New Dataset**, để **Private**, rồi thêm 3 bạn còn lại làm collaborator.
   - File thực tế đã gói ngày 2026-11-14 là `data/vn_signs_kaggle.zip`, gồm cả `vn_signs_crops/`, `classes.txt`, `crops_info.json` (NHAT_KY, lịch sử 2026-11-14), không chỉ `vn_signs_yolo/` như lệnh trên.
-  - Tải xong: mở một notebook, Add Input dataset đó, chạy `!ls /kaggle/input/*/` để biết đường dẫn thật. Thay `<tên>` trong mục "Chạy trên Kaggle" của `00_chung.md` bằng đường dẫn đó, rồi nhắn nhóm.
+  - ✅ Đã tải lên ngày 2026-11-14: [`dngnguyntrng/vn-sign`](https://www.kaggle.com/datasets/dngnguyntrng/vn-sign), Private. Đã điền `/kaggle/input/vn-sign/` vào mục "Chạy trên Kaggle" của `00_chung.md`.
+  - Còn lại: thêm 3 bạn làm collaborator; mở một notebook, Add Input dataset đó, chạy `!ls /kaggle/input/*/` để kiểm đường dẫn (sửa `00_chung.md` nếu khác); chạy thử `src.train --epochs 1` trên Kaggle; nhắn nhóm.
 - Xuất file `classes.txt`: 52 dòng theo đúng thứ tự id trong `data.yaml`. Anh Đức cần file này để gán nhãn bằng LabelImg.
 - Tạo `ket_qua/ket_qua.csv` với dòng tiêu đề như trong `00_chung.md`.
 

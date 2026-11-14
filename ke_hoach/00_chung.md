@@ -81,9 +81,9 @@ Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoả
 
 ### Chạy trên Kaggle
 
-Dataset riêng tư của nhóm (Dũng tải lên, thêm mọi người làm collaborator) gồm `vn_signs_yolo/`, `vn_signs_crops/`, `classes.txt`, `crops_info.json`. Trong notebook: **Add Input** → chọn dataset đó.
+Dataset riêng tư của nhóm: [`dngnguyntrng/vn-sign`](https://www.kaggle.com/datasets/dngnguyntrng/vn-sign) (Dũng tải lên ngày 2026-11-14, thêm mọi người làm collaborator) gồm `vn_signs_yolo/`, `vn_signs_crops/`, `classes.txt`, `crops_info.json`. Trong notebook: **Add Input** → chọn dataset đó.
 
-**Kiểm đường dẫn trước khi chạy.** `<tên>` dưới đây là chỗ giữ, chưa kiểm trên Kaggle thật. Đường dẫn đúng phụ thuộc vào cách Kaggle giải nén file zip, nên chạy lệnh này rồi thay vào:
+**Kiểm đường dẫn trước khi chạy.** `/kaggle/input/vn-sign/` dưới đây là đường dẫn theo tên dataset, **chưa kiểm trong notebook thật**. Đường dẫn đúng phụ thuộc vào cách Kaggle gắn dataset và giải nén file zip, nên chạy lệnh này trước; nếu khác thì sửa lại các lệnh dưới:
 
 ```bash
 !ls /kaggle/input/*/
@@ -92,15 +92,15 @@ Dataset riêng tư của nhóm (Dũng tải lên, thêm mọi người làm coll
 YOLO (`data.yaml` không ghi `path`, Ultralytics lấy thư mục chứa file yaml làm gốc nên không cần sửa file):
 
 ```bash
-yolo detect train data=/kaggle/input/<tên>/vn_signs_yolo/data.yaml model=yolov8s.yaml imgsz=960 fliplr=0 ...
+yolo detect train data=/kaggle/input/vn-sign/vn_signs_yolo/data.yaml model=yolov8s.yaml imgsz=960 fliplr=0 ...
 ```
 
 Mạng phân loại: clone repo vào `/kaggle/working`, `cd` vào thư mục repo, rồi trỏ `--manifest` và `--info` vào input. `dataset.py` đọc ảnh theo thư mục chứa `manifest.csv`, nên thư mục input chỉ đọc vẫn dùng được. Kết quả ghi vào `/kaggle/working`:
 
 ```bash
 python -m src.train --model a0 \
-  --manifest /kaggle/input/<tên>/vn_signs_crops/manifest.csv \
-  --info /kaggle/input/<tên>/crops_info.json \
+  --manifest /kaggle/input/vn-sign/vn_signs_crops/manifest.csv \
+  --info /kaggle/input/vn-sign/crops_info.json \
   --out /kaggle/working/runs_a
 ```
 
