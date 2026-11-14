@@ -53,6 +53,24 @@ Sổ chung của nhóm, Dũng giữ. Sổ riêng của từng người ở `nhat
   - Sổ riêng `nhat_ky/sy_nguyen.md`, `nhat_ky/minh_quan.md`, `nhat_ky/anh_duc.md`. Mỗi người chỉ sửa sổ của mình, mục mới ở trên. Mục ghi "Chuyển vào NHAT_KY.md: có" thì Dũng chép sang sổ này, ghi nguồn. Dũng ghi thẳng vào sổ này.
   - Sửa quy tắc 10, thêm quy tắc 11 trong `ke_hoach/00_chung.md`; sửa chỗ "gửi Dũng ghi vào sổ" trong file của Sỹ Nguyên và Anh Đức.
 
+**2026-11-14** (giai đoạn 0 của Dũng, nhánh `dung/giai-doan-0`)
+- **Bộ ảnh cắt (0.2):** `src/data/make_crops.py` cắt mỗi box thành PNG ở `data/vn_signs_crops/` (git ignore) kèm `manifest.csv`. Cắt theo hàm `crop_box`: hình vuông, tâm là tâm box, cạnh = round(1,2 × cạnh dài box), đệm bằng pixel mép. `line` đếm từ 0, khớp khóa `stem#line` của catalog (1193#2 là dòng thứ ba). Mất 40 giây.
+- **Kiểm tra** (`src/data/check_crops.py`, log ở `du_lieu/log/check_crops_2026-11-14.txt`): đạt cả 4 mục.
+  - Số ảnh cắt: train 5621, val 1078, test 1630.
+  - 3191 stem và 169 nhóm frame, không cái nào nằm ở hai tập. `groups.csv` có 171 nhóm; nhóm 113 và 160 chỉ gồm ảnh nhãn rỗng đã loại.
+  - Số theo lớp khớp `class_counts.csv` sau 5 sửa nhãn đã ghi: lớp 14 −1 (box trùng 1965) và lớp 34 −1 (box trùng 2095) ở B1, lớp 16 −3 (catalog), 1193#2 chuyển 28 → 30. Lần chạy đầu báo lệch 3 lớp vì script chưa tính các sửa này; đã đối chiếu `build_log.txt`, `apply_catalog_log.txt` rồi sửa script.
+  - Ảnh vuông, cạnh đúng. Cạnh ảnh cắt: nhỏ nhất 8 px, trung vị 43, p75 70, lớn nhất 570; 71,4% có cạnh ≤ 64 px (sẽ bị phóng to khi đưa về 64×64).
+  - Đã xem ảnh ghép 10 ảnh/lớp của cả 52 lớp: mỗi hàng đúng một loại biển, các ảnh đã xoay (lớp 14 ảnh 1329, lớp 31 ảnh 1324–1328) đứng thẳng. Ảnh ghép ở `data/vn_signs_crops/_xem/`.
+- **Mean/std của train** ở 64×64 (giáo trình 4.2), lưu `du_lieu/crops_info.json` cùng md5 nhãn `80a393b981121f57e7080674c2750722`: mean (0,468; 0,437; 0,462), std (0,207; 0,199; 0,208).
+- **Khung code (0.3):** `src/data/dataset.py` (đọc manifest, đổi về 64×64 một lần, giữ trong RAM), `src/data/augment.py` (chỗ để Minh Quân thêm tăng cường, chỉ có `none`), `src/models/` (A0), `src/train.py`, `src/evaluate.py`, `src/summary.py`, `src/utils.py`.
+  - `train.py`: chọn optimizer (adam, adamw, sgd), lịch lr (none, step, cosine, linear), tăng cường, seed; ghi `config.json`, `log.csv`, `best.pt` theo val macro-F1; có `--nguoi` thì thêm một dòng vào `ket_qua/ket_qua.csv`.
+  - `evaluate.py`: accuracy, macro-F1 trên các lớp có mặt, recall và F1 từng lớp, confusion matrix (CSV, PNG). Chấm test phải thêm `--cham-test`.
+- **Chạy thử A0** trên M2 (MPS): `summary.py` ra đúng 342.056 tham số, khớp tính tay. 1 epoch khoảng 1–2 giây. Cùng seed chạy 2 lần trên MPS ra cùng val macro-F1 0,2540 (35 lớp); trên CPU ra 0,2506. Đây chỉ là chạy thử, không ghi vào `ket_qua.csv`.
+- **Gói cho Kaggle:** `data/vn_signs_kaggle.zip` (822 MB, không nén thêm) gồm `vn_signs_yolo/` (bỏ `.cache`), `vn_signs_crops/` (bỏ `_xem/`), `classes.txt`, `crops_info.json`. Đã kiểm số file: 3191 ảnh, 3191 nhãn, 8329 PNG. **Chưa tải lên Kaggle** (Dũng tự làm).
+- **Cách chạy trên Kaggle** ghi ở `ke_hoach/00_chung.md`, mục "Chạy trên Kaggle": YOLO trỏ `data=` vào `vn_signs_yolo/data.yaml` trong input; mạng phân loại trỏ `--manifest`, `--info` vào input và `--out` vào `/kaggle/working`. Trước đó chỉ kế hoạch của Sỹ Nguyên nhắc Kaggle (đường dẫn để trống `.../data.yaml`), chưa chỗ nào hướng dẫn chạy mạng phân loại trên Kaggle. Đường dẫn `/kaggle/input/<tên>/` **chưa kiểm**, sẽ thay bằng đường dẫn thật sau khi tải lên (`!ls /kaggle/input/*/`).
+- `du_lieu/classes.txt`: 52 dòng dạng `mã tên`, dòng thứ i là lớp id i, cho LabelImg của Anh Đức. `ket_qua/ket_qua.csv`: chỉ có dòng tiêu đề.
+- Sửa `.gitignore`: `data/` thành `/data/` vì mẫu cũ bỏ qua cả `src/data/`; thêm `*.pt`, `*.pth`, `*.ckpt`, `runs/`, `__pycache__/`.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.

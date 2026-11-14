@@ -78,3 +78,30 @@ Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoả
 - YOLO: `pip install ultralytics==8.4.191`. Train trên Kaggle hoặc Colab (GPU), mỗi người dùng tài khoản riêng để có thêm quota.
 - Mạng phân loại: PyTorch và torchvision. Ảnh 64×64 nhỏ nên chạy được trên máy cá nhân (Mac M2 dùng `device="mps"`) hoặc Colab.
 - Trên MPS, một số phép tính không tất định: cùng seed vẫn có thể ra số hơi khác. Đây là thêm một lý do để chạy 3 seed.
+
+### Chạy trên Kaggle
+
+Dataset riêng tư của nhóm (Dũng tải lên, thêm mọi người làm collaborator) gồm `vn_signs_yolo/`, `vn_signs_crops/`, `classes.txt`, `crops_info.json`. Trong notebook: **Add Input** → chọn dataset đó.
+
+**Kiểm đường dẫn trước khi chạy.** `<tên>` dưới đây là chỗ giữ, chưa kiểm trên Kaggle thật. Đường dẫn đúng phụ thuộc vào cách Kaggle giải nén file zip, nên chạy lệnh này rồi thay vào:
+
+```bash
+!ls /kaggle/input/*/
+```
+
+YOLO (`data.yaml` không ghi `path`, Ultralytics lấy thư mục chứa file yaml làm gốc nên không cần sửa file):
+
+```bash
+yolo detect train data=/kaggle/input/<tên>/vn_signs_yolo/data.yaml model=yolov8s.yaml imgsz=960 fliplr=0 ...
+```
+
+Mạng phân loại: clone repo vào `/kaggle/working`, `cd` vào thư mục repo, rồi trỏ `--manifest` và `--info` vào input. `dataset.py` đọc ảnh theo thư mục chứa `manifest.csv`, nên thư mục input chỉ đọc vẫn dùng được. Kết quả ghi vào `/kaggle/working`:
+
+```bash
+python -m src.train --model a0 \
+  --manifest /kaggle/input/<tên>/vn_signs_crops/manifest.csv \
+  --info /kaggle/input/<tên>/crops_info.json \
+  --out /kaggle/working/runs_a
+```
+
+Có `--nguoi` thì dòng kết quả được thêm vào `ket_qua/ket_qua.csv` của bản clone trên Kaggle. Nhớ tải file đó (hoặc chép dòng mới) về máy rồi commit.

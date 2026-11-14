@@ -66,8 +66,8 @@ du_lieu/
   scripts/           # script dựng dataset từ archive, chia tập, kiểm tra, đo, catalog
   splits/            # danh sách ảnh train/val/test, groups.csv (nhóm frame), class_counts.csv
   log/               # log khi dựng và kiểm tra dataset, kết quả xem catalog
-src/                 # (sắp có) code PyTorch của hướng A, Người 1 dựng ở giai đoạn 0
-ket_qua/             # (sắp có) ket_qua.csv: mỗi lần chạy một dòng
+src/                 # code PyTorch của hướng A: make_crops, dataset, models/, train, evaluate, summary
+ket_qua/             # ket_qua.csv: mỗi lần chạy một dòng
 data/                # không có trong git: dataset làm việc, ảnh cắt, kết quả train, bằng chứng ảnh
 catalog/             # không có trong git: trang HTML để xem và sửa nhãn
 ```
