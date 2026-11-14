@@ -1,0 +1,8 @@
+OK   1. Số ảnh cắt {'train': 5621, 'val': 1078, 'test': 1630}
+OK   2a. 3191 stem, không stem nào ở hai tập
+OK   2b. 169 nhóm frame, không nhóm nào ở hai tập
+OK   3. Số ảnh cắt theo lớp khớp class_counts.csv sau các sửa nhãn đã ghi. Lệch: {}
+OK   4. File tồn tại, ảnh vuông, cạnh đúng 1,2 × cạnh dài box. Lỗi: []
+Cạnh ảnh cắt (px): nhỏ nhất 8, p25 29, trung vị 43, p75 70, lớn nhất 570; ≤ 64 px: 71.4%
+Ảnh ghép: data/vn_signs_crops/_xem/lop_00.jpg ... lop_51.jpg
+KẾT LUẬN: đạt
