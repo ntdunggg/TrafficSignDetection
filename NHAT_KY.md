@@ -1,6 +1,6 @@
 # Nhật ký dự án: nhận diện biển báo giao thông Việt Nam
 
-Sổ chung của nhóm, Dũng giữ. Sổ riêng của từng người ở `nhat_ky/`, cách ghi ở `AGENTS.md`. Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soát dataset `archive`, mục E là kế hoạch và thí nghiệm, mục F–H là câu hỏi.
+Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, kế hoạch ở `ke_hoach/dung_lam_mot_minh.md`. Sổ riêng cũ của từng người ở `nhat_ky/` chỉ còn làm lịch sử. Cách ghi ở `AGENTS.md`. Trước 2026-11-10 file này tên là `DATASET_REVIEW.md`. Mục A–D rà soát dataset `archive`, mục E là kế hoạch và thí nghiệm, mục F–H là câu hỏi.
 
 Đây là bản ghi duy nhất cho từng ghi chú, quyết định và thay đổi, dùng để viết báo cáo cùng sản phẩm.
 
@@ -70,6 +70,22 @@ Sổ chung của nhóm, Dũng giữ. Sổ riêng của từng người ở `nhat
 - **Cách chạy trên Kaggle** ghi ở `ke_hoach/00_chung.md`, mục "Chạy trên Kaggle": YOLO trỏ `data=` vào `vn_signs_yolo/data.yaml` trong input; mạng phân loại trỏ `--manifest`, `--info` vào input và `--out` vào `/kaggle/working`. Trước đó chỉ kế hoạch của Sỹ Nguyên nhắc Kaggle (đường dẫn để trống `.../data.yaml`), chưa chỗ nào hướng dẫn chạy mạng phân loại trên Kaggle. Dataset đã tải lên: [`dngnguyntrng/vn-sign`](https://www.kaggle.com/datasets/dngnguyntrng/vn-sign), Private; đường dẫn trong notebook là `/kaggle/input/datasets/dngnguyntrng/vn-sign/` (đã kiểm bằng `find` trong notebook thật: thấy `crops_info.json`, `vn_signs_crops/manifest.csv`, `vn_signs_yolo/data.yaml`). Đường dẫn đoán ban đầu `/kaggle/input/vn-sign/` sai: Kaggle thêm tầng `datasets/<chủ>/`.
 - `du_lieu/classes.txt`: 52 dòng dạng `mã tên`, dòng thứ i là lớp id i, cho LabelImg của Anh Đức. `ket_qua/ket_qua.csv`: chỉ có dòng tiêu đề.
 - Sửa `.gitignore`: `data/` thành `/data/` vì mẫu cũ bỏ qua cả `src/data/`; thêm `*.pt`, `*.pth`, `*.ckpt`, `runs/`, `__pycache__/`.
+
+**2026-11-19** (đổi kế hoạch, nhánh `dung/ke-hoach-mot-minh`)
+- **Nhóm chỉ còn Dũng.** Sỹ Nguyên, Minh Quân, Anh Đức không làm nữa. Hạn nộp còn khoảng 2–3 tuần, trong khoảng 03/12 đến 10/12/2026.
+- Viết kế hoạch mới [`ke_hoach/dung_lam_mot_minh.md`](ke_hoach/dung_lam_mot_minh.md), thay cho phân công 4 người. Lịch 3 tuần: tuần 1 xây mạng A0–A4, tuần 2 huấn luyện và đánh giá, tuần 3 viết báo cáo và dự phòng.
+- **Giữ:** A0–A4, A5 rút gọn (optimizer, lịch lr), A7, Thí nghiệm 5, Thí nghiệm 3.
+- **Làm thêm:**
+  - B0, 1 seed, chỉ làm nếu đo 1 epoch trên Kaggle thấy kịp;
+  - phần khởi tạo và hàm kích hoạt của A5.
+- **Bỏ:** B1, B2a, chọn lr cho YOLO, Thí nghiệm 6, Thí nghiệm 1, 2, 4.
+- **Lý do cắt:**
+  - Cô chấm nặng phần tự xây mạng, mà YOLO tạo từ file `.yaml` có sẵn.
+  - YOLO tốn 551 giây mỗi epoch trên M2 (mục E, "Chạy thử 1 epoch"), trong khi A0 chỉ 1–2 giây.
+- **H2, H3** chuyển sang trả lời bằng lý thuyết. H3 có thêm một phép thử rẻ, đề xuất mới: đưa vùng nền không chứa biển qua mạng, đếm số vùng bị gán lớp với độ tin cậy cao.
+- **Quyết định của Dũng:** làm theo phạm vi rút gọn này, không hỏi lại cô.
+- File `ke_hoach/nguoi_2..4` và `nhat_ky/` giữ lại làm lịch sử, không xoá. Kế hoạch mới trỏ tới các file đó để lấy mô tả chi tiết của A3–A5, A7 và Thí nghiệm 5.
+- PR #1 và #3 (giai đoạn 0) đã gộp vào `main` ngày 2026-11-14.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
@@ -540,6 +556,8 @@ Chưa tạo file zip vì dữ liệu có thể đổi sau khi bạn sửa trong 
 
 #### Phân công (chốt tên 2026-11-10)
 
+**Hết hiệu lực từ 2026-11-19:** nhóm chỉ còn Dũng. Phạm vi và lịch mới ở mục "Kế hoạch rút gọn khi làm một mình" ngay dưới đây và ở [`ke_hoach/dung_lam_mot_minh.md`](ke_hoach/dung_lam_mot_minh.md). Bảng dưới giữ lại làm lịch sử.
+
 Kế hoạch chi tiết cho từng người (việc, lệnh, tiêu chí xong, bàn giao, câu hỏi phải trả lời) ở thư mục [`ke_hoach/`](ke_hoach/00_chung.md): `00_chung.md` và 4 file `nguoi_1` … `nguoi_4`. Khi kế hoạch đổi, sửa ở sổ này trước rồi sửa các file đó theo.
 
 | Người | Việc | Phần báo cáo |
@@ -554,6 +572,31 @@ Kế hoạch chi tiết cho từng người (việc, lệnh, tiêu chí xong, b�
 **Đã hỏi cô (2026-11-10):** không được dùng mạng đã học trước. Đã bỏ A6, B2b; B0, B1, B2a train từ đầu.
 
 **Chưa biết, nhóm sẽ trả lời sau:** MSSV và thế mạnh từng người, hạn nộp báo cáo, mỗi người có tài khoản Kaggle hoặc Colab hay không.
+
+### Kế hoạch rút gọn khi làm một mình (2026-11-19)
+
+**Vì sao đổi:** nhóm chỉ còn Dũng, hạn còn 2–3 tuần. Chi tiết từng bước, lệnh và tiêu chí xong ở [`ke_hoach/dung_lam_mot_minh.md`](ke_hoach/dung_lam_mot_minh.md).
+
+**Nguyên tắc:**
+- Giữ hướng A, vì đây đúng phần "tự xây mạng" mà cô chấm nặng, và rẻ: 1–2 giây mỗi epoch trên M2.
+- Cắt hướng B: YOLO tạo từ `yolov8s.yaml` của Ultralytics, và tốn 551 giây mỗi epoch trên M2.
+- Giữ các câu H1–H4, trả lời bằng thí nghiệm rẻ nhất có số liệu.
+
+| Việc | Trạng thái mới |
+|---|---|
+| A0–A4 | Giữ |
+| A5 | Rút gọn còn optimizer và lịch lr. Khởi tạo và hàm kích hoạt là phần làm thêm |
+| A7 | Giữ, vì chỉ dùng lại các lần chạy đã có |
+| B0 | Làm thêm, 1 seed, `optimizer=SGD lr0=0.01 momentum=0.937`. Chỉ làm nếu 100 epoch vừa một phiên Kaggle (đo 1 epoch trước) |
+| B1, B2a, chọn lr cho YOLO | Bỏ |
+| Thí nghiệm 3, 5 | Giữ |
+| Thí nghiệm 6 | Bỏ. H3 trả lời bằng lý thuyết, cộng một phép thử: vùng nền không chứa biển |
+| Thí nghiệm 1, 2, 4 | Bỏ |
+
+**Hạn chế phải ghi trong báo cáo:**
+- Không có hệ hai giai đoạn, nên H2 không có số liệu.
+- Không có ảnh tự chụp, nên H3 không có số đo trên ảnh thật ngoài phân phối.
+- B0, nếu làm, không tìm lr và chỉ chạy 1 seed.
 
 ### Chạy thử 1 epoch (2026-11-09) ✅
 **Mục đích:** Kiểm tra Ultralytics đọc đúng dataset và chạy hết quy trình train, chấm val, chấm test. Không dùng để đánh giá chất lượng model.

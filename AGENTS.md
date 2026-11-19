@@ -10,7 +10,17 @@ Agent giúp người dùng làm và hiểu bài. Không làm thay đến mức n
 
 ## 1. Đầu mỗi phiên
 
-1. Hỏi người dùng là ai trong 4 người, nếu họ chưa nói:
+**Từ 2026-11-19 nhóm chỉ còn Dũng.** Người dùng là Dũng, không cần hỏi. Đọc theo thứ tự:
+1. [`README.md`](README.md).
+2. [`ke_hoach/dung_lam_mot_minh.md`](ke_hoach/dung_lam_mot_minh.md): kế hoạch hiện tại, thay cho phân công 4 người.
+3. [`ke_hoach/00_chung.md`](ke_hoach/00_chung.md): quy tắc chung, môi trường, cách chạy trên Kaggle.
+4. Các mục của `NHAT_KY.md` mà kế hoạch chỉ tới, và vài mục mới nhất ở "Lịch sử thay đổi".
+
+Nói lại ngắn cho người dùng: đang ở bước nào của kế hoạch, việc tiếp theo là gì.
+
+Các file kế hoạch `nguoi_2..4` và sổ trong `nhat_ky/` chỉ còn là lịch sử. Đọc chúng khi kế hoạch mới trỏ tới để lấy mô tả chi tiết thí nghiệm. Không sửa chúng, không làm theo phân công trong đó. Phần còn lại của mục này là cách làm cũ khi nhóm có 4 người, giữ lại làm lịch sử.
+
+1. (Cũ) Hỏi người dùng là ai trong 4 người, nếu họ chưa nói:
 
    | Vai | Người | Kế hoạch | Sổ ghi |
    |---|---|---|---|
