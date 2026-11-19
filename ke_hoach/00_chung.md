@@ -1,5 +1,9 @@
 # Kế hoạch chung của nhóm
 
+> **Từ 2026-11-19 nhóm chỉ còn Dũng.** Kế hoạch hiện tại ở [`dung_lam_mot_minh.md`](dung_lam_mot_minh.md).
+> - Còn dùng các mục "Quy tắc chung", "Môi trường", "Chạy trên Kaggle" ở file này.
+> - Bảng phân công, bảng giai đoạn và bảng bàn giao bên dưới chỉ còn làm lịch sử.
+
 Đề tài môn Học sâu (IT4653, HUST): nhận diện biển báo giao thông Việt Nam. Cô chấm nặng nhất hai phần:
 1. **Tự xây dựng mạng.**
 2. **Trả lời được các câu hỏi đi kèm trong quá trình làm.** Mỗi lựa chọn thiết kế phải giải thích được bằng kiến thức của môn: kích thước đầu ra, số tham số, BatchNorm, overfitting, optimizer...

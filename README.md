@@ -6,6 +6,12 @@ Nhóm **tự xây dựng và train từ đầu** mọi mạng. Không dùng mạ
 
 ## Nhóm
 
+**Từ 2026-11-19 nhóm chỉ còn Dũng.** Kế hoạch hiện tại ở [`ke_hoach/dung_lam_mot_minh.md`](ke_hoach/dung_lam_mot_minh.md):
+- Làm đủ hướng A.
+- Hướng B chỉ còn B0, và là phần làm thêm.
+
+Bảng dưới là phân công cũ, giữ lại làm lịch sử.
+
 | Người | Họ tên | MSSV | Phần việc |
 |---|---|---|---|
 | Người 1 | Dũng | | [Dữ liệu, khung code, mạng A0–A2](ke_hoach/nguoi_1_dung_du_lieu_va_A0-A2.md) |
