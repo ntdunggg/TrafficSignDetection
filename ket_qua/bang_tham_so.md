@@ -1,6 +1,6 @@
 # Bảng tham số các mạng hướng A (tính tay)
 
-File này tính tay, cho từng lớp của mỗi mạng: kích thước đầu ra, số tham số, receptive field. Mọi con số đã kiểm lại bằng `python -m src.summary --model <tên>` (ngày 2026-11-19, khớp hết). Riêng receptive field thì `src.summary` không in, chỉ tính tay.
+File này tính tay, cho từng lớp của mỗi mạng: kích thước đầu ra, số tham số, receptive field. Mọi con số đã kiểm lại bằng `python -m src.summary --model <tên>` (A0, A1 ngày 2026-11-19, A2 ngày 2026-11-20, khớp hết). Riêng receptive field thì `src.summary` không in, chỉ tính tay.
 
 Dùng cho phần "bảng tham số" của báo cáo (`ke_hoach/dung_lam_mot_minh.md`, tuần 3), và để trả lời khi cô hỏi.
 
@@ -100,7 +100,50 @@ Với conv 3×3, P = 1, S = 1 thì cạnh giữ nguyên: (N + 2 − 3)/1 + 1 = N
 - **Receptive field cuối phần conv là 36×36** (A0 là 16×16), hơn nửa cạnh ảnh. Lý do: sâu hơn (6 conv so với 2), và mỗi lần pool làm j gấp đôi, nên các conv sau có bước nhảy lớn và mở rộng r nhanh hơn.
 - **Nếu bỏ flatten và FC 256, thay bằng global average pooling** (A1b, phần làm thêm): mỗi kênh lấy trung bình 8×8 thành 1 số, còn 128 số, rồi Linear 128→52 có (128 + 1)·52 = 6.708 tham số. Tổng còn 287.008 + 6.708 = 293.716, giảm 8,2 lần. Số này mới tính tay, chưa kiểm bằng code.
 
-## 4. Hai conv 3×3 so với một conv 5×5
+## 4. A2: A1 thêm BatchNorm
+
+Code: `src/models/a2_vgg_bn.py`. So với A1 chỉ đổi một yếu tố: mỗi conv thành [conv 3×3, `bias=False` → BatchNorm2d → ReLU]. Phần FC giữ nguyên.
+
+**Kích thước đầu ra và receptive field không đổi so với A1.** BN chỉ chuẩn hóa từng giá trị, không trượt cửa sổ nên không đổi kích thước. r = 36, j = 8 ở cuối phần conv.
+
+**Số tham số của BatchNorm2d(C): 2C.** Mỗi kênh có một cặp γ (hệ số co giãn) và β (độ dịch), học bằng gradient như trọng số. Ngoài ra BN có **thống kê không học** (buffer): 2C số (running mean và running var của từng kênh), cộng 1 bộ đếm `num_batches_tracked`. Buffer không học bằng gradient, được cập nhật trong lúc train.
+
+**Vì sao conv đặt `bias=False`:** BN trừ đi trung bình của từng kênh, nên mọi hằng số bias cộng vào trước đó đều bị trừ mất. β của BN làm thay việc dịch chuyển. Giữ bias chỉ thêm tham số vô ích.
+
+| # | Lớp | Đầu ra | Tính tham số | Tham số | Buffer |
+|---|---|---|---|---:|---:|
+| 1 | Conv 3×3, 3→32, không bias | 32×64×64 | 3·3·3·32 | 864 | |
+| 2 | BN(32) | 32×64×64 | 2·32 | 64 | 2·32 + 1 = 65 |
+| 3 | Conv 3×3, 32→32 | 32×64×64 | 3·3·32·32 | 9.216 | |
+| 4 | BN(32) | 32×64×64 | 2·32 | 64 | 65 |
+| 5 | MaxPool 2 | 32×32×32 | | 0 | |
+| 6 | Conv 3×3, 32→64 | 64×32×32 | 3·3·32·64 | 18.432 | |
+| 7 | BN(64) | 64×32×32 | 2·64 | 128 | 129 |
+| 8 | Conv 3×3, 64→64 | 64×32×32 | 3·3·64·64 | 36.864 | |
+| 9 | BN(64) | 64×32×32 | 2·64 | 128 | 129 |
+| 10 | MaxPool 2 | 64×16×16 | | 0 | |
+| 11 | Conv 3×3, 64→128 | 128×16×16 | 3·3·64·128 | 73.728 | |
+| 12 | BN(128) | 128×16×16 | 2·128 | 256 | 257 |
+| 13 | Conv 3×3, 128→128 | 128×16×16 | 3·3·128·128 | 147.456 | |
+| 14 | BN(128) | 128×16×16 | 2·128 | 256 | 257 |
+| 15 | MaxPool 2 | 128×8×8 | | 0 | |
+| 16 | Flatten, Linear 8192→256, Linear 256→52 | 52 | như A1 | 2.110.772 | |
+| | **Tổng** | | 286.560 (conv) + 896 (BN) + 2.110.772 (FC) | **2.398.228** | **902** |
+
+- **So với A1:** bỏ 448 bias (32 + 32 + 64 + 64 + 128 + 128) và thêm 896 tham số BN (2 × 448). Tổng chỉ tăng 448, tức 0,02%. Vì vậy, nếu A2 khác A1 thì là do cách chuẩn hóa, không phải do thêm tham số.
+- **Buffer:** 896 (running mean và var) + 6 (bộ đếm, mỗi BN một số) = 902.
+
+**Lúc train và lúc suy diễn khác nhau thế nào** (cách PyTorch làm, mặc định `momentum=0.1`, `eps=1e-5`):
+- **Lúc train** (`model.train()`):
+  - Với mỗi kênh, tính trung bình μ_B và phương sai σ²_B trên **cả batch và mọi vị trí**: 128 ảnh × H × W giá trị.
+  - Chuẩn hóa x̂ = (x − μ_B) / √(σ²_B + ε), rồi ra y = γ·x̂ + β.
+  - Đồng thời cập nhật running = 0,9·running + 0,1·giá trị của batch.
+- **Lúc suy diễn** (`model.eval()`):
+  - Dùng running mean và running var đã tích lũy, không dùng thống kê của batch.
+  - Nhờ vậy kết quả của một ảnh không phụ thuộc các ảnh khác trong batch, và chạy được với batch 1.
+- `src/evaluate.py` gọi `model.eval()` trước khi chấm, nên val và test dùng đúng chế độ suy diễn.
+
+## 5. Hai conv 3×3 so với một conv 5×5
 
 Câu này cô hay hỏi về VGG. So trên khối đầu của A1 (32 kênh vào, 32 kênh ra, cùng kích thước đầu ra):
 
@@ -114,11 +157,12 @@ Câu này cô hay hỏi về VGG. So trên khối đầu của A1 (32 kênh vào
 - **Thêm một lần ReLU,** nên hàm biểu diễn được phức tạp hơn.
 - **Tổng quát:** ba conv 3×3 có receptive field 7, bằng một conv 7×7, với 27C² so với 49C² trọng số. Đây là lập luận của VGG (Simonyan & Zisserman, 2014).
 
-## 5. Kiểm bằng code
+## 6. Kiểm bằng code
 
 ```bash
 python -m src.summary --model a0    # tổng 342,056
 python -m src.summary --model a1    # tổng 2,397,780
+python -m src.summary --model a2    # tổng 2,398,228, buffer 902
 ```
 
-Hai lệnh đã chạy ngày 2026-11-19. Kích thước đầu ra và số tham số từng lớp khớp với hai bảng trên.
+Lệnh A0, A1 đã chạy ngày 2026-11-19, lệnh A2 chạy ngày 2026-11-20. Kích thước đầu ra và số tham số từng lớp khớp với các bảng trên.

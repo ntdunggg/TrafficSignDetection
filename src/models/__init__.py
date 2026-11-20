@@ -5,11 +5,12 @@ Không dùng trọng số đã học trước (AGENTS.md mục 2).
 """
 from .a0_lenet import A0LeNet
 from .a1_vgg import A1VGG
+from .a2_vgg_bn import A2VGGBN
 
 MODELS = {
     "a0": A0LeNet,
     "a1": A1VGG,
-    # "a2": A2VGGBN,    # Dũng, giai đoạn 1
+    "a2": A2VGGBN,
 }
 
 

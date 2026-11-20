@@ -137,6 +137,41 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - A2 (BatchNorm) và A3 (dropout, tăng cường dữ liệu) sẽ kiểm tra cách hiểu này.
   - **Câu báo cáo:** "Mạng sâu hơn, nhiều tham số hơn có luôn tốt hơn không?" Ở đây là không, khi chưa có điều chuẩn.
 
+**2026-11-20** (nhánh `dung/a0-a2`)
+- **A2 (A1 + BatchNorm), 3 seed:**
+  - Code `src/models/a2_vgg_bn.py`: BN sau mỗi conv, trước ReLU; conv `bias=False`; FC giữ nguyên. Chỉ đổi một yếu tố so với A1.
+  - 2.398.228 tham số, hơn A1 448: bỏ 448 bias, thêm 896 γ và β. Có 902 buffer: 896 running mean và var, 6 bộ đếm.
+  - Tính tay ở `ket_qua/bang_tham_so.md` mục 4, khớp `src.summary`. Mục đó có cả phần BN lúc train và lúc suy diễn khác nhau thế nào.
+
+  | Seed | Epoch tốt nhất | Val macro-F1 (35 lớp) | Val acc | Train acc |
+  |---|---:|---:|---:|---:|
+  | 0 | 20 | 0,5932 | 0,7672 | 0,9988 |
+  | 1 | 24 | 0,5998 | 0,7662 | 0,9995 |
+  | 2 | 19 | 0,6202 | 0,7820 | 0,9980 |
+  | **TB ± ĐLC** | | **0,6044 ± 0,0141** | **0,7718 ± 0,0088** | |
+
+  - **So với A1** (0,5799 ± 0,0263):
+    - A2 cao hơn 0,0245. Mức này xấp xỉ độ lệch chuẩn của A1, nên chưa đủ để nói A2 tốt hơn hẳn.
+    - Độ lệch chuẩn giảm gần một nửa (0,0141 so với 0,0263): kết quả ổn định hơn giữa các seed.
+    - Ngang A0 (0,6087 ± 0,0310).
+  - **Hội tụ nhanh hơn ở các epoch đầu** (trung bình 3 seed):
+
+    | Epoch | 1 | 2 | 3 | 5 |
+    |---|---:|---:|---:|---:|
+    | Train loss A1 | 2,965 | 1,324 | 0,578 | 0,188 |
+    | Train loss A2 | 2,399 | 0,758 | 0,350 | 0,125 |
+    | Val F1 A1 | 0,184 | 0,372 | 0,420 | 0,477 |
+    | Val F1 A2 | 0,306 | 0,438 | 0,480 | 0,511 |
+
+    Epoch đầu tiên đạt val F1 ≥ 0,5: A2 là 5, 4, 5; A1 là 5, 12, 6. Khớp với điều giáo trình 4.4 nói về BN: chuẩn hóa đầu vào từng lớp giúp train nhanh và ổn định hơn.
+  - **Val loss thấp hơn rõ:** ở epoch 30, A2 là 1,31–1,91, A1 là 2,13–2,93. Mạng bớt tự tin quá mức trên mẫu sai.
+  - **Overfitting vẫn còn:**
+    - Train acc khoảng 0,999, khoảng cách train acc − val acc là 0,227, gần bằng A1.
+    - BN không phải cách chữa overfitting chính. Phần này để A3 (dropout, tăng cường dữ liệu).
+  - **Thời gian:** 11–15 giây mỗi epoch, A1 là 5 giây, mỗi lần chạy 5–7 phút. Chậm hơn khá nhiều so với số phép tính BN thêm vào. Có thể do BN trên MPS chậm hoặc máy đang bận, chưa kiểm.
+  - Hình `data/runs_a/hinh/a0_a1_a2.png` (git ignore).
+- **Nền cho A3:** theo kế hoạch, A3 xuất phát từ A2. A3-0 chính là 3 lần chạy A2 ở trên, không chạy lại.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.
