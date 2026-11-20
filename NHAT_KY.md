@@ -171,6 +171,129 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
   - **Thời gian:** 11–15 giây mỗi epoch, A1 là 5 giây, mỗi lần chạy 5–7 phút. Chậm hơn khá nhiều so với số phép tính BN thêm vào. Có thể do BN trên MPS chậm hoặc máy đang bận, chưa kiểm.
   - Hình `data/runs_a/hinh/a0_a1_a2.png` (git ignore).
 - **Nền cho A3:** theo kế hoạch, A3 xuất phát từ A2. A3-0 chính là 3 lần chạy A2 ở trên, không chạy lại.
+- **A3: chống overfitting (nhánh `dung/a3`, tách từ `dung/a0-a2`).** Dũng yêu cầu ghi lại cả quá trình làm.
+  - **Bốn bản,** mỗi bản chỉ đổi một yếu tố so với A3-0:
+
+    | Bản | Chạy bằng | Đổi gì so với A2 |
+    |---|---|---|
+    | A3-0 | (là A2) | |
+    | A3-d | `--model a3d` | Dropout p = 0,5 trước FC cuối |
+    | A3-a | `--model a2 --augment a3` | Tăng cường dữ liệu |
+    | A3-da | `--model a3d --augment a3` | Cả hai |
+  - **Code:**
+    - `src/models/a3_dropout.py`: mạng A3Dropout, dùng lại `vgg_bn_block` của A2. Dropout không có tham số, nên số tham số vẫn là 2.398.228 (đã kiểm bằng `src.summary`).
+    - `src/data/augment.py` thêm bản `"a3"`:
+      - `RandomAffine(degrees=10, translate=(0.1, 0.1), scale=(0.9, 1.1))` và `ColorJitter(brightness=0.3, contrast=0.3)`, đúng như kế hoạch A3.
+      - Không lật. Không đổi hue, vì màu mang nghĩa của biển.
+      - Góc lộ ra sau khi xoay hoặc dịch tô đen (mặc định của torchvision).
+  - **Sửa công cụ:**
+    - `src/train.py`: tên lần chạy mặc định thêm `_aug<tên>` khi có tăng cường. Nếu không thì A3-a trùng tên với A2, và `train.py` sẽ từ chối chạy. Tên các lần chạy cũ không đổi.
+    - `src/so_sanh.py`: nhận tiền tố tên lần chạy, để so được các bản có tăng cường.
+  - **Kiểm tra trước khi train:**
+    - Hình `data/runs_a/hinh/a3_tang_cuong.png` (git ignore): 8 ảnh train, mỗi ảnh 5 bản tăng cường.
+    - Không ảnh nào bị lật: mũi tên lớp 6 giữ hướng. Biển vẫn nằm trong khung. Giá trị vẫn trong 0..1.
+    - Tăng cường tốn 0,30 ms mỗi ảnh, tức khoảng 1,7 giây mỗi epoch.
+  - **Lưu ý khi đọc kết quả:**
+    - Cột `train_acc` trong `log.csv` đo trên ảnh **đã tăng cường** và với dropout **đang bật**. Vì vậy ở A3-d, A3-a, A3-da nó thấp hơn "độ chính xác thật" trên train.
+    - Để so khoảng cách train và val công bằng giữa 4 bản, chấm lại train bằng `python -m src.evaluate --run <...> --split train`. Lệnh này dùng `model.eval()`, không tăng cường.
+  - Chạy 9 lần train (3 bản × 3 seed) ngày 2026-11-20, chạy nền trên MPS, xong cả 9. 9 dòng `A3-d`, `A3-a`, `A3-da` trong `ket_qua.csv`, md5 nhãn `80a393b9...` như A0–A2.
+  - **Kết quả trên val** (35 lớp, chọn epoch theo val macro-F1, trung bình ± độ lệch chuẩn mẫu qua 3 seed):
+
+    | Bản | Val macro-F1 | Val acc | Epoch tốt nhất (3 seed) | Train acc sạch | Khoảng cách acc sạch | Khoảng cách acc theo log |
+    |---|---|---|---|---|---|---|
+    | A3-0 (A2) | 0,6044 ± 0,0141 | 0,7718 ± 0,0088 | 20, 24, 19 | 0,9997 | 0,228 | 0,227 |
+    | A3-d | 0,6513 ± 0,0075 | 0,7860 ± 0,0301 | 29, 26, 23 | 0,9986 | 0,213 | 0,195 |
+    | A3-a | **0,6825 ± 0,0360** | 0,7894 ± 0,0131 | 17, 27, 25 | 0,9945 | 0,205 | 0,186 |
+    | A3-da | 0,6429 ± 0,0385 | 0,7934 ± 0,0212 | 29, 29, 28 | 0,9779 | 0,185 | 0,095 |
+
+    - "Train acc sạch": chấm lại checkpoint tốt nhất trên train bằng `python -m src.evaluate --run <...> --split train` (eval, không tăng cường). Kết quả ở `<run>/danh_gia_train/`.
+    - "Khoảng cách": train acc trừ val acc, trung bình 3 seed.
+    - Số liệu từng seed: `python -m src.so_sanh data/runs_a data/runs_a/hinh/a3.png a2 a3d a2_adam_lr0.001_auga3 a3d_adam_lr0.001_auga3`. Hình `data/runs_a/hinh/a3.png` (git ignore) có val F1, train loss, val loss của 4 bản.
+  - **Val loss** (trung bình 3 seed):
+
+    | Bản | Val loss nhỏ nhất | Val loss ở epoch 30 | Train macro-F1 sạch |
+    |---|---|---|---|
+    | A3-0 (A2) | 1,206 | 1,571 | 0,9998 |
+    | A3-d | 1,014 | 1,509 | 0,9991 |
+    | A3-a | 1,091 | 1,432 | 0,9911 |
+    | A3-da | 0,835 | 1,229 | 0,9125 |
+
+  - **Đọc kết quả:**
+    - Cả ba bản đều hơn A3-0 trên val macro-F1. Dropout +0,047, tăng cường +0,078. Mức tăng lớn hơn độ lệch chuẩn của A3-0 (0,014).
+    - **Khoảng cách train và val giảm ít hơn số log cho thấy.** Theo log, A3-da giảm từ 0,227 xuống 0,095. Đo sạch thì chỉ từ 0,228 xuống 0,185. Phần chênh là do `train_acc` trong log đo lúc dropout đang bật và ảnh đã tăng cường. Đây là lý do phải chấm lại train ở chế độ eval.
+    - Cả 4 bản vẫn gần như thuộc lòng train (train acc sạch ≥ 0,978). Khoảng cách còn khoảng 0,19–0,23, tức overfitting giảm nhưng chưa hết.
+    - **A3-da chưa học xong ở 30 epoch.** Epoch tốt nhất là 28–29 ở cả 3 seed. Train loss ở epoch 30 còn 0,25–0,40, các bản khác 0,004–0,125. Train macro-F1 sạch chỉ 0,91. Val loss còn đang giảm (hình `a3.png`). Ghép hai cách chống overfitting làm mạng học chậm hơn. Với 30 epoch cố định, đây là thiếu khớp (underfitting), chứ chưa chứng minh được là ghép cả hai thì tệ hơn.
+    - A3-da có val acc cao nhất (0,793) nhưng macro-F1 thấp hơn A3-a. Train macro-F1 (0,91) thấp hơn hẳn train acc (0,98), nên các lớp ít ảnh là phần chưa học xong. Đây là suy luận từ hai con số trên, chưa kiểm bằng recall từng lớp.
+    - Val loss: cả 3 bản đều có val loss nhỏ nhất thấp hơn A3-0, và ở epoch 30 tăng lại ít hơn. A3-0 có val loss nhỏ nhất ở epoch 4–6 (2/3 seed), sau đó tăng trong khi val F1 vẫn lên. Đó là dấu hiệu mạng ngày càng tự tin sai trên ảnh val.
+    - Thời gian: 12,8–18,8 giây mỗi epoch, không khác rõ giữa các bản. Tăng cường tốn khoảng 1,7 giây mỗi epoch, nhỏ hơn dao động của MPS.
+  - **Chọn bản nền cho A4: A3-a (Dũng quyết định 2026-11-20).** A4 dùng tăng cường `a3`, không dropout.
+    - **Phân vân:**
+      - A3-a có trung bình cao nhất (0,6825). Nhưng nó chỉ hơn A3-d 0,031, nhỏ hơn độ lệch chuẩn của chính nó (0,036).
+      - Theo quy tắc chọn đã đặt trước (`ke_hoach/nguoi_3_minh_quan_A3-A7.md`, mục A5), hai bản này coi là hoà, và chọn bản có độ lệch chuẩn nhỏ hơn: A3-d (0,0075).
+      - Quy tắc đó viết cho A5. Kế hoạch A4 chỉ ghi "bản tốt nhất của A3".
+    - **Lý do chọn A3-a:**
+      1. **A3-a hơn đều ở từng seed, không chỉ ở trung bình.** A3-a: 0,6558 / 0,6683 / 0,7234. A3-d: 0,6504 / 0,6442 / 0,6592. Seed kém nhất của A3-a gần bằng seed tốt nhất của A3-d. Ghép từng cặp seed (9 cặp), A3-a thắng 8. Độ lệch chuẩn lớn chủ yếu do seed 2 cao vượt, không phải có seed tệ.
+      2. **Tăng cường gắn với dữ liệu, dùng y nguyên cho mọi mạng.** Dropout của A3-d gắn với FC 8192→256 của A2 (87,5% tham số). A4 thay thân mạng và có thể cả đầu phân loại, nên dropout ở đó không còn cùng vai trò.
+      3. **Không chọn A3-da:** chưa học xong ở 30 epoch (xem trên), mà A4 vẫn giữ 30 epoch.
+    - **Hạn chế phải ghi trong báo cáo:** kiểm định t Welch giữa A3-a và A3-d cho t ≈ 1,47, p ≈ 0,27 (3 seed mỗi bản). Chưa đủ bằng chứng thống kê rằng A3-a hơn A3-d. Chọn A3-a là theo hai lý do trên, không phải theo kiểm định.
+- **A4: kết nối tắt (vẫn trên nhánh `dung/a3`, chưa commit A3).** Kế hoạch: `ke_hoach/nguoi_3_minh_quan_A3-A7.md`, mục A4.
+  - **Câu cần trả lời:** mạng trơn sâu hơn có tệ hơn cả trên **train** không? Đó là suy biến (degradation), khác overfitting. Kết nối tắt có sửa được không?
+  - **Ba mạng** (`src/models/a4_resnet.py`), cùng khung:
+    - Stem conv 3×3 3→32. Bốn tầng, số kênh 32, 64, 128, 256. Tầng 2–4 giảm kích thước bằng conv stride 2, không dùng max pool (đúng kế hoạch). Kích thước 64 → 32 → 16 → 8.
+    - Đầu phân loại: global average pooling → FC 256→52. Không dùng FC 8192→256 như A2, để tham số nằm ở phần conv, là phần A4 muốn so.
+
+    | Bản | Tên trong code | Phần thân mỗi tầng | Số conv 3×3 | Tham số | Buffer |
+    |---|---|---|---:|---:|---:|
+    | A4-plain-nông | `a4pn` | 1 conv + BN + ReLU | 5 | 411.540 | 1.029 |
+    | A4-plain-sâu | `a4ps` | 2 conv + BN + ReLU | 9 | 1.195.860 | 1.993 |
+    | A4-res-sâu | `a4rs` | 1 basic block: 2 conv, cộng nhánh tắt | 9 | 1.239.764 | 2.892 |
+
+    - plain-nông và plain-sâu chỉ khác độ sâu. plain-sâu và res-sâu chỉ khác kết nối tắt.
+    - Nhánh tắt: giữ nguyên x ở tầng 1. Ở tầng 2–4 (đổi số kênh và stride) dùng conv 1×1 + BN, đúng kế hoạch (He 2016 gọi là phương án B). Nhánh này thêm 43.904 tham số, tức 3,7% so với plain-sâu. Đây là khác biệt thứ hai, nhỏ, phải ghi khi so.
+    - Số tham số đã kiểm bằng `python -m src.summary --model a4pn|a4ps|a4rs`.
+  - **Cấu hình huấn luyện:** như A3-a. Adam lr 1e-3, batch 128, 30 epoch, `--augment a3`, không dropout, khởi tạo mặc định của PyTorch.
+  - **Cách đo suy biến:** so train loss theo epoch của 3 bản. Cả 3 dùng cùng tăng cường và không có dropout, nên `train_loss` trong log so được với nhau. Cuối cùng chấm lại train ở chế độ eval (`--split train`).
+  - **Dự đoán ghi trước khi chạy:** ở độ sâu 9 conv có BN, có thể **chưa thấy suy biến**. Bài ResNet (He và cộng sự 2016, arXiv 1512.03385) thấy suy biến ở mạng trơn sâu hơn nhiều: Hình 1 so 20 với 56 lớp trên CIFAR-10, Bảng 2 so 18 với 34 lớp trên ImageNet. Nếu đúng như dự đoán thì đó cũng là một câu trả lời, nhưng sẽ cần hỏi Dũng có thêm bản sâu hơn không.
+  - Chạy thử 1 epoch `a4ps`: 25,4 giây mỗi epoch trên MPS, gấp khoảng 2 lần A2. Tính tay số phép nhân-cộng mỗi ảnh: plain-sâu khoảng 249 triệu, A2 khoảng 157 triệu (`ket_qua/bang_tham_so.md`, mục 4c).
+  - Chạy 9 lần train (3 bản × 3 seed), bắt đầu 2026-11-20, xong 2026-11-21, xen kẽ theo seed. 9 dòng `A4-plain-nong`, `A4-plain-sau`, `A4-res-sau` trong `ket_qua.csv`. Mỗi lần: plain-nông 5–7 phút, plain-sâu 9–10 phút, res-sâu 10–12 phút.
+  - **Kết quả trên val** (35 lớp, trung bình ± độ lệch chuẩn mẫu qua 3 seed). A3-a viết lại để so:
+
+    | Bản | Tham số | Val macro-F1 | Val acc | Val loss nhỏ nhất | Train acc sạch | Khoảng cách acc sạch |
+    |---|---:|---|---|---|---|---|
+    | A3-a (A2 + tăng cường) | 2.398.228 | 0,6825 ± 0,0360 | 0,7894 ± 0,0131 | 1,091 | 0,9945 | 0,205 |
+    | A4-plain-nông | 411.540 | 0,5175 ± 0,0182 | 0,6837 ± 0,0056 | 1,379 | 0,9539 | 0,270 |
+    | A4-plain-sâu | 1.195.860 | 0,6605 ± 0,0244 | 0,8377 ± 0,0146 | 0,610 | 0,9963 | 0,159 |
+    | A4-res-sâu | 1.239.764 | 0,6517 ± 0,0139 | 0,8135 ± 0,0112 | 0,798 | 0,9927 | 0,179 |
+
+    - Từng seed (val macro-F1): plain-nông 0,5024 / 0,5378 / 0,5122; plain-sâu 0,6653 / 0,6340 / 0,6821; res-sâu 0,6556 / 0,6362 / 0,6632.
+    - "Train acc sạch": chấm lại checkpoint tốt nhất bằng `python -m src.evaluate --split train`.
+    - Lệnh: `python -m src.so_sanh data/runs_a data/runs_a/hinh/a4.png a2_adam_lr0.001_auga3 a4pn_adam_lr0.001_auga3 a4ps_adam_lr0.001_auga3 a4rs_adam_lr0.001_auga3`. Hình `data/runs_a/hinh/a4.png` (git ignore).
+  - **Train loss trong log theo epoch** (trung bình 3 seed; cùng tăng cường, không dropout, nên so được với nhau):
+
+    | Bản | e1 | e2 | e3 | e5 | e10 | e20 | e30 |
+    |---|---|---|---|---|---|---|---|
+    | A3-a | 3,130 | 1,568 | 1,034 | 0,547 | 0,224 | 0,094 | 0,063 |
+    | A4-plain-nông | 2,511 | 1,740 | 1,425 | 1,072 | 0,635 | 0,305 | 0,174 |
+    | A4-plain-sâu | 2,399 | 1,525 | 1,157 | 0,727 | 0,278 | 0,053 | 0,029 |
+    | A4-res-sâu | 2,183 | 1,351 | 1,042 | 0,682 | 0,301 | 0,072 | 0,029 |
+
+  - **Trả lời câu hỏi A4:**
+    - **Không thấy suy biến ở độ sâu này. Dự đoán ghi trước khi chạy là đúng.** Mạng trơn sâu (9 conv) có train loss **thấp hơn** mạng trơn nông (5 conv) ở cả 30 epoch (trung bình 3 seed, đã kiểm từng epoch): 0,029 so với 0,174 ở e30. Train acc sạch 0,996 so với 0,954. Suy biến là mạng sâu hơn mà train tệ hơn, ở đây ngược lại.
+    - Vì không có suy biến nên kết nối tắt không có gì để sửa. Ở e30, train loss của res-sâu và plain-sâu bằng nhau (0,029).
+    - Kết nối tắt chỉ giúp **hội tụ nhanh hơn ở vài epoch đầu**: train loss e1–e3 của res-sâu là 2,18 / 1,35 / 1,04, so với 2,40 / 1,53 / 1,16 của plain-sâu. Từ e10 thì hai bản ngang nhau.
+    - Trên val, plain-sâu và res-sâu hoà: chênh 0,009, nhỏ hơn độ lệch chuẩn của cả hai.
+    - **Plain-nông thiếu khớp:** train acc sạch chỉ 0,954, train loss e30 còn 0,174, val F1 thấp nhất (0,52). Nhưng plain-nông khác plain-sâu ở cả độ sâu, số tham số (411 nghìn so với 1,2 triệu) và receptive field (19 so với 49, `bang_tham_so.md` mục 4c). Không tách được yếu tố nào gây ra.
+  - **So với A3-a:**
+    - Val macro-F1 của plain-sâu và res-sâu thấp hơn A3-a 0,02–0,03, nhỏ hơn độ lệch chuẩn của A3-a (0,036), nên coi là hoà.
+    - Nhưng hai bản A4 sâu có val acc cao hơn (0,84 và 0,81 so với 0,79), val loss nhỏ nhất thấp hơn hẳn (0,61 và 0,80 so với 1,09), khoảng cách train và val nhỏ hơn (0,16–0,18 so với 0,21), mà chỉ dùng một nửa số tham số.
+    - Val acc cao hơn mà macro-F1 không cao hơn: có thể các lớp nhiều ảnh được lợi, lớp ít ảnh thì không. Chưa kiểm bằng recall từng lớp.
+    - So A4 với A3-a không phải đổi một yếu tố: khác cả thân mạng (stride 2 thay max pool, thêm tầng 256 kênh) và đầu phân loại (global average pooling thay FC 8192→256). Chỉ dùng để chọn bản nền, không dùng để kết luận yếu tố nào tốt.
+  - **Hạn chế:** chỉ thử đến 9 conv, nên chưa trả lời được "mạng trơn rất sâu có suy biến không" trên dữ liệu này. Muốn thấy thì cần mạng sâu hơn nhiều (bài ResNet: 20 với 56 lớp). Chưa chạy, chờ Dũng quyết định.
+  - **Chọn bản nền cho A5: A4-res-sâu (`a4rs`, tăng cường `a3`), Dũng quyết định 2026-11-21.**
+    - Theo quy tắc chọn đặt trước (`ke_hoach/nguoi_3_minh_quan_A3-A7.md`, mục A5): trung bình cao nhất, nhưng nếu chênh lệch nhỏ hơn độ lệch chuẩn thì coi là hoà và chọn bản dao động ít hơn.
+    - A3-a, plain-sâu, res-sâu hoà nhau trên val macro-F1. Res-sâu có độ lệch chuẩn nhỏ nhất (0,0139, so với 0,0244 và 0,0360).
+    - Thêm vào đó, so với A3-a, res-sâu có val acc cao hơn (0,814 so với 0,789), val loss nhỏ nhất thấp hơn (0,80 so với 1,09) và chỉ dùng một nửa số tham số.
+    - Phương án khác đã cân nhắc: plain-sâu có trung bình F1, val acc, val loss nhỉnh hơn res-sâu một chút, nhưng dao động giữa các seed lớn hơn.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.

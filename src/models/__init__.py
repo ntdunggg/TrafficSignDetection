@@ -6,11 +6,17 @@ Không dùng trọng số đã học trước (AGENTS.md mục 2).
 from .a0_lenet import A0LeNet
 from .a1_vgg import A1VGG
 from .a2_vgg_bn import A2VGGBN
+from .a3_dropout import A3Dropout
+from .a4_resnet import A4PlainNong, A4PlainSau, A4ResSau
 
 MODELS = {
     "a0": A0LeNet,
     "a1": A1VGG,
     "a2": A2VGGBN,
+    "a3d": A3Dropout,
+    "a4pn": A4PlainNong,
+    "a4ps": A4PlainSau,
+    "a4rs": A4ResSau,
 }
 
 

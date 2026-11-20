@@ -143,6 +143,88 @@ Code: `src/models/a2_vgg_bn.py`. So với A1 chỉ đổi một yếu tố: mỗ
   - Nhờ vậy kết quả của một ảnh không phụ thuộc các ảnh khác trong batch, và chạy được với batch 1.
 - `src/evaluate.py` gọi `model.eval()` trước khi chấm, nên val và test dùng đúng chế độ suy diễn.
 
+## 4b. A3-d: A2 thêm Dropout
+
+Chỉ chèn `Dropout(p=0,5)` giữa ReLU sau FC 8192→256 và FC 256→52 (`src/models/a3_dropout.py`). Phần conv giữ nguyên như bảng A2.
+
+| # | Lớp | Đầu ra | Tham số |
+|---|---|---|---:|
+| 1–15 | Phần conv như A2 | 128×8×8 | 287.456 |
+| 16 | Flatten | 8192 | 0 |
+| 17 | Linear 8192→256 | 256 | 2.097.408 |
+| 18 | ReLU | 256 | 0 |
+| 19 | **Dropout(0,5)** | 256 | **0** |
+| 20 | Linear 256→52 | 52 | 13.364 |
+| | **Tổng** | | **2.398.228** (bằng A2), buffer 902 |
+
+- **Dropout không có tham số, cũng không có buffer.** Nó chỉ là một phép nhân với mặt nạ ngẫu nhiên. Nếu A3-d khác A2 thì là do cách huấn luyện, không phải do thêm tham số.
+- **Lúc train** (`model.train()`): mỗi lượt, mỗi phần tử trong vector 256 bị đặt về 0 với xác suất p = 0,5. Phần còn lại nhân 1/(1 − p) = 2, để kỳ vọng đầu ra không đổi. PyTorch làm kiểu này (inverted dropout).
+- **Lúc suy diễn** (`model.eval()`): Dropout trả lại nguyên đầu vào. Nhờ đã nhân 2 lúc train, không cần nhân lại 0,5 lúc suy diễn.
+- **Vì sao đặt ở đây:** FC 8192→256 chiếm 87,5% tham số (mục 3), là chỗ dễ học thuộc train nhất. Dropout làm FC cuối không dựa được vào một vài nơ-ron cố định (Srivastava và cộng sự 2014; giáo trình 4.7).
+- **Hệ quả khi đọc log:** `train_acc` trong `log.csv` đo lúc dropout đang bật, nên thấp hơn độ chính xác thật trên train. Muốn so khoảng cách train và val thì chấm lại bằng `python -m src.evaluate --split train` (`NHAT_KY.md`, mục 2026-11-20, A3).
+
+## 4c. A4: mạng trơn nông, trơn sâu, sâu có kết nối tắt
+
+Code: `src/models/a4_resnet.py`. Mọi conv 3×3 có padding 1, `bias=False` (có BN ngay sau). Conv stride 2: đầu ra (N + 2 − 3)/2 + 1, lấy phần nguyên, ví dụ (64 − 1)/2 + 1 = 32,5 → 32.
+
+**A4-plain-sâu (`a4ps`), 9 conv 3×3:**
+
+| # | Lớp | Đầu ra | Cách tính | Tham số | RF | j |
+|---|---|---|---|---:|---:|---:|
+| 1 | Stem conv 3→32, s1 + BN | 32×64×64 | 3·3·3·32 + 2·32 | 864 + 64 | 3 | 1 |
+| 2 | Tầng 1, conv 32→32, s1 + BN | 32×64×64 | 3·3·32·32 + 2·32 | 9.216 + 64 | 5 | 1 |
+| 3 | Tầng 1, conv 32→32, s1 + BN | 32×64×64 | như trên | 9.216 + 64 | 7 | 1 |
+| 4 | Tầng 2, conv 32→64, **s2** + BN | 64×32×32 | 3·3·32·64 + 2·64 | 18.432 + 128 | 9 | 2 |
+| 5 | Tầng 2, conv 64→64, s1 + BN | 64×32×32 | 3·3·64·64 + 2·64 | 36.864 + 128 | 13 | 2 |
+| 6 | Tầng 3, conv 64→128, **s2** + BN | 128×16×16 | 3·3·64·128 + 2·128 | 73.728 + 256 | 17 | 4 |
+| 7 | Tầng 3, conv 128→128, s1 + BN | 128×16×16 | 3·3·128·128 + 2·128 | 147.456 + 256 | 25 | 4 |
+| 8 | Tầng 4, conv 128→256, **s2** + BN | 256×8×8 | 3·3·128·256 + 2·256 | 294.912 + 512 | 33 | 8 |
+| 9 | Tầng 4, conv 256→256, s1 + BN | 256×8×8 | 3·3·256·256 + 2·256 | 589.824 + 512 | 49 | 8 |
+| 10 | Global average pooling | 256 | trung bình 8×8 giá trị mỗi kênh | 0 | | |
+| 11 | FC 256→52 | 52 | (256 + 1)·52 | 13.364 | | |
+| | **Tổng** | | 1.180.512 (conv) + 1.984 (BN) + 13.364 (FC) | **1.195.860** | | |
+
+- RF tính bằng r_ra = r_vào + (k − 1)·j_vào, j_ra = j_vào·s (mục 1). Ví dụ lớp 4: 7 + 2·1 = 9, j = 1·2 = 2. Lớp 9: 33 + 2·8 = 49.
+- **Global average pooling** lấy trung bình từng kênh trên 8×8 vị trí, không có tham số. Nhờ vậy FC cuối chỉ có 13.364 tham số, thay cho 2.110.772 ở A2. Ở A4, 98,7% tham số nằm ở các conv.
+- Buffer: 1.984 (running mean, var của 9 BN) + 9 bộ đếm = 1.993.
+
+**A4-plain-nông (`a4pn`), 5 conv 3×3:** mỗi tầng chỉ giữ conv đầu (lớp 1, 2, 4, 6, 8 ở bảng trên).
+
+| Phần | Tham số |
+|---|---:|
+| Conv: 864 + 9.216 + 18.432 + 73.728 + 294.912 | 397.152 |
+| BN: 2·(32 + 32 + 64 + 128 + 256) | 1.024 |
+| FC 256→52 | 13.364 |
+| **Tổng** | **411.540** |
+
+- RF: 3 → 5 → 7 (j 2) → 11 (j 4) → 19 (j 8). Mỗi điểm của bản đồ 8×8 cuối chỉ nhìn vùng 19×19, so với 49×49 ở plain-sâu.
+- Buffer: 1.024 + 5 = 1.029.
+
+**A4-res-sâu (`a4rs`):** 9 conv 3×3 giống hệt plain-sâu, ghép thành 4 basic block (mỗi tầng 2 conv), thêm nhánh tắt.
+
+| Tầng | Nhánh tắt | Vì sao | Tham số thêm |
+|---|---|---|---:|
+| 1 | giữ nguyên x | 32→32, stride 1, cùng kích thước | 0 |
+| 2 | conv 1×1 32→64, s2 + BN | đổi số kênh và kích thước | 2.048 + 128 |
+| 3 | conv 1×1 64→128, s2 + BN | như trên | 8.192 + 256 |
+| 4 | conv 1×1 128→256, s2 + BN | như trên | 32.768 + 512 |
+| | **Thêm** | | **43.904** |
+
+- Tổng: 1.195.860 + 43.904 = **1.239.764**, hơn plain-sâu 3,7%.
+- Mỗi block: y = ReLU(BN(conv(ReLU(BN(conv(x))))) + tắt(x)). Phép cộng không có tham số.
+- Nếu hai conv của block chỉ cần học "gần như không làm gì", chúng chỉ cần ra gần 0, và y ≈ ReLU(x). Mạng trơn thì phải học cả hàm đồng nhất bằng conv, khó hơn. Đây là lập luận của bài ResNet (He và cộng sự 2016).
+- RF đường dài nhất vẫn là 49. Đi qua nhánh tắt thì RF nhỏ hơn.
+- Buffer: 1.993 + 896 + 3 bộ đếm = 2.892.
+
+**Số phép nhân-cộng mỗi ảnh** (tham số conv × số vị trí đầu ra, bỏ qua BN và ReLU):
+
+| Mạng | Tính | Tổng |
+|---|---|---:|
+| A2 | (864 + 9.216)·64² + (18.432 + 36.864)·32² + (73.728 + 147.456)·16² + FC 2.110.464 | ≈ 157 triệu |
+| A4-plain-nông | 864·64² + 9.216·64² + 18.432·32² + 73.728·16² + 294.912·8² | ≈ 98 triệu |
+| A4-plain-sâu | 864·64² + 2·9.216·64² + (18.432 + 36.864)·32² + (73.728 + 147.456)·16² + (294.912 + 589.824)·8² | ≈ 249 triệu |
+| A4-res-sâu | plain-sâu + 2.048·32² + 8.192·16² + 32.768·8² | ≈ 255 triệu |
+
 ## 5. Hai conv 3×3 so với một conv 5×5
 
 Câu này cô hay hỏi về VGG. So trên khối đầu của A1 (32 kênh vào, 32 kênh ra, cùng kích thước đầu ra):
@@ -163,6 +245,10 @@ Câu này cô hay hỏi về VGG. So trên khối đầu của A1 (32 kênh vào
 python -m src.summary --model a0    # tổng 342,056
 python -m src.summary --model a1    # tổng 2,397,780
 python -m src.summary --model a2    # tổng 2,398,228, buffer 902
+python -m src.summary --model a3d   # tổng 2,398,228, buffer 902, Dropout 0 tham số
+python -m src.summary --model a4pn  # tổng 411,540, buffer 1,029
+python -m src.summary --model a4ps  # tổng 1,195,860, buffer 1,993
+python -m src.summary --model a4rs  # tổng 1,239,764, buffer 2,892
 ```
 
-Lệnh A0, A1 đã chạy ngày 2026-11-19, lệnh A2 chạy ngày 2026-11-20. Kích thước đầu ra và số tham số từng lớp khớp với các bảng trên.
+Lệnh A0, A1 đã chạy ngày 2026-11-19, lệnh A2 và A3-d chạy ngày 2026-11-20. Kích thước đầu ra và số tham số từng lớp khớp với các bảng trên.

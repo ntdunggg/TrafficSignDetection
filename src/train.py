@@ -68,7 +68,7 @@ def main():
     ap.add_argument("--manifest", default="data/vn_signs_crops/manifest.csv")
     ap.add_argument("--info", default="du_lieu/crops_info.json")
     ap.add_argument("--out", default="data/runs_a")
-    ap.add_argument("--name", default=None, help="mặc định <model>_<opt>_lr<lr>_s<seed>")
+    ap.add_argument("--name", default=None, help="mặc định <model>_<opt>_lr<lr>[_aug<augment>]_s<seed>")
     ap.add_argument("--device", default="auto", help="auto, cuda, mps hoặc cpu")
     ap.add_argument("--nguoi", default=None, help="có thì ghi một dòng vào ket_qua/ket_qua.csv")
     ap.add_argument("--thi-nghiem", default="", help="ví dụ A0, A3, A5-opt")
@@ -76,7 +76,8 @@ def main():
     ap.add_argument("--ket-qua", default="ket_qua/ket_qua.csv")
     args = ap.parse_args()
 
-    name = args.name or f"{args.model}_{args.opt}_lr{args.lr:g}_s{args.seed}"
+    aug = "" if args.augment == "none" else f"_aug{args.augment}"
+    name = args.name or f"{args.model}_{args.opt}_lr{args.lr:g}{aug}_s{args.seed}"
     run_dir = os.path.join(args.out, name)
     if os.path.exists(os.path.join(run_dir, "best.pt")):
         raise SystemExit(f"Dừng: {run_dir} đã có kết quả. Đặt --name khác hoặc xoá thư mục đó.")
