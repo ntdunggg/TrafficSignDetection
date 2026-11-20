@@ -1,1 +1,7 @@
 ngay,nguoi,thi_nghiem,ban,seed,md5_nhan,so_tham_so,epoch,thoi_gian_phut,val_chinh,test_chinh,ghi_chu
+2026-11-19,Dũng,A0,a0_adam_lr0.001_s0,0,80a393b981121f57e7080674c2750722,342056,25,0.5,0.64,,val acc 0.8024; adam lr 0.001 none aug none; mps.
+2026-11-19,Dũng,A0,a0_adam_lr0.001_s1,1,80a393b981121f57e7080674c2750722,342056,30,0.5,0.5781,,val acc 0.7699; adam lr 0.001 none aug none; mps.
+2026-11-19,Dũng,A0,a0_adam_lr0.001_s2,2,80a393b981121f57e7080674c2750722,342056,29,0.5,0.6079,,val acc 0.7690; adam lr 0.001 none aug none; mps.
+2026-11-19,Dũng,A1,a1_adam_lr0.001_s0,0,80a393b981121f57e7080674c2750722,2397780,20,2.6,0.5975,,val acc 0.7811; adam lr 0.001 none aug none; mps.
+2026-11-19,Dũng,A1,a1_adam_lr0.001_s1,1,80a393b981121f57e7080674c2750722,2397780,26,2.5,0.5926,,val acc 0.7774; adam lr 0.001 none aug none; mps.
+2026-11-19,Dũng,A1,a1_adam_lr0.001_s2,2,80a393b981121f57e7080674c2750722,2397780,24,2.5,0.5496,,val acc 0.7551; adam lr 0.001 none aug none; mps.

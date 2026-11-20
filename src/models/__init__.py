@@ -4,10 +4,11 @@ Mỗi lớp mạng nhận (num_classes=52, size=64) và khởi tạo ngẫu nhi�
 Không dùng trọng số đã học trước (AGENTS.md mục 2).
 """
 from .a0_lenet import A0LeNet
+from .a1_vgg import A1VGG
 
 MODELS = {
     "a0": A0LeNet,
-    # "a1": A1VGG,      # Dũng, giai đoạn 1
+    "a1": A1VGG,
     # "a2": A2VGGBN,    # Dũng, giai đoạn 1
 }
 

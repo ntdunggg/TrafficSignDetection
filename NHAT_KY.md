@@ -86,6 +86,56 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
 - **Quyết định của Dũng:** làm theo phạm vi rút gọn này, không hỏi lại cô.
 - File `ke_hoach/nguoi_2..4` và `nhat_ky/` giữ lại làm lịch sử, không xoá. Kế hoạch mới trỏ tới các file đó để lấy mô tả chi tiết của A3–A5, A7 và Thí nghiệm 5.
 - PR #1 và #3 (giai đoạn 0) đã gộp vào `main` ngày 2026-11-14.
+- **A0, 3 seed** (nhánh `dung/a0-a2`, bước 1.1 của kế hoạch mới):
+  - Cấu hình: Adam lr 1e-3, batch 128, 30 epoch, không tăng cường, MPS.
+  - `src.summary` ra 342.056 tham số. FC 2704→120 chiếm 324.600, tức 94,9%.
+  - Mỗi lần chạy mất 0,5 phút. Ba dòng đã ghi vào `ket_qua.csv`.
+
+  | Seed | Epoch tốt nhất | Val macro-F1 (35 lớp) | Val acc | Train acc ở epoch đó |
+  |---|---:|---:|---:|---:|
+  | 0 | 25 | 0,6400 | 0,8024 | 0,9986 |
+  | 1 | 30 | 0,5781 | 0,7699 | 0,9984 |
+  | 2 | 29 | 0,6079 | 0,7690 | 0,9988 |
+  | **TB ± ĐLC** | | **0,6087 ± 0,0310** | **0,7805 ± 0,0190** | |
+
+  - **Overfitting rõ:**
+    - Train acc khoảng 0,999, val acc khoảng 0,78.
+    - Val loss nhỏ nhất ở epoch 6–7 (1,22–1,68), rồi tăng tới 1,66–2,42 ở epoch 30.
+    - Dùng làm số liệu cho A3.
+  - **Phát hiện:** val loss tăng từ epoch 7, nhưng val macro-F1 vẫn tăng tới epoch 25–30.
+    - Cách hiểu: mạng tự tin quá mức trên các mẫu sai, nên loss tăng, trong khi số mẫu đúng vẫn tăng.
+    - Đây mới là cách hiểu, chưa kiểm.
+    - Hệ quả: chọn epoch theo val loss hay theo val macro-F1 sẽ cho mạng khác nhau. Kế hoạch chọn theo macro-F1.
+  - Độ lệch chuẩn giữa các seed là 0,031. Chênh lệch giữa các mạng nhỏ hơn mức này thì coi là chưa phân biệt được.
+  - Chưa tính tay bảng kích thước và tham số. Receptive field cũng chưa tính, Dũng tự làm.
+- **Bảng tham số tính tay A0, A1** ([`ket_qua/bang_tham_so.md`](ket_qua/bang_tham_so.md), Dũng nhờ Claude viết):
+  - Kích thước đầu ra, số tham số, receptive field từng lớp. Kích thước và số tham số khớp với `src.summary`.
+  - Receptive field cuối phần conv: A0 là 16, A1 là 36.
+  - So hai conv 3×3 với một conv 5×5 (32→32): cùng receptive field 5, số tham số 18.496 so với 25.632.
+  - A1b (GAP thay cho FC 256) tính tay ra 293.716 tham số, chưa kiểm bằng code.
+- **A1 (kiểu VGG), 3 seed:**
+  - Code `src/models/a1_vgg.py`, cùng cấu hình nền với A0.
+  - 2.397.780 tham số, khớp đáp số trong kế hoạch.
+  - 5 giây mỗi epoch, 2,5 phút mỗi lần chạy trên MPS.
+
+  | Seed | Epoch tốt nhất | Val macro-F1 (35 lớp) | Val acc | Train acc |
+  |---|---:|---:|---:|---:|
+  | 0 | 20 | 0,5975 | 0,7811 | 0,9963 |
+  | 1 | 26 | 0,5926 | 0,7774 | 0,9975 |
+  | 2 | 24 | 0,5496 | 0,7551 | 0,9984 |
+  | **TB ± ĐLC** | | **0,5799 ± 0,0263** | **0,7712 ± 0,0140** | |
+
+  - **A1 không tốt hơn A0:**
+    - Macro-F1 thấp hơn 0,029. Chênh lệch này nhỏ hơn độ lệch chuẩn giữa các seed (0,026–0,031), nên chưa phân biệt được hai mạng.
+    - A1 có gấp 7 lần tham số và chạy chậm gấp 5 lần.
+  - **Overfitting nặng hơn:**
+    - Khoảng cách train acc − val acc: A1 là 0,226, A0 là 0,218.
+    - Val loss nhỏ nhất của A1 ở epoch 2–4 với seed 1, 2 (epoch 20 với seed 0). Ở epoch 30 val loss là 2,13–2,93, của A0 là 1,66–2,42.
+    - Hình so sánh: `data/runs_a/hinh/a0_a1.png` (git ignore). Vẽ lại bằng `python -m src.so_sanh data/runs_a data/runs_a/hinh/a0_a1.png a0 a1`.
+  - **Cách hiểu (chưa kiểm):** 5621 ảnh train là ít so với 2,4 triệu tham số. Nếu không có điều chuẩn, mạng sâu hơn chỉ học thuộc train nhanh hơn.
+    - Đúng với điều giáo trình 4.7 nói về overfitting khi mô hình lớn mà dữ liệu ít.
+    - A2 (BatchNorm) và A3 (dropout, tăng cường dữ liệu) sẽ kiểm tra cách hiểu này.
+  - **Câu báo cáo:** "Mạng sâu hơn, nhiều tham số hơn có luôn tốt hơn không?" Ở đây là không, khi chưa có điều chuẩn.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
