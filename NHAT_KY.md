@@ -295,6 +295,41 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Thêm vào đó, so với A3-a, res-sâu có val acc cao hơn (0,814 so với 0,789), val loss nhỏ nhất thấp hơn (0,80 so với 1,09) và chỉ dùng một nửa số tham số.
     - Phương án khác đã cân nhắc: plain-sâu có trung bình F1, val acc, val loss nhỉnh hơn res-sâu một chút, nhưng dao động giữa các seed lớn hơn.
 
+**2026-11-21** (nhánh `dung/manifest-random`, tách từ `dung/a3`)
+- **Dựng `manifest_random.csv` cho Thí nghiệm 5 (bản R).** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md` mục 1.4, cách làm ở `ke_hoach/nguoi_1_dung_du_lieu_va_A0-A2.md`, mục "Bản ảnh cắt chia ngẫu nhiên cho Thí nghiệm 5".
+  - **Script:** `src/data/make_manifest_random.py`. Chạy `python -m src.data.make_manifest_random`.
+    - Test là ảnh trong `archive/split_dataset/test_files.txt`.
+    - Train và val lấy từ `train_files.txt`: xáo ngẫu nhiên theo ảnh (seed 0), 15% làm val.
+    - Chỉ đọc `archive` và `manifest.csv`, không sửa.
+  - **Không cắt lại ảnh.** Dùng đúng các ảnh cắt của `data/vn_signs_crops/`, chỉ đổi cột `split`.
+    - Nhãn là bản đã sửa, cùng md5 `80a393b9...` với bản G. Bản R và bản G chỉ khác nhau ở cách chia tập.
+    - Vì cột `path` giữ nguyên, `manifest_random.csv` nằm cạnh `manifest.csv` trong `data/vn_signs_crops/` (git ignore).
+  - **Chuẩn hoá:** mean/std tính lại trên train của bản R, ghi ở `du_lieu/crops_info_random.json` (có trong git), theo quy tắc chuẩn hoá bằng mean/std của train. Train trên bản R thì thêm `--manifest data/vn_signs_crops/manifest_random.csv --info du_lieu/crops_info_random.json`.
+  - **Phát hiện:** split gốc của archive đã không chứa ảnh nào trong 25 ảnh nhãn rỗng. `train_files` (2552) + `test_files` (639) = 3191 ảnh, khớp đúng 3191 ảnh của dataset. Vì vậy bước "bỏ 25 ảnh nhãn rỗng" của kế hoạch không bỏ ảnh nào.
+  - **Kết quả:**
+
+    | Tập | Ảnh (R) | Ảnh cắt (R) | Số lớp (R) | Ảnh cắt (G, để so) |
+    |---|---:|---:|---:|---:|
+    | train | 2169 | 5690 | 52 | 5621 |
+    | val | 383 | 995 | 50 | 1078 |
+    | test | 639 | 1644 | 52 | 1630 |
+
+    - Val của R thiếu 2 lớp, là 44 và 47; test của R có đủ 52 lớp.
+    - 41 lớp có ở test của G đều có ở test của R. Khi so R với G trên test, tính macro-F1 trên 41 lớp chung này để cùng tập nhãn (như mô tả Thí nghiệm 5 ở mục E).
+  - **Kiểm tra rò rỉ** ("có ảnh train liền số" = ảnh số n có ảnh n − 1 hoặc n + 1 nằm trong train):
+
+    | | R | G |
+    |---|---|---|
+    | Ảnh test có ảnh train liền số | 569/639 (89,0%) | 23/579 (4,0%) |
+    | Ảnh val có ảnh train liền số | 336/383 (87,7%) | 46/474 (9,7%) |
+    | Ảnh cắt test có ảnh gốc liền số với một ảnh train | 1481/1644 (90,1%) | |
+    | Nhóm frame bị tách ra nhiều tập | 122/169 | 0 |
+
+    - Kế hoạch yêu cầu khớp con số 612/639 ở mục A1. Đo lại test với **toàn bộ** `train_files` cho đúng 612/639. Con số 569 thấp hơn vì 15% ảnh của `train_files` đã chuyển sang val.
+    - Bản G vẫn có 4% ảnh test liền số với train: đó là ảnh ở ranh giới giữa hai nhóm frame liền nhau.
+  - Đã đọc thử cả 3 tập qua `CropDataset`: 5690 / 995 / 1644 ảnh, tensor 3×64×64.
+  - Chưa chạy Thí nghiệm 5. Theo kế hoạch, việc này ở tuần 2, dùng cấu hình đã chốt.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.

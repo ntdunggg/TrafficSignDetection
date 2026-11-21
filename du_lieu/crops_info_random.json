@@ -1,0 +1,33 @@
+{
+  "nguon": "data/vn_signs_crops/manifest.csv",
+  "manifest": "data/vn_signs_crops/manifest_random.csv",
+  "cach_chia": "split gốc của archive (ngẫu nhiên từng ảnh); val = 15% ảnh của train_files, seed 0",
+  "md5_nhan": "80a393b981121f57e7080674c2750722",
+  "margin": 1.2,
+  "so_anh": {
+    "train": 2169,
+    "val": 383,
+    "test": 639
+  },
+  "so_anh_cat": {
+    "train": 5690,
+    "val": 995,
+    "test": 1644
+  },
+  "so_lop": {
+    "train": 52,
+    "val": 50,
+    "test": 52
+  },
+  "mean_std_size": 64,
+  "mean": [
+    0.467717,
+    0.437552,
+    0.467652
+  ],
+  "std": [
+    0.211321,
+    0.200236,
+    0.212048
+  ]
+}
