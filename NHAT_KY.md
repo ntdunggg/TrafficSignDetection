@@ -330,6 +330,33 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
   - Đã đọc thử cả 3 tập qua `CropDataset`: 5690 / 995 / 1644 ảnh, tensor 3×64×64.
   - Chưa chạy Thí nghiệm 5. Theo kế hoạch, việc này ở tuần 2, dùng cấu hình đã chốt.
 
+**2026-11-22** (nhánh `dung/b0-thoi-gian`, tách từ `dung/manifest-random`)
+- **Chuẩn bị đo thời gian B0 trên Kaggle.** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md`, mục 1.5. Quy tắc quyết định đặt trước: 100 epoch dưới khoảng 10 giờ thì làm B0 ở tuần 2, không thì bỏ.
+  - **Script:** `src/yolo/do_thoi_gian_b0.py`, tự chứa, dán vào một ô notebook Kaggle. Script làm các việc sau:
+    - Kiểm phiên bản `ultralytics==8.4.191`, có GPU, và md5 nhãn khớp `80a393b9...`.
+    - Train 1 epoch với cấu hình của B0 thật.
+    - Đo riêng thời gian train và thời gian val + lưu checkpoint của epoch, bằng callback của Ultralytics.
+    - Ghi loại GPU, bộ nhớ đỉnh, ước tính giờ cho 100 epoch và quyết định theo quy tắc trên vào `/kaggle/working/b0_thoi_gian.json`.
+  - **Cấu hình:**
+    - `yolov8s.yaml`, `pretrained=False`, `imgsz=960`, `fliplr=0`.
+    - `optimizer=SGD lr0=0.01 momentum=0.937`, ghi cố định như kế hoạch.
+    - `batch=16`, là mặc định của Ultralytics. Vì `nbs=64`, gradient cộng dồn qua 4 batch mới cập nhật một lần.
+  - **Hai chỗ khác mặc định, có lý do:**
+    1. **`close_mosaic=0` trong lần đo.** Mặc định `close_mosaic=10` tắt mosaic ở 10 epoch cuối. Chạy 1 epoch thì mosaic bị tắt luôn, epoch đo được sẽ nhẹ hơn epoch thật (lưu ý 2 của "Chạy thử 1 epoch", mục E). B0 thật vẫn giữ `close_mosaic=10`.
+    2. **Không tải `yolo26n.pt` để kiểm tra AMP.**
+       - Đọc mã nguồn Ultralytics 8.4.191 (`utils/checks.py`, hàm `check_amp`): trên GPU CUDA, trước khi train nó tải `yolo26n.pt` (trọng số đã học trước) để so kết quả fp16 với fp32. Log ghi "not used for training". Trên M2 (MPS) không gặp vì hàm trả về False ngay.
+       - Để giữ đúng quy tắc không tải checkpoint (AGENTS.md mục 2), script thay `check_amp` bằng hàm trả về True. AMP vẫn bật và không tải file `.pt` nào.
+       - Khi không có mạng, Ultralytics cũng bỏ qua bước kiểm tra này và giữ `amp=True`.
+       - Rủi ro là bỏ mất bước phát hiện GPU lỗi fp16. Nếu loss ra NaN thì chạy lại với `AMP = False`.
+       - B0 thật cũng phải làm như vậy.
+  - **Chạy thử trên M2** (bản sửa tạm trong scratchpad: `device=mps`, `imgsz=320`, `fraction=0.01`):
+    - Chạy hết, callback đo được thời gian.
+    - Log xác nhận `optimizer: SGD(lr=0.01, momentum=0.937)`, `fliplr=0`, `close_mosaic=0`, `pretrained=False`.
+    - Không có file `.pt` nào được tải về; chỉ có `last.pt`, `best.pt` do chính lần chạy tạo ra.
+    - Số đo trên M2 không dùng được cho quyết định.
+  - **Sự cố khi chạy thử:** lần chạy thử với `fraction=0.01` đã ghi đè `data/vn_signs_yolo/labels/train.cache` bằng cache của 1% ảnh. File `.cache` không phải nhãn, md5 nhãn bỏ qua nó (đã kiểm: md5 vẫn `80a393b9...`). Ultralytics tự dựng lại cache khi danh sách ảnh khác. Dù vậy, đây là ghi vào thư mục dữ liệu dùng chung, phải tránh: lần sau chạy thử thì chép dữ liệu ra chỗ khác.
+  - **Chưa đo trên Kaggle.** Dũng tự chạy trên Kaggle rồi chép đoạn JSON kết quả về.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.
