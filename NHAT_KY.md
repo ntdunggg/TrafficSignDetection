@@ -355,7 +355,32 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Không có file `.pt` nào được tải về; chỉ có `last.pt`, `best.pt` do chính lần chạy tạo ra.
     - Số đo trên M2 không dùng được cho quyết định.
   - **Sự cố khi chạy thử:** lần chạy thử với `fraction=0.01` đã ghi đè `data/vn_signs_yolo/labels/train.cache` bằng cache của 1% ảnh. File `.cache` không phải nhãn, md5 nhãn bỏ qua nó (đã kiểm: md5 vẫn `80a393b9...`). Ultralytics tự dựng lại cache khi danh sách ảnh khác. Dù vậy, đây là ghi vào thư mục dữ liệu dùng chung, phải tránh: lần sau chạy thử thì chép dữ liệu ra chỗ khác.
-  - **Chưa đo trên Kaggle.** Dũng tự chạy trên Kaggle rồi chép đoạn JSON kết quả về.
+  - **Đã đo trên Kaggle (2026-11-22).** Dũng chạy bằng tài khoản khác, chép output về.
+
+    | Thứ | Giá trị |
+    |---|---|
+    | GPU | Tesla T4 (notebook có 2 card, script dùng 1), 15,6 GB; 4 CPU |
+    | Phần mềm | Python 3.13.16, torch 2.11.0+cu130, Ultralytics 8.4.191 |
+    | md5 nhãn | `80a393b9...`, khớp |
+    | Mạng | YOLOv8s từ `yolov8s.yaml`, 11.155.724 tham số, 28,8 GFLOPs (`nc=80` đổi thành 52) |
+    | Train 1 epoch | 168,5 giây (134 lượt × khoảng 1,3 giây, batch 16) |
+    | Val + lưu checkpoint 1 epoch | 45,7 giây |
+    | **Mỗi epoch** | **214,2 giây** |
+    | Cả lần chạy (đọc dữ liệu, 1 epoch, chấm `best.pt` lần cuối) | 391,2 giây |
+    | Bộ nhớ GPU đỉnh | 8,16 GB, batch 16 vừa |
+    | **Ước tính 100 epoch** | **5,95 giờ** |
+
+  - **Quyết định theo quy tắc đặt trước: làm B0 ở tuần 2.** 5,95 giờ dưới mức 10 giờ, còn dư khoảng 6 giờ so với giới hạn 12 giờ của một phiên.
+  - **Kiểm tra quy tắc:** log ghi `optimizer: SGD(lr=0.01, momentum=0.937)`, `fliplr=0`, `pretrained=False`, `close_mosaic=0`. Không tải file `.pt` nào. Hai file được tải là phông chữ để vẽ hình (`Arial.Unicode.ttf`, `Arial.ttf`), không phải trọng số.
+  - **Vì sao 5,95 giờ có thể là ước tính hơi cao:**
+    - Val ở epoch đầu chậm (2,7 giây mỗi lượt, 15 lượt). Chấm lại `best.pt` cũng trên 474 ảnh đó chỉ mất 5,6 giây. Có thể do mạng chưa học nên ra rất nhiều box, bước NMS tốn thời gian. Đây là suy luận, chưa đo ở epoch sau.
+    - Ultralytics cảnh báo đọc ảnh chậm từ `/kaggle/input` (1,9 MB/s) và chỉ dùng 2 worker đọc ảnh (máy có 4 CPU). Chép dữ liệu sang `/kaggle/working` trước khi train có thể nhanh hơn. Chưa thử.
+  - **Không ghi vào `ket_qua.csv`:** đây là lần đo thời gian, không phải thí nghiệm. Giống quy ước của `train.py`: chạy thử thì không ghi.
+  - **Cho B0 thật ở tuần 2:**
+    - Giữ cấu hình trên với `epochs=100`, `close_mosaic=10` (mặc định), 1 seed.
+    - Vẫn phải thay `check_amp` để không tải `yolo26n.pt`.
+    - Lưu `best.pt` và `results.csv` ra khỏi `/kaggle/working` trước khi phiên kết thúc.
+    - Cần 1 phiên khoảng 6 giờ trong quota GPU 30 giờ mỗi tuần của Kaggle.
 - **Đổi dataset Kaggle `dngnguyntrng/vn-sign` sang công khai (Dũng quyết định 2026-11-22).**
   - Bối cảnh: tài khoản `dngnguyntrng` chưa xác minh số điện thoại nên không bật được Internet và GPU. Dũng chạy bằng tài khoản khác, và đổi dataset sang công khai để tài khoản đó dùng được.
   - Trái với quy tắc cũ "dataset trên Kaggle để riêng tư" (`ke_hoach/00_chung.md` quy tắc 9), vì ảnh có người và biển số xe. Tôi đã nêu cách khác: giữ riêng tư và thêm tài khoản mới làm collaborator.

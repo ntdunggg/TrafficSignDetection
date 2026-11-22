@@ -94,6 +94,7 @@ Cách dựng và cách kiểm: [`nguoi_1_dung_du_lieu_va_A0-A2.md`](nguoi_1_dung
   - Lý do: `auto` sẽ tự đổi optimizer theo số bước (NHAT_KY, "Chạy thử 1 epoch", phát hiện 1).
   - Train từ đầu cần lr lớn hơn mức 0,000179 dành cho tinh chỉnh ngắn (NHAT_KY, "Chọn lr cho YOLO train từ đầu").
   - Hạn chế phải ghi trong báo cáo: không tìm lr, chỉ 1 seed.
+- **Đã đo (2026-11-22):** Tesla T4, 214 giây mỗi epoch, ước tính 100 epoch mất 5,95 giờ. **Làm B0 ở tuần 2.** Chi tiết ở NHAT_KY, mục 2026-11-22.
 
 ## Tuần 2 (26/11 – 02/12): huấn luyện và đánh giá
 
