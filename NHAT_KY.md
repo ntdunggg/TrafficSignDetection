@@ -356,6 +356,11 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Số đo trên M2 không dùng được cho quyết định.
   - **Sự cố khi chạy thử:** lần chạy thử với `fraction=0.01` đã ghi đè `data/vn_signs_yolo/labels/train.cache` bằng cache của 1% ảnh. File `.cache` không phải nhãn, md5 nhãn bỏ qua nó (đã kiểm: md5 vẫn `80a393b9...`). Ultralytics tự dựng lại cache khi danh sách ảnh khác. Dù vậy, đây là ghi vào thư mục dữ liệu dùng chung, phải tránh: lần sau chạy thử thì chép dữ liệu ra chỗ khác.
   - **Chưa đo trên Kaggle.** Dũng tự chạy trên Kaggle rồi chép đoạn JSON kết quả về.
+- **Đổi dataset Kaggle `dngnguyntrng/vn-sign` sang công khai (Dũng quyết định 2026-11-22).**
+  - Bối cảnh: tài khoản `dngnguyntrng` chưa xác minh số điện thoại nên không bật được Internet và GPU. Dũng chạy bằng tài khoản khác, và đổi dataset sang công khai để tài khoản đó dùng được.
+  - Trái với quy tắc cũ "dataset trên Kaggle để riêng tư" (`ke_hoach/00_chung.md` quy tắc 9), vì ảnh có người và biển số xe. Tôi đã nêu cách khác: giữ riêng tư và thêm tài khoản mới làm collaborator.
+  - Lý do của Dũng: ảnh lấy từ một dataset vốn đã công khai, nên để công khai không sao.
+  - Dũng yêu cầu đổi luật. Đã sửa quy tắc 9 và đoạn "Chạy trên Kaggle" trong `ke_hoach/00_chung.md`, `README.md`, và `AGENTS.md` mục 2. Vẫn giữ: không đưa ảnh vào git, ảnh tự chụp không đăng công khai.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.

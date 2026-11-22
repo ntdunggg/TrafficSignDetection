@@ -57,7 +57,7 @@ Kế hoạch chi tiết và lý do của từng lựa chọn nằm ở [`NHAT_KY
 
 Mọi mAP và macro-F1 trên test chỉ tính trên 41 lớp có mặt (sổ, mục F3).
 
-**Ảnh không có trong git.** Ảnh có người và biển số xe, nên không đăng công khai. Nhóm chia sẻ dataset qua Kaggle ở chế độ riêng tư.
+**Ảnh không có trong git.** Ảnh có người và biển số xe, nên không đăng công khai. Dataset đã sửa nhãn chia sẻ qua Kaggle, để công khai từ 2026-11-22 vì ảnh gốc lấy từ dataset vốn đã công khai (NHAT_KY, mục 2026-11-22).
 
 ## Cấu trúc thư mục
 

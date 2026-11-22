@@ -45,7 +45,7 @@ Không làm những việc sau, kể cả khi người dùng nhờ. Nếu ngư�
 - **Lật ngang ảnh.** Không `RandomHorizontalFlip`, không lật dọc. YOLO phải đặt `fliplr=0`. Lý do: nhiều lớp chỉ khác nhau ở chiều trái/phải (`NHAT_KY.md` mục D1).
 - **Sửa dữ liệu dùng chung.** Không sửa bản gốc `archive` (trên máy Dũng), `data/vn_signs_yolo/`, `du_lieu/splits/`. Cần bản biến thể thì báo Dũng.
 - **Chấm test để chọn cấu hình.** Mọi lựa chọn dựa trên val. Test chỉ chấm một lần cho cấu hình đã chốt, đúng thời điểm ghi trong kế hoạch.
-- **Đưa vào git:** ảnh, ảnh cắt, trọng số (`.pt`, `.pth`, `.ckpt`), thư mục `data/`, `catalog/`, `runs/`. Ảnh có người và biển số xe, không đăng công khai.
+- **Đưa vào git:** ảnh, ảnh cắt, trọng số (`.pt`, `.pth`, `.ckpt`), thư mục `data/`, `catalog/`, `runs/`. Ảnh không đưa vào git. Dataset trên Kaggle được để công khai (Dũng đổi luật 2026-11-22, ảnh gốc vốn từ dataset công khai). Ảnh tự chụp vẫn không đăng công khai.
 - **Sửa file của người khác:** kế hoạch, sổ ghi, code đang do người khác làm. Cần sửa thì báo người dùng để họ trao đổi với người kia.
 - **Sửa `NHAT_KY.md`**, trừ khi người dùng là Dũng.
 

@@ -73,7 +73,7 @@ Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoả
    `val_chinh` và `test_chinh` là mAP50-95 với YOLO, macro-F1 với mạng phân loại. Không chấm test thì để trống.
 7. **Lưu đủ để chạy lại:** code (commit), file cấu hình, `results.csv` hoặc log theo epoch, trọng số tốt nhất. Trọng số không commit vào git (để trên Kaggle hoặc Drive của nhóm).
 8. **Mỗi người giữ một mục "Câu hỏi và trả lời" trong phần báo cáo của mình.** Mỗi câu trả lời kèm số liệu hoặc hình làm bằng chứng. Câu hỏi gợi ý có trong file của từng người. Dạng câu hỏi lấy từ đề thi trong `/Users/tdu/2026.1/học sâu/`.
-9. **Riêng tư:** ảnh có người và biển số xe. Không đăng dataset, ảnh cắt hay ảnh tự chụp lên chỗ công khai. Dataset trên Kaggle để chế độ riêng tư.
+9. **Riêng tư:** ảnh có người và biển số xe. Không đưa ảnh vào git. Ảnh tự chụp không đăng công khai. **Đổi 2026-11-22 (Dũng quyết định):** dataset trên Kaggle để công khai, vì ảnh lấy từ dataset vốn đã công khai (NHAT_KY, mục 2026-11-22).
 10. **Ghi chép:** mỗi việc, thay đổi, quyết định ghi vào sổ của mình (`nhat_ky/<tên>.md`, Dũng ghi thẳng `NHAT_KY.md`) theo mẫu trong `AGENTS.md`. Thay đổi kế hoạch thì báo cả nhóm, đánh dấu "Chuyển vào NHAT_KY.md: có" để Dũng chép sang sổ chung. Không sửa sổ của người khác.
 11. **Dùng AI agent:** agent phải đọc `AGENTS.md` (Claude Code đọc qua `CLAUDE.md`). Agent hỏi trước khi đổi kế hoạch, không tự dùng trọng số có sẵn hay lật ảnh.
 
@@ -85,7 +85,7 @@ Phân công chốt ngày 2026-11-10. Chưa có MSSV, hạn nộp và tài khoả
 
 ### Chạy trên Kaggle
 
-Dataset riêng tư của nhóm: [`dngnguyntrng/vn-sign`](https://www.kaggle.com/datasets/dngnguyntrng/vn-sign) (Dũng tải lên ngày 2026-11-14, thêm mọi người làm collaborator) gồm `vn_signs_yolo/`, `vn_signs_crops/`, `classes.txt`, `crops_info.json`. Trong notebook: **Add Input** → chọn dataset đó.
+Dataset của nhóm (công khai từ 2026-11-22, trước đó riêng tư): [`dngnguyntrng/vn-sign`](https://www.kaggle.com/datasets/dngnguyntrng/vn-sign) (Dũng tải lên ngày 2026-11-14, thêm mọi người làm collaborator) gồm `vn_signs_yolo/`, `vn_signs_crops/`, `classes.txt`, `crops_info.json`. Trong notebook: **Add Input** → chọn dataset đó.
 
 **Đường dẫn dataset:** `/kaggle/input/datasets/dngnguyntrng/vn-sign/`. Đã kiểm trong notebook thật ngày 2026-11-14. Kaggle gắn dataset theo dạng `/kaggle/input/datasets/<chủ>/<tên>/`, có thêm tầng `datasets/` và tên tài khoản. Nếu lệnh báo không thấy file, tìm lại bằng:
 
