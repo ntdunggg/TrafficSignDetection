@@ -519,6 +519,64 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - **Cái giá:** gấp 3 lần mạng đơn cả số tham số (3,7–4,8 triệu) lẫn thời gian suy diễn (2,4–3,4 ms mỗi ảnh so với 0,56–1,15 ms). Train cũng gấp 3 lần.
     - **Số tham số không quyết định tốc độ.** A2 (2,4 triệu tham số) chạy 0,56–0,78 ms mỗi ảnh, nhanh hơn a4rs (1,24 triệu, 0,89–1,15 ms). A4 tốn nhiều phép nhân-cộng hơn (255 triệu so với 157 triệu mỗi ảnh, `bang_tham_so.md` mục 4c), vì conv chạy trên bản đồ đặc trưng lớn. Thời gian trên MPS dao động giữa các lần đo khoảng 30%.
   - Lưu ý: mỗi thành viên đã được chọn epoch theo val, nên số trên val đều hơi lạc quan. Chấm test ở bước 2.4.
+- **Bước 2.4: danh sách chấm test, chốt trên val trước khi chấm (nhánh `dung/cham-test`).** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md` mục 2.4. Đã kiểm: chưa có lần chạy nào chấm test (không có thư mục `danh_gia_test`, cột `test_chinh` trống).
+
+  | Bậc | Cấu hình chốt (lý do) | Chấm | Val macro-F1 (35 lớp) |
+  |---|---|---|---|
+  | A0 | `a0` (chỉ có một bản) | 3 seed | 0,6087 ± 0,0310 |
+  | A1 | `a1` (chỉ có một bản) | 3 seed | 0,5799 ± 0,0263 |
+  | A2 | `a2` (chỉ có một bản); cũng là G của Thí nghiệm 5 | 3 seed | 0,6044 ± 0,0141 |
+  | A3 | A3-a: `a2` + tăng cường `a3` (Dũng chọn 2026-11-20) | 3 seed | 0,6825 ± 0,0360 |
+  | A4 | A4-res-sâu: `a4rs` + `a3` (Dũng chọn 2026-11-21) | 3 seed | 0,6517 ± 0,0139 |
+  | A5 | Trùng A4-res-sâu (A5 giữ Adam 1e-3, lr không đổi) | không chấm lại, dùng số của A4 | |
+  | A7 | A7-kientruc-s0/s1/s2 và A7-seed (cả hai bản đã chốt trước) | 4 ensemble | 0,6954 ± 0,0287; 0,6734 |
+  | TN5-R | `a2` trên `manifest_random.csv`, chấm trên test của R | 3 seed | 0,9503 ± 0,0162 (35 lớp chung) |
+
+  - **Quy tắc khi chấm:**
+    - Chấm test đúng một lần cho mỗi mục trên. Không chọn hay đổi cấu hình nào dựa trên test.
+    - A7 chấm cả hai bản để báo cáo, không dùng test để chọn giữa chúng.
+    - Báo cáo macro-F1 trên 41 lớp có ở test của G, kèm recall từng lớp (`<run>/danh_gia_test/tung_lop.csv`).
+    - Thí nghiệm 5: test của R có 52 lớp. So R với G trên 41 lớp chung (41 lớp của test G đều có ở test R, mục 2026-11-21).
+  - **Lệnh:**
+    - Mạng đơn: `python -m src.evaluate --run <run> --split test --cham-test`.
+    - Ensemble: `python -m src.ensemble --name <tên> --runs ... --split test --cham-test`.
+  - **Trạng thái:** Dũng xác nhận danh sách, đã chấm test một lần ngày 2026-11-23. Cột `test_chinh` của 22 dòng tương ứng trong `ket_qua.csv` đã điền, `ghi_chu` ghi số lớp. Bản sao `ket_qua.csv` trước khi điền ở scratchpad. Kết quả từng lần ở `<run>/danh_gia_test/` và `data/runs_a/ensemble/<tên>_test/`.
+- **Kết quả test** (macro-F1 trên 41 lớp có ở test của G; trung bình ± độ lệch chuẩn qua 3 seed):
+
+  | Bậc | Test macro-F1 | Từng seed | Test acc | Val macro-F1 (35 lớp) | Val − test |
+  |---|---|---|---|---|---|
+  | A0 | 0,4341 ± 0,0094 | 0,4304 / 0,4270 / 0,4448 | 0,563 | 0,6087 | 0,175 |
+  | A1 | 0,4429 ± 0,0061 | 0,4399 / 0,4390 / 0,4499 | 0,577 | 0,5799 | 0,137 |
+  | A2 | 0,4667 ± 0,0408 | 0,4920 / 0,4885 / 0,4196 | 0,616 | 0,6044 | 0,138 |
+  | A3-a | 0,4972 ± 0,0505 | 0,4404 / 0,5372 / 0,5139 | 0,605 | 0,6825 | 0,185 |
+  | A4-res-sâu (= A5) | 0,4969 ± 0,0306 | 0,4625 / 0,5211 / 0,5072 | 0,621 | 0,6517 | 0,155 |
+  | A7-seed (ensemble 3 seed a4rs) | 0,5190 | | 0,634 | 0,6734 | 0,154 |
+  | **A7-kientruc** (ensemble a2 + a4ps + a4rs) | **0,5439 ± 0,0437** | 0,4935 / 0,5716 / 0,5666 | 0,667 | 0,6954 | 0,152 |
+
+  - **Thứ tự trên test gần như theo đúng thứ tự xây mạng:** A0 < A1 < A2 < A3-a ≈ A4 < A7. Mỗi bậc liền kề chỉ hơn nhau dưới hoặc gần một độ lệch chuẩn, nhưng từ A0 đến A7-kientruc tăng 0,11.
+  - Trên val, A1 kém A0. Trên test, A1 nhỉnh hơn A0 0,009, cỡ một độ lệch chuẩn. Coi là hoà ở cả hai tập.
+  - A3-a và A4-res-sâu hoà trên test (0,497), như trên val.
+  - **Ensemble trên test:**
+    - A7-kientruc hơn trung bình các thành viên ở cả 3 seed: 0,4935 so với 0,4773; 0,5716 so với 0,5398; 0,5666 so với 0,5327.
+    - Nhưng **không phải lúc nào cũng hơn thành viên tốt nhất**: chỉ hơn ở seed 1. Ở seed 0 và 2, a4ps một mình cao hơn (0,5291 và 0,5770). A7-seed (0,519) cũng thấp hơn thành viên tốt nhất (0,5211) một chút.
+    - Vậy câu "ensemble luôn hơn từng thành viên" ở val không giữ nguyên trên test. Câu đúng là: ensemble hơn trung bình các thành viên.
+    - a4ps xuất hiện trên test chỉ vì là thành viên của A7. Không dùng số này để đổi lựa chọn (quy tắc chấm test một lần).
+  - **Val cao hơn test 0,14–0,19 ở mọi mạng chia theo G.** Có hai lý do, đã đo được:
+    1. **6 lớp có ở test mà không có ở val** (lớp 11, 20, 33, 38, 43, 50; 182 ảnh). Khi chọn epoch không ai thấy các lớp này. F1 trên 6 lớp đó khoảng 0,37–0,39, trên 35 lớp còn lại khoảng 0,48–0,52 (A2, A3-a, A4-res-sâu). Lớp 11, 20, 43 có F1 bằng 0 ở cả 3 seed của A4-res-sâu.
+    2. **Ngay cả trên 35 lớp có ở val, test vẫn thấp hơn val khoảng 0,13** (ví dụ A4-res-sâu: 0,516 so với 0,652). Test là những nhóm frame khác val. Thêm nữa, F1 trên val được chọn ở epoch tốt nhất của một đường dao động, nên lạc quan (đã dự đoán ở A5).
+  - **Test loss:** A0, A1 có test loss 4,1–5,5, A4-res-sâu 1,7–2,5. A0 và A1 sai mà rất tự tin.
+- **Thí nghiệm 5 trên test:**
+
+  | | G (A2, chia theo nhóm) | R (A2, chia ngẫu nhiên) |
+  |---|---|---|
+  | **Test macro-F1 trên 41 lớp chung** | **0,4667 ± 0,0408** | **0,9628 ± 0,0056** |
+  | Test macro-F1 trên mọi lớp có ở test | 0,4667 (41 lớp) | 0,9599 ± 0,0102 (52 lớp) |
+  | Test acc | 0,616 | 0,976 |
+  | Val − test (35 lớp chung ở val, 41 ở test) | 0,138 | −0,013 |
+
+  - **Chia ngẫu nhiên thổi phồng điểm test thêm khoảng 0,50 macro-F1** (0,963 so với 0,467), với cùng mạng, cùng cách train, cùng nhãn. Đây là câu trả lời có số liệu cho H4 và cho câu "vì sao phải chia theo nhóm frame".
+  - Ở R, test cao ngang val, vì cả val lẫn test đều có frame liền kề trong train (87,7% và 89,0%). Ở G, test thấp hơn val 0,14.
+  - Con số 0,96 của R là điểm mà ai dùng split gốc của `archive` sẽ báo cáo. Nó đo khả năng nhớ cảnh, không đo khả năng nhận biển ở cảnh mới.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
