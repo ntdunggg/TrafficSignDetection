@@ -461,6 +461,65 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - SGD chỉ thử một mức lr và không có lịch lr.
     - Phần làm thêm (khởi tạo, hàm kích hoạt) chưa làm.
 
+**2026-11-23** (nhánh `dung/a7-tn5`, tách từ `dung/a5`)
+- **A7 ensemble và Thí nghiệm 5.** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md` mục 2.2.
+- **A7: cách làm, ghi trước khi chạy.**
+  - Code: `src/ensemble.py`.
+    - Nạp `best.pt` của từng lần chạy, lấy trung bình xác suất softmax, rồi lấy lớp lớn nhất (giáo trình 4.9).
+    - In macro-F1, accuracy của từng mạng và của ensemble, tổng tham số, thời gian suy diễn (ms mỗi ảnh, batch 256, trung vị 3 lượt sau 1 lượt làm nóng).
+    - Các mạng phải cùng manifest, cùng kích thước ảnh, cùng mean/std; code dừng nếu khác.
+  - Kế hoạch ghi "3–5 mạng tốt nhất (khác seed hoặc khác kiến trúc)". Để không chọn thành viên theo val rồi lại chấm trên val, chốt trước hai bản:
+
+    | Bản | Thành viên | Ghi chú |
+    |---|---|---|
+    | A7-seed | 3 seed của cấu hình đã chốt (`a4rs`, Adam 1e-3, tăng cường `a3`) | Khác seed, cùng kiến trúc. Ra 1 số |
+    | A7-kientruc-s{0,1,2} | Với mỗi seed s: A3-a (`a2`), A4-plain-sâu (`a4ps`), A4-res-sâu (`a4rs`), đều tăng cường `a3`, cùng seed s | Khác kiến trúc. Ba kiến trúc có val macro-F1 trung bình cao nhất. Lặp với 3 seed để có trung bình ± độ lệch chuẩn |
+
+  - So mỗi ensemble với trung bình và mạng tốt nhất trong các thành viên của nó, về macro-F1, số tham số, thời gian.
+  - Lưu ý: mỗi thành viên đã được chọn epoch theo val, nên F1 trên val của cả thành viên lẫn ensemble đều hơi lạc quan. Kết luận cuối cùng chờ chấm test ở bước 2.4.
+- **Thí nghiệm 5: cách làm.**
+  - Train A2 (cấu hình nền: Adam 1e-3, không tăng cường, 30 epoch) trên `manifest_random.csv` (bản R), 3 seed. Tên lần chạy `a2_adam_lr0.001_tn5R_s{0,1,2}`, chuẩn hoá bằng `du_lieu/crops_info_random.json`.
+  - Bản G là 3 lần chạy A2 có sẵn, không chạy lại.
+  - Chạy 3 lần ngày 2026-11-23, mỗi lần 6–8 phút. 3 dòng `TN5-R` trong `ket_qua.csv`.
+- **Thí nghiệm 5: kết quả trên val** (test chưa chấm, chờ bước 2.4):
+
+  | | G (chia theo nhóm frame) | R (chia ngẫu nhiên từng ảnh) |
+  |---|---|---|
+  | Val macro-F1 trên các lớp có ở val (G 35, R 50) | 0,6044 ± 0,0141 | 0,9626 ± 0,0114 |
+  | **Val macro-F1 trên 35 lớp chung** | **0,6044 ± 0,0141** | **0,9503 ± 0,0162** |
+  | Val acc | 0,7718 ± 0,0088 | 0,9712 ± 0,0038 |
+  | Train acc − val acc (theo log; A2 không tăng cường, không dropout nên log đúng) | 0,227 | 0,025 |
+  | Val loss nhỏ nhất | 1,165–1,243 | 0,155–0,190 |
+  | Epoch tốt nhất | 20, 24, 19 | 15, 13, 13 |
+  | Ảnh val có ảnh train liền số | 9,7% | 87,7% |
+
+  - 35 lớp ở val của G đều có ở val của R, nên "lớp chung" chính là 35 lớp của G. Đã tính lại F1 từng lớp từ `best.pt`.
+  - Seed (35 lớp chung): G 0,5932 / 0,5997 / 0,6202; R 0,9336 / 0,9513 / 0,9661.
+  - Hình `data/runs_a/hinh/tn5_val.png` (git ignore). Lệnh: `python -m src.so_sanh data/runs_a data/runs_a/hinh/tn5_val.png a2_adam_lr0.001 a2_adam_lr0.001_tn5R`.
+  - **Đọc kết quả:**
+    - Cùng mạng, cùng cấu hình, cùng nhãn. Chỉ đổi cách chia mà val macro-F1 tăng từ 0,60 lên 0,95, tức +0,35.
+    - Phần tăng này không phải do mạng nhận biển tốt hơn: 87,7% ảnh val của R có frame liền kề nằm trong train (mục 2026-11-21), nên mạng chỉ cần nhớ cảnh đã thấy.
+    - **Ở bản R, overfitting không lộ ra.** Khoảng cách train và val chỉ 0,025, val loss thấp (0,16–0,19), nhìn đường cong thì tưởng mạng đã khái quát tốt. Cũng mạng đó, chia theo nhóm thì khoảng cách là 0,227. Đây là câu trả lời cho phần "có phải overfitting không" của H4: val bị rò rỉ thì không dùng để phát hiện overfitting được.
+    - Bản R hội tụ nhanh hơn: epoch tốt nhất 13–15, so với 19–24.
+  - **Chưa xong:** con số chính của Thí nghiệm 5 là F1 trên test của G và R, tính trên các lớp có ở cả hai test, chấm cùng lúc ở bước 2.4. Kết quả trên val chỉ là bằng chứng phụ.
+- **A7: kết quả trên val** (35 lớp; chạy sau khi Thí nghiệm 5 xong để máy rảnh khi đo thời gian; 4 dòng `A7-*` trong `ket_qua.csv`; tóm tắt ở `data/runs_a/ensemble/<tên>_val/tom_tat.json`):
+
+  | Ensemble | Thành viên: val macro-F1 | TB thành viên | Tốt nhất | **Ensemble** | Val acc ensemble | Tham số | ms mỗi ảnh |
+  |---|---|---|---|---|---|---:|---|
+  | A7-seed | a4rs s0/s1/s2: 0,6556 / 0,6362 / 0,6632 | 0,6517 | 0,6632 | **0,6734** | 0,835 | 3.719.292 | 3,35 (mạng đơn 1,11–1,13) |
+  | A7-kientruc-s0 | a2 0,6558 / a4ps 0,6653 / a4rs 0,6556 | 0,6589 | 0,6653 | **0,6768** | 0,838 | 4.833.852 | 2,91 |
+  | A7-kientruc-s1 | 0,6683 / 0,6340 / 0,6362 | 0,6462 | 0,6683 | **0,6809** | 0,842 | 4.833.852 | 2,67 |
+  | A7-kientruc-s2 | 0,7234 / 0,6821 / 0,6632 | 0,6896 | 0,7234 | **0,7284** | 0,859 | 4.833.852 | 2,41 |
+
+  - A7-kientruc qua 3 seed: **0,6954 ± 0,0287**, val acc 0,846. Mạng đơn tốt nhất theo cấu hình là A3-a, 0,6825 ± 0,0360, val acc 0,789.
+  - **Đọc kết quả:**
+    - **Ensemble luôn hơn từng thành viên của nó.** Ở cả 4 ensemble, ensemble hơn trung bình các thành viên 0,018–0,039 và hơn thành viên tốt nhất 0,005–0,013. Đây là so theo cặp (cùng seed, cùng tập val), nên chắc hơn so trung bình giữa các cấu hình.
+    - Trung bình A7-kientruc hơn A3-a 0,013, nhỏ hơn độ lệch chuẩn. Theo quy tắc chọn thì hoà. Nhưng val acc tăng rõ hơn: 0,846 so với 0,789.
+    - Ghép 3 kiến trúc khác nhau (0,6954) hơn ghép 3 seed của một kiến trúc (0,6734). Nhưng A7-seed chỉ có một con số, nên chưa đủ để kết luận cách nào tốt hơn.
+    - **Cái giá:** gấp 3 lần mạng đơn cả số tham số (3,7–4,8 triệu) lẫn thời gian suy diễn (2,4–3,4 ms mỗi ảnh so với 0,56–1,15 ms). Train cũng gấp 3 lần.
+    - **Số tham số không quyết định tốc độ.** A2 (2,4 triệu tham số) chạy 0,56–0,78 ms mỗi ảnh, nhanh hơn a4rs (1,24 triệu, 0,89–1,15 ms). A4 tốn nhiều phép nhân-cộng hơn (255 triệu so với 157 triệu mỗi ảnh, `bang_tham_so.md` mục 4c), vì conv chạy trên bản đồ đặc trưng lớn. Thời gian trên MPS dao động giữa các lần đo khoảng 30%.
+  - Lưu ý: mỗi thành viên đã được chọn epoch theo val, nên số trên val đều hơi lạc quan. Chấm test ở bước 2.4.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.
