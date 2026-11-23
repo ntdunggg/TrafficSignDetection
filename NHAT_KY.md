@@ -577,6 +577,82 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
   - **Chia ngẫu nhiên thổi phồng điểm test thêm khoảng 0,50 macro-F1** (0,963 so với 0,467), với cùng mạng, cùng cách train, cùng nhãn. Đây là câu trả lời có số liệu cho H4 và cho câu "vì sao phải chia theo nhóm frame".
   - Ở R, test cao ngang val, vì cả val lẫn test đều có frame liền kề trong train (87,7% và 89,0%). Ở G, test thấp hơn val 0,14.
   - Con số 0,96 của R là điểm mà ai dùng split gốc của `archive` sẽ báo cáo. Nó đo khả năng nhớ cảnh, không đo khả năng nhận biển ở cảnh mới.
+- **Bước 2.5: Thí nghiệm 3 (phân tích lỗi trên test), phép thử ngoài phân phối, H2, H3 (nhánh `dung/cm-h2-h3`).** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md` mục 2.5.
+  - Không chọn hay đổi gì: chỉ đọc lại dự đoán của 3 `best.pt` A4-res-sâu đã chấm test ở bước 2.4.
+- **Thí nghiệm 3: kết quả.**
+  - Code: `src/phan_tich_test.py`. Cộng confusion matrix của 3 seed. Lệnh: `python -m src.phan_tich_test --runs data/runs_a/a4rs_adam_lr0.001_auga3_s{0,1,2}`. Hình `data/runs_a/hinh/cm_a4rs_test_3seed.png` (git ignore).
+  - **Các cặp nhầm nhiều nhất** (trung bình mỗi seed; % là phần ảnh của lớp thật):
+
+    | Lớp thật → dự đoán | Số ảnh mỗi seed | % |
+    |---|---|---|
+    | 13 W.245a Đi chậm → 48 W.210 Đường sắt có rào chắn | 71,7 | 77% của 93 |
+    | 18 P.107 Cấm ô tô khách và tải → 34 B.8a Cấm sơ-mi rơ-moóc | 43,7 | 53% của 83 |
+    | 6 W.201a Ngoặt trái → 10 P.130 Cấm dừng và đỗ | 28,7 | 29% của 100 |
+    | 30 S.505a Xe tải → 24 P.129 Kiểm tra | 25,7 | 49% của 52 |
+    | 32 P.123b Cấm rẽ phải → 18 P.107 | 21,0 | 40% của 52 |
+    | 43 W.239b → 13 W.245a Đi chậm | 19,3 | 88% của 22 |
+    | 41 Tốc độ 40 → 39 Tốc độ 60 | 16,3 | 19% của 87 |
+    | 26 W.246a → 5 W.207 | 16,0 | 89% của 18 |
+
+  - **Nhóm dễ nhầm của mục C6:**
+
+    | Nhóm | Lớp có ở test (recall) | Acc cả nhóm | Lỗi rơi vào lớp cùng nhóm |
+    |---|---|---|---|
+    | Cấm rẽ, cấm quay đầu | 7 (0,76), 17 (0,73), 19 (0,03), 32 (0,13), 35 (1,00), 36 (1,00), 49 (1,00) | 0,53 | 55% |
+    | Cấm xe | 14 (0,67), 18 (0,27), 20 (0,00), 23 (0,76), 34 (1,00) | 0,41 | 51% |
+    | Giới hạn tốc độ | 38 (0,93), 39 (0,87), 40 (0,95), 41 (0,37) | 0,73 | 71% |
+    | Biển phụ S.505a | 25 (0,78), 30 (0,22) | 0,25 | 26% |
+    | Trái/phải 6/50 | 6 (0,04), 50 (0,56) | 0,18 | 7% |
+    | Trái/phải 1/37 | 1 (0,00, 2 ảnh), 37 (1,00, 5 ảnh) | quá ít ảnh | |
+
+    - Nhóm cấm rẽ, cấm xe, tốc độ: một nửa đến ba phần tư số lỗi là nhầm sang lớp khác **cùng nhóm**, đúng như dự đoán ở C6: cùng khung tròn đỏ, chỉ khác biểu tượng hoặc chữ số bên trong.
+    - **Cặp trái/phải 6/50 không bị nhầm sang nhau nhiều như dự đoán.** Lớp 6 sai 96%, nhưng chỉ khoảng 8 trên 100 ảnh mỗi seed bị gán sang lớp 50; phần lớn rơi vào lớp 10 và 48. Lớp 50 không lần nào bị gán sang lớp 6.
+  - **Cỡ ảnh cắt không giải thích được lỗi** (độ chính xác theo cạnh dài của box trên ảnh gốc 960×540):
+
+    | Cạnh dài | ≤ 12 px | 13–16 | 17–24 | 25–32 | 33–48 | > 48 |
+    |---|---|---|---|---|---|---|
+    | Ảnh cắt test | 71 | 114 | 285 | 236 | 347 | 577 |
+    | Acc | 0,700 | 0,541 | 0,664 | 0,518 | 0,645 | 0,633 |
+
+    Không có xu hướng box lớn thì đúng hơn. Giả thuyết "sai vì ảnh cắt quá nhỏ" (C6, D2) **không được dữ liệu ủng hộ** ở mạng này.
+  - **Lỗi bám theo cảnh quay, không theo cỡ ảnh.** Đếm số nhóm frame (cột `group` của manifest) của các lớp nhầm nhiều:
+
+    | Lớp | Ảnh cắt train (số nhóm) | Ảnh cắt test (số nhóm) | Recall test |
+    |---|---|---|---|
+    | 13 Đi chậm | 227 (10) | 93 (2) | thấp, 77% sang 48 |
+    | 18 P.107 | 121 (3) | 83 (1) | 0,27 |
+    | 6 Ngoặt trái | 41 (4) | 100 (1) | 0,04 |
+    | 30 S.505a Xe tải | 68 (1) | 52 (2) | 0,22 |
+    | 43 W.239b | 5 (1) | 22 (1) | gần 0, 88% sang 13 |
+    | 19 P.124d | 6 (1) | 13 (1) | 0,03 |
+    | 20 P.103a | 30 (1) | 22 (1) | 0,00 |
+
+    - Nhiều lớp ở test chỉ đến từ **1 nhóm frame, tức 1 cảnh**, nên cả trăm ảnh cắt của lớp đó đúng hoặc sai cùng nhau. Lớp đó ở train cũng chỉ có 1–4 cảnh. Số mẫu thật sự của một lớp gần với số cảnh hơn là số ảnh cắt.
+    - **Xem bằng mắt 10 ảnh cắt mỗi loại** (ảnh ghép tạm, không lưu vào repo):
+      - Lớp 13 ở test chủ yếu có nền trời sáng. Lớp 13 ở train phần lớn có nền cây, tối. Lớp 48 ở train thì luôn có nền trời với dây điện.
+      - Giả thuyết: mạng dùng cả màu nền quanh biển để phân lớp (học lối tắt), nên "Đi chậm" trên nền trời bị gán thành "Đường sắt". Đây là giả thuyết từ 10 ảnh mẫu, chưa kiểm bằng thí nghiệm.
+      - Lớp 6 ở test phần lớn mờ, tối, gần như không thấy mũi tên. 75/100 ảnh test của lớp 6 có cả biển lớp 10 trong cùng khung hình, nhưng trong ảnh cắt không thấy biển lớp 10. Nguyên nhân nhầm 6 → 10 chưa rõ.
+- **Phép thử ngoài phân phối (H3): vùng nền không có biển.** Đây là đề xuất mới của kế hoạch 2.5, ghi khi làm.
+  - Code: `src/ood_nen.py`.
+    - Cắt ngẫu nhiên 500 vùng vuông (seed 0) từ ảnh test của `data/vn_signs_yolo`, cạnh lấy theo phân bố cạnh của ảnh cắt test thật (trung vị 48 px). Vùng nằm trọn trong ảnh và không chạm box nào; cần 528 lần thử.
+    - Đổi về 64×64 và chuẩn hoá giống hệt ảnh cắt thật.
+    - Đo xác suất softmax lớn nhất (MSP). Lệnh: `python -m src.ood_nen --runs data/runs_a/a4rs_adam_lr0.001_auga3_s{0,1,2}`.
+  - Đã xem bằng mắt 60 vùng đầu: đường, trời, cây, nhà, người đi xe. Không thấy biển chưa gán nhãn. Ảnh ghép chỉ để ở scratchpad, không lưu vào repo.
+
+    | | Seed 0 | Seed 1 | Seed 2 |
+    |---|---|---|---|
+    | Nền: MSP trung vị | 0,777 | 0,672 | 0,679 |
+    | Nền: MSP > 0,5 | 79,4% | 69,2% | 73,4% |
+    | **Nền: MSP > 0,9** | **32,2%** | **25,8%** | **23,2%** |
+    | Biển thật (1630 ảnh cắt test): MSP > 0,9 | 66,9% | 64,9% | 60,1% |
+    | AUROC của MSP (biển thật so với nền) | 0,729 | 0,760 | 0,742 |
+    | Nền hay bị gán vào | R.302a (151), I.434a (102), P.102 (40) | R.302a (100), P.130 (62), S.505a (58) | R.302a (133), I.434a (110), P.102 (46) |
+
+  - **Đọc kết quả:**
+    - Mạng không có lớp "không phải biển", nên gán mọi vùng nền vào một trong 52 lớp. Khoảng 1/4 đến 1/3 vùng nền được gán với xác suất trên 0,9.
+    - Ngưỡng MSP không đủ để lọc. AUROC chỉ khoảng 0,74 (0,5 là đoán bừa). Đặt ngưỡng 0,9 thì vẫn giữ 23–32% vùng nền, đồng thời bỏ mất 33–40% biển thật.
+    - Nền hay bị gán vào lớp R.302a (biển xanh tròn) và I.434a (biển xanh vuông): có lẽ vì trời xanh, mảng xanh.
+- **H2, H3:** đã thêm phần trả lời có số liệu vào mục H (H2, H3, "Cập nhật 2026-11-23").
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
@@ -1309,11 +1385,33 @@ Mô hình hiện tại (YOLO) làm cả hai việc cùng lúc: một lần chạ
 
 **Cách trả lời bằng số liệu:** Có thể thêm một thí nghiệm: dùng YOLO một lớp "biển báo" để tìm vùng, rồi phân loại vùng cắt, so với YOLO 52 lớp trên cùng test. Chưa đưa vào mục E vì cần thêm một bộ phân loại.
 
+**Cập nhật 2026-11-23 (bước 2.5).** Không có số liệu của hệ hai giai đoạn B1, vì B1 đã bị cắt khỏi kế hoạch. Phần dưới là lý thuyết, cộng các số đã đo được.
+- **Lý thuyết** (giáo trình `dl_lecturenotes`, mục 6.3–6.4, đã đọc 2026-11-23):
+  - Bộ phát hiện hai giai đoạn (R-CNN, Fast R-CNN, Faster R-CNN): đề xuất vùng trước, rồi phân loại và chỉnh từng vùng.
+  - Bộ phát hiện một giai đoạn (YOLO, SSD): định vị và phân loại trong một lần chạy. Giáo trình nhận xét loại này thường nhanh hơn nhưng có thể kém chính xác hơn. YOLOv1 khó phát hiện vật nhỏ; YOLOv3 sửa bằng cách dự đoán ở nhiều tỷ lệ.
+  - Ngay ở cách quét cửa sổ (6.3.1), bộ phân loại phải nhận ra cả trường hợp "nền". Mục 6.5.1 nêu số vùng nền áp đảo số vùng có vật.
+  - Hướng A của nhóm chính là giai đoạn 2 của một hệ hai giai đoạn: phân loại vùng đã cắt.
+- **Số liệu liên quan đã có:**
+  1. **Giai đoạn 2 nếu giai đoạn 1 hoàn hảo:** khi cho box thật, mạng phân loại tốt nhất đạt test macro-F1 0,497 (A4-res-sâu) đến 0,544 (A7), trên 41 lớp. Đây là trần của hệ hai giai đoạn dùng mạng này. Giai đoạn 1 bỏ sót biển nào thì điểm còn thấp hơn (lỗi dồn tầng).
+  2. **Giai đoạn 2 phải xử lý được vùng không có biển.** Phép thử vùng nền: mạng 52 lớp gán 23–32% vùng nền vào một loại biển với xác suất trên 0,9. Ngưỡng softmax chỉ tách được biển thật với nền ở AUROC khoảng 0,74. Vậy nếu giai đoạn 1 đề xuất nhầm vùng nền, giai đoạn 2 hiện tại sẽ biến nó thành báo nhầm có độ tin cậy cao. Muốn ghép hai giai đoạn thì phải thêm lớp "nền" khi train bộ phân loại, giống bộ phân loại của R-CNN.
+  3. **Cỡ ảnh cắt không phải nguyên nhân chính của lỗi phân loại** (Thí nghiệm 3: độ chính xác không tăng theo cỡ box). Lợi ích "bộ phân loại nhìn vùng cắt ở độ phân giải cao" vì vậy chưa thấy rõ trên dữ liệu này.
+- B0 (YOLO một giai đoạn) chạy ở bước 2.3. Nếu có kết quả thì so ở mức ý tưởng, vì mAP của B0 và macro-F1 trên box thật của hướng A không cùng thước đo.
+
 ### H3. Gặp ảnh nằm ngoài phân phối (out-of-distribution) thì sao?
 - YOLO không có lớp "không biết". Với mọi ảnh, nó vẫn chấm điểm 52 lớp cho từng vùng, nên có thể báo nhầm với độ tin cậy cao. Ví dụ rủi ro: biển hiệu cửa hàng tròn màu đỏ bị nhận thành biển cấm.
 - Với ảnh khác điều kiện (ban đêm, mưa, camera khác, thành phố khác), thường sẽ sót biển nhiều hơn và độ tin cậy thấp hơn.
 - Dữ liệu hiện tại: quay ở TP.HCM bằng một loại camera. Chưa kiểm tra có ảnh ban đêm không. Mọi ảnh test đều cùng nguồn với train, nên **điểm test hiện tại không nói gì về ảnh ngoài phân phối**.
 - Cách đo: Thí nghiệm 6.
+
+**Cập nhật 2026-11-23 (bước 2.5).** Thí nghiệm 6 (bộ ảnh ngoài phân phối tự gán nhãn) đã bị cắt. Thay bằng hai bằng chứng rẻ cho mạng phân loại A4-res-sâu:
+- **Vùng nền không có biển** (`src/ood_nen.py`, 500 vùng từ ảnh test):
+  - Mạng gán **mọi** vùng vào một trong 52 lớp. 69–79% vùng có xác suất lớn nhất trên 0,5, và **23–32% trên 0,9**.
+  - Biển thật trên 0,9 chỉ 60–67%. Dùng xác suất softmax lớn nhất để tách biển thật với nền đạt AUROC 0,73–0,76.
+  - Kết luận: softmax đo "lớp nào giống nhất trong 52 lớp", không đo "có phải biển hay không". Mạng cần một lớp "nền", hoặc một cách phát hiện ngoài phân phối riêng.
+- **Cảnh mới mà lớp đó chưa từng gặp ở train** (Thí nghiệm 3):
+  - Nhiều lớp ở test chỉ đến từ 1 cảnh. Khi cảnh test khác cảnh train (nền trời thay vì nền cây, ảnh mờ), recall có thể rơi về gần 0, ví dụ lớp 6, 19, 20, 43.
+  - Đây là một dạng lệch phân phối nhẹ ngay trong cùng bộ dữ liệu. Ảnh khác hẳn (ban đêm, thành phố khác) chưa được đo.
+- Test macro-F1 của G (0,47–0,54) đã là điểm trên cảnh chưa thấy khi train. Nhờ chia theo nhóm frame, điểm này gần với tình huống "ảnh mới" hơn điểm của split gốc (0,96, Thí nghiệm 5).
 
 ### H4. Có tập train rồi, nhưng ảnh mới không giống lắm thì kết quả thế nào? Có phải overfitting không?
 - Kết quả sẽ thấp hơn điểm test. Mức giảm tùy ảnh mới khác bao nhiêu.
