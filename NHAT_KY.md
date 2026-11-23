@@ -653,6 +653,22 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Ngưỡng MSP không đủ để lọc. AUROC chỉ khoảng 0,74 (0,5 là đoán bừa). Đặt ngưỡng 0,9 thì vẫn giữ 23–32% vùng nền, đồng thời bỏ mất 33–40% biển thật.
     - Nền hay bị gán vào lớp R.302a (biển xanh tròn) và I.434a (biển xanh vuông): có lẽ vì trời xanh, mảng xanh.
 - **H2, H3:** đã thêm phần trả lời có số liệu vào mục H (H2, H3, "Cập nhật 2026-11-23").
+- **Bước 2.3: chuẩn bị B0 thật (nhánh `dung/b0`, tách từ `dung/cm-h2-h3`).**
+  - Script: `src/yolo/b0_train.py`. Chạy trên Kaggle bằng Save & Run All.
+  - **Cấu hình:** như lần đo thời gian, chỉ khác `epochs=100` và `close_mosaic=10` (mặc định).
+    - `yolov8s.yaml`, `pretrained=False`, `imgsz=960`, `fliplr=0`.
+    - `optimizer=SGD lr0=0.01 momentum=0.937`, `batch=16`, `seed=0`, 1 seed.
+    - Vẫn thay `check_amp` để không tải `yolo26n.pt`.
+  - **Thêm so với lần đo thời gian:**
+    - Chép dữ liệu từ `/kaggle/input` sang `/tmp` trước khi train, vì lần đo bị cảnh báo đọc ảnh chậm. Kiểm md5 nhãn ở bản gốc và bản chép; khác thì dừng.
+    - Sau khi train: chấm lại `best.pt` trên val, rồi **chấm test một lần** (`split=test`), đúng mục 2.3 của kế hoạch.
+    - Ghi `/kaggle/working/b0_ket_qua.json`: mAP50, mAP50-95, P, R trên val (35 lớp) và test (41 lớp), AP từng lớp trên test, epoch tốt nhất, số giờ train, GPU, md5.
+    - AP từng lớp lấy theo `ap_class_index`, không dùng `maps`: đọc mã nguồn 8.4.191 (`utils/metrics.py`), `maps` điền mAP trung bình cho các lớp không có ở tập chấm.
+    - Có cách chạy tiếp nếu phiên bị ngắt: `B0_RESUME=1` thì tiếp tục từ `last.pt` của chính lần chạy này. **Chưa thử đường này.**
+  - **Chạy thử trên M2** (`B0_EPOCHS=1 B0_IMGSZ=320 B0_FRACTION=0.02 B0_DEVICE=mps`):
+    - Chạy hết cả train, chấm val, chấm test và ghi JSON. Val có 35 lớp, test 41 lớp, 11.155.724 tham số.
+    - Lần này dữ liệu được chép vào scratchpad trước. Đã kiểm: các file `.cache` trong `data/vn_signs_yolo/labels/` không đổi giờ sửa, tức không ghi gì vào dữ liệu dùng chung (rút kinh nghiệm sự cố 2026-11-22).
+  - **Chưa chạy trên Kaggle.**
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
