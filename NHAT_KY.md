@@ -386,6 +386,80 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
   - Trái với quy tắc cũ "dataset trên Kaggle để riêng tư" (`ke_hoach/00_chung.md` quy tắc 9), vì ảnh có người và biển số xe. Tôi đã nêu cách khác: giữ riêng tư và thêm tài khoản mới làm collaborator.
   - Lý do của Dũng: ảnh lấy từ một dataset vốn đã công khai, nên để công khai không sao.
   - Dũng yêu cầu đổi luật. Đã sửa quy tắc 9 và đoạn "Chạy trên Kaggle" trong `ke_hoach/00_chung.md`, `README.md`, và `AGENTS.md` mục 2. Vẫn giữ: không đưa ảnh vào git, ảnh tự chụp không đăng công khai.
+- **A5 rút gọn: optimizer và lịch lr (nhánh `dung/a5`, tách từ `dung/b0-thoi-gian`).** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md` mục 2.1, chi tiết và quy tắc chọn ở `ke_hoach/nguoi_3_minh_quan_A3-A7.md` mục A5. Cơ sở lý thuyết: mục E, "Thí nghiệm 7" (slide bài 5; giáo trình 4.5, 4.6).
+  - **Nền:** A4-res-sâu (`a4rs`), tăng cường `a3`, batch 128, 30 epoch. Đổi từng yếu tố một.
+  - **Bước 1, optimizer** (lịch lr giữ nguyên):
+
+    | Bản | Lệnh | Ghi chú |
+    |---|---|---|
+    | A5-opt-adam1e-3 | (là A4-res-sâu) | Không chạy lại |
+    | A5-opt-sgd | `--opt sgd --lr 0.01 --momentum 0.9` | |
+    | A5-opt-adam5e-4 | `--opt adam --lr 5e-4` | |
+    | A5-opt-adamw | `--opt adamw --lr 1e-3 --wd 0.01` | |
+
+    - **Chọn weight decay cho AdamW: 0,01.** Kế hoạch không ghi mức weight decay. Với `wd=0`, AdamW cho kết quả giống hệt Adam: AdamW chỉ khác Adam ở chỗ trừ weight decay tách khỏi gradient (Loshchilov & Hutter 2019, "Decoupled Weight Decay Regularization", arXiv 1711.05101). Lấy 0,01 là mặc định của `torch.optim.AdamW` (đã kiểm chữ ký hàm trong torch 2.14.1). Adam và SGD giữ `wd=0` như cấu hình nền. Vậy Adam và AdamW cùng lr 1e-3, chỉ khác ở weight decay tách rời 0,01.
+  - **Bước 2, lịch lr** (với optimizer thắng ở bước 1): `--sched` gồm `none` (đã có ở bước 1), `step` (×0,1 ở epoch 15 và 22), `cosine`, `linear`. Chạy sau khi có kết quả bước 1.
+  - **Quy tắc chọn** (đặt trước khi chạy, như A3 và A4): trung bình val macro-F1 cao nhất qua 3 seed. Nếu chênh lệch nhỏ hơn độ lệch chuẩn thì coi là hoà, chọn bản có độ lệch chuẩn nhỏ hơn.
+  - **Phần làm thêm (khởi tạo, hàm kích hoạt):** chưa làm. Chỉ làm nếu còn thời gian.
+  - **Sửa công cụ:**
+    - `src/train.py`: tên lần chạy mặc định thêm `_wd<wd>` khi wd khác 0 và `_<sched>` khi có lịch lr. Nếu không, các bản ở bước 2 sẽ trùng tên với A4-res-sâu. Tên các lần chạy cũ không đổi. Cột `ghi_chu` của `ket_qua.csv` ghi thêm wd.
+    - `src/so_sanh.py`: thêm ô thứ tư vẽ lr theo epoch (thang log), theo yêu cầu "đo thêm" của kế hoạch.
+  - Bắt đầu chạy bước 1 (9 lần) ngày 2026-11-22, chạy nền, xen kẽ theo seed.
+  - **Kết quả bước 1** (xong 2026-11-22; 9 dòng `A5-opt-*` trong `ket_qua.csv`; val macro-F1 trên 35 lớp):
+
+    | Bản | Seed 0 / 1 / 2 | Trung bình ± độ lệch chuẩn | Val acc | Train loss e10 / e30 |
+    |---|---|---|---|---|
+    | Adam 1e-3 (A4-res-sâu) | 0,6556 / 0,6362 / 0,6632 | 0,6517 ± 0,0139 | 0,814 | 0,301 / 0,029 |
+    | SGD 0,01, momentum 0,9 | 0,5524 / 0,5780 / 0,5720 | 0,5675 ± 0,0134 | 0,737 | 0,574 / 0,101 |
+    | Adam 5e-4 | 0,6323 / 0,6503 / 0,6641 | 0,6489 ± 0,0159 | 0,805 | 0,351 / 0,038 |
+    | AdamW 1e-3, wd 0,01 | 0,6992 / 0,6133 / 0,6579 | 0,6568 ± 0,0430 | 0,819 | 0,303 / 0,028 |
+
+    - Lệnh: `python -m src.so_sanh data/runs_a data/runs_a/hinh/a5_opt.png a4rs_adam_lr0.001_auga3 a4rs_sgd_lr0.01_auga3 a4rs_adam_lr0.0005_auga3 a4rs_adamw_lr0.001_wd0.01_auga3`. Hình `data/runs_a/hinh/a5_opt.png` (git ignore) có thêm ô lr.
+    - **Thời gian không dùng được cho 3 lần:** Adam 5e-4 seed 0 (116 phút), Adam 5e-4 seed 2, AdamW seed 0. Có lẽ máy ngủ giữa chừng. Các lần khác 19–25 giây mỗi epoch. Kết quả train không bị ảnh hưởng.
+  - **Áp quy tắc chọn: Adam lr 1e-3 thắng, tức giữ nguyên cấu hình nền.**
+    - AdamW có trung bình cao nhất (0,6568), nhưng chỉ hơn Adam 1e-3 0,005 và Adam 5e-4 0,008. Cả hai mức chênh nhỏ hơn độ lệch chuẩn, nên ba bản hoà nhau. Trong ba bản đó, Adam 1e-3 có độ lệch chuẩn nhỏ nhất (0,0139).
+    - SGD thua rõ: thấp hơn 0,084, gấp khoảng 6 lần độ lệch chuẩn.
+  - **Đọc kết quả:**
+    - **SGD lr 0,01 học chậm hơn hẳn**, chưa xong ở 30 epoch. Train loss ở e30 còn 0,101, các bản Adam khoảng 0,03. Epoch tốt nhất là 25, 29, 30.
+      - Slide bài 5 nói SGD + momentum có thể tốt hơn Adam nhưng phải chỉnh lr và có lịch giảm lr.
+      - Ở đây SGD chỉ thử một mức lr và lr không đổi. Vì vậy chỉ kết luận được "SGD lr 0,01, lr không đổi, 30 epoch thì kém Adam", chưa kết luận được SGD kém Adam nói chung.
+    - **Adam 5e-4 so với 1e-3:** train loss giảm chậm hơn (0,351 so với 0,301 ở e10; 0,038 so với 0,029 ở e30), đúng với "lr nhỏ thì giảm chậm" (giáo trình 4.5). Val thì hoà.
+    - **Không thấy lr 1e-3 làm val dao động mạnh hơn lr 5e-4.** Độ lệch chuẩn của val macro-F1 qua các epoch 21–30 (trung bình 3 seed) là 0,0388 so với 0,0349, chênh nhỏ.
+    - **AdamW gần như không khác Adam ở mức wd 0,01:**
+      - Train loss trung bình 3 seed giống Adam đến 3 chữ số ở e1, e3, e10, e20, e30. Mỗi bước, weight decay tách rời nhân trọng số với (1 − lr·wd) = 1 − 1e-5. Sau 30 epoch × 44 bước = 1320 bước, trọng số chỉ co lại khoảng 1,3%.
+      - Vậy mà val macro-F1 của từng seed lệch Adam tới +0,044 / −0,023 / −0,005.
+      - Nghĩa là một thay đổi rất nhỏ cũng làm F1 ở epoch tốt nhất dao động khoảng ±0,04. Cùng cỡ đó, val F1 dao động 0,035–0,039 giữa các epoch 21–30 của cùng một lần chạy. MPS lại không tất định (`ke_hoach/00_chung.md`, mục Môi trường).
+      - **Hệ quả cho báo cáo:** các mức chênh dưới khoảng 0,04 giữa các cấu hình (A3, A4, A5) phần lớn nằm trong mức nhiễu này. Lấy F1 lớn nhất qua 30 epoch cũng làm số đo nghiêng lên, vì là lấy giá trị lớn nhất của một đường dao động.
+  - **Bước 2 (lịch lr với Adam 1e-3):** chạy 9 lần (`step`, `cosine`, `linear` × 3 seed), bắt đầu 2026-11-22, xong 2026-11-23. 9 dòng `A5-sched-*` trong `ket_qua.csv`. Bản `none` là A4-res-sâu.
+
+    | Lịch lr | Seed 0 / 1 / 2 | Val macro-F1 | Val acc | Dao động val F1 ở e21–30 | Val F1 trung bình e26–30 |
+    |---|---|---|---|---|---|
+    | none (lr không đổi) | 0,6556 / 0,6362 / 0,6632 | **0,6517 ± 0,0139** | 0,814 | 0,0388 | 0,609 |
+    | step (×0,1 ở e16 và e23) | 0,6085 / 0,5933 / 0,6249 | 0,6089 ± 0,0158 | 0,778 | 0,0058 | 0,602 |
+    | cosine | 0,6526 / 0,6067 / 0,6354 | 0,6316 ± 0,0232 | 0,797 | 0,0138 | 0,625 |
+    | linear | 0,6689 / 0,6287 / 0,6357 | 0,6444 ± 0,0215 | 0,810 | 0,0196 | 0,629 |
+
+    - "Dao động": độ lệch chuẩn của val macro-F1 qua 10 epoch cuối trong một lần chạy, trung bình 3 seed. "Trung bình e26–30": trung bình val macro-F1 của 5 epoch cuối, trung bình 3 seed.
+    - Lệnh: `python -m src.so_sanh data/runs_a data/runs_a/hinh/a5_sched.png a4rs_adam_lr0.001_auga3 a4rs_adam_lr0.001_step_auga3 a4rs_adam_lr0.001_cosine_auga3 a4rs_adam_lr0.001_linear_auga3`. Hình `data/runs_a/hinh/a5_sched.png` (git ignore), ô thứ tư là lr theo epoch.
+    - Đã kiểm lr trong log: step là 1e-3 → 1e-4 từ e16 → 1e-5 từ e23. Cosine và linear đều qua 5e-4 ở e16, về 2,7e-6 và 3,3e-5 ở e30.
+    - Thời gian lại không dùng được cho 2 lần (cosine seed 0, linear seed 2), có lẽ máy ngủ. Các lần khác khoảng 10 giây mỗi epoch.
+  - **Áp quy tắc chọn: lr không đổi (`none`) thắng.**
+    - `none` có trung bình cao nhất. Linear kém 0,007, cosine kém 0,020, đều nhỏ hơn độ lệch chuẩn, nên hoà. Trong ba bản hoà, `none` có độ lệch chuẩn nhỏ nhất (0,0139).
+    - Step thua rõ: kém 0,043, gấp khoảng 3 lần độ lệch chuẩn.
+  - **Đọc kết quả, nối với lý thuyết (giáo trình 4.5):**
+    - **Giảm lr làm val ổn định hẳn.** Dao động của val F1 ở 10 epoch cuối giảm từ 0,039 (lr không đổi) xuống 0,020 (linear), 0,014 (cosine), 0,006 (step). Đúng với "lr lớn thì dao động". Hình `a5_sched.png`, ô val macro-F1: các đường xanh dương của `none` dao động mạnh nhất ở cuối.
+    - **Step giảm quá sớm.** Ở e15, khi lr bị chia 10, train loss vẫn còn 0,146. Lr mới (1e-4) làm train loss giảm ngay (0,146 → 0,088 ở e16), nhưng val F1 dừng ở khoảng 0,60. Từ e23, lr 1e-5 thì gần như không học nữa: train loss ở e30 là 0,048, cao hơn lr không đổi (0,029). Epoch tốt nhất là 18, 23, 19.
+    - **Hai cách đo cho thứ hạng khác nhau:**
+      - Theo quy tắc (F1 lớn nhất qua 30 epoch), `none` đứng đầu.
+      - Theo trung bình 5 epoch cuối, linear (0,629) và cosine (0,625) hơn `none` (0,609).
+      - Lý do: lấy giá trị lớn nhất của một đường dao động mạnh thì được lợi khi chọn, nhưng giá trị đó khó lặp lại. Đây là cùng hiện tượng đã ghi ở bước 1.
+      - Quy tắc đã đặt trước nên vẫn theo quy tắc. Không đổi cách đo sau khi đã thấy kết quả.
+    - **Hệ quả cho lúc chấm test:** cấu hình đã chọn lấy checkpoint ở đỉnh của một đường dao động, nên F1 trên test nhiều khả năng thấp hơn F1 tốt nhất trên val. Phải ghi điều này trong báo cáo khi so val với test.
+  - **Cấu hình chốt sau A5:** `a4rs`, tăng cường `a3`, Adam lr 1e-3, lr không đổi, wd 0, batch 128, 30 epoch. Trùng với A4-res-sâu: A5 không đổi được gì theo quy tắc chọn.
+  - **Hạn chế:**
+    - Lưới nhỏ, đổi từng yếu tố một, không dùng random search như slide khuyên.
+    - SGD chỉ thử một mức lr và không có lịch lr.
+    - Phần làm thêm (khởi tạo, hàm kích hoạt) chưa làm.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.

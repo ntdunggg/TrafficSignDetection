@@ -26,3 +26,21 @@ ngay,nguoi,thi_nghiem,ban,seed,md5_nhan,so_tham_so,epoch,thoi_gian_phut,val_chin
 2026-11-21,Dũng,A4-plain-nong,a4pn_adam_lr0.001_auga3_s2,2,80a393b981121f57e7080674c2750722,411540,26,6.3,0.5122,,val acc 0.6800; adam lr 0.001 none aug a3; mps.
 2026-11-21,Dũng,A4-plain-sau,a4ps_adam_lr0.001_auga3_s2,2,80a393b981121f57e7080674c2750722,1195860,25,10.2,0.6821,,val acc 0.8506; adam lr 0.001 none aug a3; mps.
 2026-11-21,Dũng,A4-res-sau,a4rs_adam_lr0.001_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,29,11.3,0.6632,,val acc 0.8006; adam lr 0.001 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-sgd,a4rs_sgd_lr0.01_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,25,12.3,0.5524,,val acc 0.7124; sgd lr 0.01 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adam5e-4,a4rs_adam_lr0.0005_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,30,115.9,0.6323,,val acc 0.7941; adam lr 0.0005 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adamw,a4rs_adamw_lr0.001_wd0.01_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,28,43.0,0.6992,,val acc 0.8395; adamw lr 0.001 wd 0.01 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-sgd,a4rs_sgd_lr0.01_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,29,9.7,0.578,,val acc 0.7588; sgd lr 0.01 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adam5e-4,a4rs_adam_lr0.0005_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,27,9.9,0.6503,,val acc 0.7996; adam lr 0.0005 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adamw,a4rs_adamw_lr0.001_wd0.01_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,27,10.2,0.6133,,val acc 0.7968; adamw lr 0.001 wd 0.01 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-sgd,a4rs_sgd_lr0.01_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,30,9.8,0.572,,val acc 0.7403; sgd lr 0.01 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adam5e-4,a4rs_adam_lr0.0005_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,25,78.2,0.6641,,val acc 0.8210; adam lr 0.0005 wd 0 none aug a3; mps.
+2026-11-22,Dũng,A5-opt-adamw,a4rs_adamw_lr0.001_wd0.01_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,30,12.5,0.6579,,val acc 0.8219; adamw lr 0.001 wd 0.01 none aug a3; mps.
+2026-11-22,Dũng,A5-sched-step,a4rs_adam_lr0.001_step_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,18,11.9,0.6085,,val acc 0.7727; adam lr 0.001 wd 0 step aug a3; mps.
+2026-11-22,Dũng,A5-sched-cosine,a4rs_adam_lr0.001_cosine_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,30,49.5,0.6526,,val acc 0.8089; adam lr 0.001 wd 0 cosine aug a3; mps.
+2026-11-22,Dũng,A5-sched-linear,a4rs_adam_lr0.001_linear_auga3_s0,0,80a393b981121f57e7080674c2750722,1239764,29,5.1,0.6689,,val acc 0.8182; adam lr 0.001 wd 0 linear aug a3; mps.
+2026-11-22,Dũng,A5-sched-step,a4rs_adam_lr0.001_step_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,23,4.8,0.5933,,val acc 0.7644; adam lr 0.001 wd 0 step aug a3; mps.
+2026-11-22,Dũng,A5-sched-cosine,a4rs_adam_lr0.001_cosine_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,27,4.9,0.6067,,val acc 0.7848; adam lr 0.001 wd 0 cosine aug a3; mps.
+2026-11-22,Dũng,A5-sched-linear,a4rs_adam_lr0.001_linear_auga3_s1,1,80a393b981121f57e7080674c2750722,1239764,26,5.0,0.6287,,val acc 0.8173; adam lr 0.001 wd 0 linear aug a3; mps.
+2026-11-22,Dũng,A5-sched-step,a4rs_adam_lr0.001_step_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,19,4.9,0.6249,,val acc 0.7968; adam lr 0.001 wd 0 step aug a3; mps.
+2026-11-22,Dũng,A5-sched-cosine,a4rs_adam_lr0.001_cosine_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,21,4.9,0.6354,,val acc 0.7959; adam lr 0.001 wd 0 cosine aug a3; mps.
+2026-11-22,Dũng,A5-sched-linear,a4rs_adam_lr0.001_linear_auga3_s2,2,80a393b981121f57e7080674c2750722,1239764,27,135.0,0.6357,,val acc 0.7950; adam lr 0.001 wd 0 linear aug a3; mps.

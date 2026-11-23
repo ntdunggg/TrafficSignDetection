@@ -68,7 +68,7 @@ def main():
     ap.add_argument("--manifest", default="data/vn_signs_crops/manifest.csv")
     ap.add_argument("--info", default="du_lieu/crops_info.json")
     ap.add_argument("--out", default="data/runs_a")
-    ap.add_argument("--name", default=None, help="mặc định <model>_<opt>_lr<lr>[_aug<augment>]_s<seed>")
+    ap.add_argument("--name", default=None, help="mặc định <model>_<opt>_lr<lr>[_wd<wd>][_<sched>][_aug<augment>]_s<seed>")
     ap.add_argument("--device", default="auto", help="auto, cuda, mps hoặc cpu")
     ap.add_argument("--nguoi", default=None, help="có thì ghi một dòng vào ket_qua/ket_qua.csv")
     ap.add_argument("--thi-nghiem", default="", help="ví dụ A0, A3, A5-opt")
@@ -77,7 +77,9 @@ def main():
     args = ap.parse_args()
 
     aug = "" if args.augment == "none" else f"_aug{args.augment}"
-    name = args.name or f"{args.model}_{args.opt}_lr{args.lr:g}{aug}_s{args.seed}"
+    wd = f"_wd{args.wd:g}" if args.wd else ""
+    sch = "" if args.sched == "none" else f"_{args.sched}"
+    name = args.name or f"{args.model}_{args.opt}_lr{args.lr:g}{wd}{sch}{aug}_s{args.seed}"
     run_dir = os.path.join(args.out, name)
     if os.path.exists(os.path.join(run_dir, "best.pt")):
         raise SystemExit(f"Dừng: {run_dir} đã có kết quả. Đặt --name khác hoặc xoá thư mục đó.")
@@ -152,7 +154,7 @@ def main():
         append_ket_qua(args.ket_qua, nguoi=args.nguoi, thi_nghiem=args.thi_nghiem, ban=name, seed=args.seed,
                        md5_nhan=info["md5_nhan"], so_tham_so=n_params, epoch=best["epoch"],
                        thoi_gian_phut=round(minutes, 1), val_chinh=round(best["f1"], 4),
-                       ghi_chu=f"val acc {best['acc']:.4f}; {args.opt} lr {args.lr:g} {args.sched} "
+                       ghi_chu=f"val acc {best['acc']:.4f}; {args.opt} lr {args.lr:g} wd {args.wd:g} {args.sched} "
                                f"aug {args.augment}; {device}. {args.ghi_chu}".strip())
     else:
         print("Không có --nguoi nên không ghi ket_qua/ket_qua.csv (chạy thử).")
