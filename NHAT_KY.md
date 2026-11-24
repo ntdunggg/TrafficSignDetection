@@ -704,6 +704,16 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Hai mạng khác hẳn nhau (phát hiện trên cả ảnh và phân loại ảnh cắt) mà kém ở cùng lớp. Điều này ủng hộ kết luận của Thí nghiệm 3: cái khó nằm ở dữ liệu (lớp chỉ có 1–4 cảnh ở train, cảnh test khác cảnh train), không nằm ở kiến trúc mạng.
     - Lưu ý: hai thước đo khác nhau (AP và recall), nên chỉ so được thứ hạng và xu hướng, không so được giá trị.
   - **Hạn chế:** 1 seed. Không tìm lr. Chọn `best.pt` theo mAP50-95 val, tức đỉnh của một đường dao động.
+- **Đổi kế hoạch: B0 chạy thêm seed 1 và 2 (Dũng đồng ý 2026-11-24).**
+  - Kế hoạch cũ chỉ cho B0 1 seed vì ước tính mỗi lần mất 6 giờ (`ke_hoach/dung_lam_mot_minh.md` mục 1.5). Thực tế mỗi seed mất 1,69 giờ, nên 2 seed nữa tốn khoảng 3,5 giờ GPU trong quota 29 giờ còn lại.
+  - Có đủ 3 seed thì B0 theo đúng quy tắc chung (3 seed, báo cáo trung bình ± độ lệch chuẩn), như mọi thí nghiệm khác.
+  - Cấu hình giữ nguyên, chỉ đổi `seed`. Chấm test từng seed không phải là chấm test để chọn cấu hình: chỉ báo cáo trung bình.
+  - **Code:** `src/yolo/b0_train.py` có biến `SEED` (hoặc biến môi trường `B0_SEED`).
+    - Tên kết quả theo seed: `runs_b/b0_s<seed>/` và `b0_ket_qua_s<seed>.json`. Lần seed 0 đã chạy dùng tên cũ `b0_ket_qua.json`.
+    - Có thêm `RESUME` để sửa trực tiếp trong notebook khi cần chạy tiếp.
+    - Cách chạy mới: dán toàn bộ file vào một ô notebook, không cần `wget`.
+    - Mọi phần khác của code không đổi. Đã kiểm cú pháp (`py_compile`); chưa chạy thử lại vì chỉ đổi tên biến và tên file.
+  - **Trạng thái:** chờ Dũng chạy seed 1 và 2 trên Kaggle.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.

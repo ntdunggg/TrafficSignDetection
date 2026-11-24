@@ -1,22 +1,24 @@
-"""B0: YOLOv8s train từ đầu trên Kaggle, 100 epoch, 1 seed, rồi chấm test một lần (kế hoạch mục 2.3).
+"""B0: YOLOv8s train từ đầu trên Kaggle, 100 epoch, mỗi lần một seed, rồi chấm test một lần (kế hoạch mục 2.3).
 
 Chạy trên Kaggle bằng Save & Run All (notebook có GPU, bật Internet, Add Input dataset dngnguyntrng/vn-sign):
   Ô 1:  !pip install -q ultralytics==8.4.191
-  Ô 2:  !wget -q <đường dẫn raw của file này> && python b0_train.py
-Mất khoảng 6 giờ (đo 2026-11-22: 214 giây mỗi epoch trên T4). Kết quả ở /kaggle/working (tab Output):
-  runs_b/b0_s0/            results.csv, args.yaml, weights/best.pt, last.pt, các hình của Ultralytics
-  runs_b/b0_s0_test/       hình của lần chấm test
-  b0_ket_qua.json          số liệu tóm tắt: mAP val và test, AP từng lớp trên test, thời gian, md5 nhãn
+  Ô 2:  dán toàn bộ file này (hoặc !wget -q <đường dẫn raw của file này> && python b0_train.py)
+Seed: sửa SEED ở dưới (0, 1 hoặc 2). Mỗi seed một lần chạy, tên kết quả có số seed.
+Mất khoảng 1,7 giờ mỗi seed trên T4 (seed 0 chạy 2026-11-23: 60,7 giây mỗi epoch). Kết quả ở /kaggle/working:
+  runs_b/b0_s<seed>/        results.csv, args.yaml, weights/best.pt, last.pt, các hình của Ultralytics
+  runs_b/b0_s<seed>_test/   hình của lần chấm test
+  b0_ket_qua_s<seed>.json   số liệu tóm tắt: mAP val và test, AP từng lớp trên test, thời gian, md5 nhãn
+                            (lần chạy seed 0 ngày 2026-11-23 dùng tên cũ b0_ket_qua.json)
 
 Cấu hình (giống lần đo thời gian, ke_hoach/dung_lam_mot_minh.md mục 1.5, chỉ khác epochs và close_mosaic):
   - model=yolov8s.yaml (khởi tạo ngẫu nhiên), pretrained=False. imgsz=960, fliplr=0.
   - optimizer=SGD lr0=0.01 momentum=0.937 (cố định, không để auto). batch=16, nbs=64.
-  - epochs=100, close_mosaic=10 (mặc định), seed=0. Các tham số khác mặc định của Ultralytics 8.4.191.
+  - epochs=100, close_mosaic=10 (mặc định), seed=SEED. Các tham số khác mặc định của Ultralytics 8.4.191.
   - Thay check_amp để không tải yolo26n.pt (AGENTS.md mục 2; NHAT_KY mục 2026-11-22).
 Chép dữ liệu từ /kaggle/input sang /tmp trước khi train: lần đo thời gian, Ultralytics cảnh báo đọc ảnh chậm
 từ /kaggle/input. Kiểm md5 nhãn ở cả bản gốc và bản chép.
 Chấm test: một lần, bằng best.pt (epoch có mAP50-95 val cao nhất), split=test. mAP tính trên các lớp có ở test (41).
-Nếu phiên bị ngắt giữa chừng: chạy lại với B0_RESUME=1 (tiếp tục từ last.pt của chính lần chạy này).
+Nếu phiên bị ngắt giữa chừng: đặt RESUME = True (hoặc B0_RESUME=1) để tiếp tục từ last.pt của chính lần chạy này.
 Biến môi trường B0_* chỉ để chạy thử trên máy, trên Kaggle để mặc định.
 """
 import csv
@@ -41,7 +43,8 @@ IMGSZ = int(os.environ.get("B0_IMGSZ", 960))
 FRACTION = float(os.environ.get("B0_FRACTION", 1.0))
 DEVICE = os.environ.get("B0_DEVICE", "0")
 RESUME = os.environ.get("B0_RESUME", "0") == "1"
-BATCH, SEED, NAME = 16, 0, "b0_s0"
+SEED = int(os.environ.get("B0_SEED", 0))  # trên Kaggle: sửa số 0 thành 1 hoặc 2 để chạy seed khác
+BATCH, NAME = 16, f"b0_s{SEED}"
 MD5_NHAN = "80a393b981121f57e7080674c2750722"
 
 
@@ -119,8 +122,8 @@ ket_qua = dict(
               precision=round(float(mt.box.mp), 4), recall=round(float(mt.box.mr), 4)),
     test_tung_lop=per_class(mt, names),
 )
-with open(os.path.join(OUT, "b0_ket_qua.json"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT, f"b0_ket_qua_s{SEED}.json"), "w", encoding="utf-8") as f:
     json.dump(ket_qua, f, ensure_ascii=False, indent=2)
 tom = {k: v for k, v in ket_qua.items() if k != "test_tung_lop"}
 print(json.dumps(tom, ensure_ascii=False, indent=2))
-print("AP từng lớp trên test ở", os.path.join(OUT, "b0_ket_qua.json"))
+print("AP từng lớp trên test ở", os.path.join(OUT, f"b0_ket_qua_s{SEED}.json"))
