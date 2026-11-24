@@ -670,6 +670,41 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Lần này dữ liệu được chép vào scratchpad trước. Đã kiểm: các file `.cache` trong `data/vn_signs_yolo/labels/` không đổi giờ sửa, tức không ghi gì vào dữ liệu dùng chung (rút kinh nghiệm sự cố 2026-11-22).
   - **Chưa chạy trên Kaggle.**
 
+**2026-11-24** (nhánh `dung/b0`)
+- **B0: kết quả.** Dũng chạy trên Kaggle ngày 2026-11-23 bằng Save & Run All. Phải chờ GPU T4 x2 khoảng hơn 1 giờ: quota còn 29 giờ, chỉ có một phiên, nên là do Kaggle hết GPU.
+  - **Kiểm tra trước khi đọc kết quả:**
+    - `b0_train.py` trong output giống hệt bản trong repo (đã so bằng `diff`).
+    - `args.yaml` ghi: `model: yolov8s.yaml`, `pretrained: false`, `optimizer: SGD`, `lr0: 0.01`, `momentum: 0.937`, `fliplr: 0`, `flipud: 0.0`, `epochs: 100`, `batch: 16`, `imgsz: 960`, `close_mosaic: 10`, `seed: 0`, `amp: true`, dữ liệu ở `/tmp/vn_signs_yolo`.
+    - md5 nhãn `80a393b9...` khớp. 11.155.724 tham số.
+  - **Lưu:** output Kaggle tải về `/Users/tdu/Downloads/results/`, gồm `best.pt`, `last.pt` (không đưa vào git). Chép vào repo hai file số liệu nhỏ: `ket_qua/b0_ket_qua.json` (tóm tắt, AP từng lớp trên test) và `ket_qua/b0_results.csv` (log theo epoch của Ultralytics). Một dòng `B0` trong `ket_qua.csv`.
+
+    | | mAP50 | mAP50-95 | Precision | Recall |
+    |---|---|---|---|---|
+    | Val (35 lớp), `best.pt` epoch 74 | 0,6455 | 0,4772 | 0,645 | 0,600 |
+    | **Test (41 lớp), chấm một lần** | **0,5027** | **0,3813** | 0,768 | 0,399 |
+
+  - **Thời gian: 1,69 giờ cho 100 epoch, tức 60,7 giây mỗi epoch.** Ước tính cũ là 5,95 giờ (214 giây mỗi epoch).
+    - Lần đo đọc ảnh thẳng từ `/kaggle/input`, Ultralytics cảnh báo đọc chậm (1,9 MB/s). Lần này chép dữ liệu sang `/tmp` trước.
+    - Các epoch đều nhau: TB epoch 1–10 là 61,4 giây, epoch 91–100 là 60,6 giây. Vậy chênh lệch không đến từ chi phí epoch đầu, mà gần như chắc chắn từ chỗ đọc ảnh. Đây là suy luận: chưa đo hai cách đọc ảnh trên cùng một máy.
+    - Quyết định "làm B0" vẫn đúng; chỉ có ước tính thời gian là sai.
+  - **Đường cong** (`ket_qua/b0_results.csv`):
+    - Val mAP50-95 lên nhanh đến epoch 10 (0,378), rồi gần như đi ngang từ khoảng epoch 30: 0,44–0,46 ở các epoch 30, 40, 50, 60, 80, 90, 100.
+    - Epoch 74 cao vọt lên 0,4754, trong khi các epoch quanh đó khoảng 0,44–0,45. `best.pt` vì vậy là đỉnh của một đường dao động, cùng hiện tượng đã thấy ở A5.
+    - Train loss giảm đều đến epoch 100: box 0,58, cls 0,31.
+    - Val box loss đi ngang khoảng 0,93 từ epoch 40. Val cls loss đi ngang khoảng 1,15–1,19 từ epoch 50.
+    - Vậy từ khoảng epoch 50, mạng chỉ tốt hơn trên train: đó là overfitting nhẹ. Train thêm epoch nhiều khả năng không tăng val.
+  - **Val so với test:** mAP50-95 giảm 0,096 (0,477 → 0,381). Recall test chỉ 0,399, precision 0,768: mạng bỏ sót nhiều biển, còn những biển nó báo thì phần lớn đúng.
+  - **AP từng lớp trên test:**
+    - 4 lớp AP50 = 0: 11 (chỗ quay xe), 20 (cấm ô tô), 26, 31.
+    - Lớp thấp khác: 9, 32 (cấm rẽ phải, 0,008), 50, 19.
+    - Cao nhất (AP50-95 0,76–0,85): 37, 23, 40, 33, 35.
+  - **B0 và mạng phân loại khó ở cùng những lớp:**
+    - Tương quan Pearson giữa AP50-95 từng lớp của B0 và recall từng lớp của A4-res-sâu (trung bình 3 seed) trên 41 lớp là **0,78**.
+    - Các lớp 19, 20, 32, 43, 11 kém ở cả hai.
+    - Hai mạng khác hẳn nhau (phát hiện trên cả ảnh và phân loại ảnh cắt) mà kém ở cùng lớp. Điều này ủng hộ kết luận của Thí nghiệm 3: cái khó nằm ở dữ liệu (lớp chỉ có 1–4 cảnh ở train, cảnh test khác cảnh train), không nằm ở kiến trúc mạng.
+    - Lưu ý: hai thước đo khác nhau (AP và recall), nên chỉ so được thứ hạng và xu hướng, không so được giá trị.
+  - **Hạn chế:** 1 seed. Không tìm lr. Chọn `best.pt` theo mAP50-95 val, tức đỉnh của một đường dao động.
+
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
 - Xoay lại 39 ảnh 1319–1357, xoá 3 box sai lớp 16, đổi tên lớp 26 (bản copy). Box giảm từ 8332 còn 8329.
