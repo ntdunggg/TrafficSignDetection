@@ -101,15 +101,20 @@ def main():
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         present = (tong > 0).nonzero().flatten().tolist()
-        sub = cm[present][:, present].float()
+        # Hàng: 41 lớp có ở test. Cột: đủ 52 lớp, vì mạng có thể đoán ra lớp chỉ có ở train (ví dụ 13 → 48).
+        sub = cm[present].float()
         sub = sub / sub.sum(1, keepdim=True)
-        fig, ax = plt.subplots(figsize=(12, 11))
+        fig, ax = plt.subplots(figsize=(14, 11))
         im = ax.imshow(sub, cmap="Blues", vmin=0, vmax=1)
-        ax.set_xticks(range(len(present)), present, fontsize=7)
+        ax.set_xticks(range(NUM_CLASSES), range(NUM_CLASSES), fontsize=6)
+        for c in range(NUM_CLASSES):
+            if c not in present:
+                ax.get_xticklabels()[c].set_color("#e34948")
         ax.set_yticks(range(len(present)), [f"{c} {names[c][:28]}" for c in present], fontsize=7)
         ax.set_xlabel("Lớp dự đoán")
         ax.set_ylabel("Lớp thật")
-        ax.set_title(f"Test, {len(present)} lớp, cộng {n} seed, chuẩn hoá theo hàng (recall)")
+        ax.set_title(f"Test: hàng là {len(present)} lớp có ở test, cột là đủ {NUM_CLASSES} lớp (số đỏ: lớp không có ở test); "
+                     f"cộng {n} seed, chuẩn hoá theo hàng", fontsize=10)
         fig.colorbar(im)
         fig.tight_layout()
         os.makedirs(os.path.dirname(args.hinh), exist_ok=True)

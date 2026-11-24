@@ -761,6 +761,35 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
       - Script có biến `SEED` mới cho đúng kết quả như bản cũ, nên đã kiểm được phần code đã sửa.
     - Ghi một dòng `b0_s0_chay_lai` trong `ket_qua.csv`. **Không tính dòng này vào trung bình 3 seed.**
   - **Hạn chế:** không tìm lr; chọn `best.pt` theo mAP50-95 val, tức đỉnh của một đường dao động. So với mạng phân loại chỉ ở mức ý tưởng, vì mAP và macro-F1 là hai thước đo khác nhau.
+- **Tuần 3: bản nháp đầu của báo cáo (nhánh `dung/bao-cao`, tách từ `dung/b0`).** Kế hoạch: `ke_hoach/dung_lam_mot_minh.md`, tuần 3.
+  - **Quyết định của Dũng (2026-11-24):** viết bằng Markdown trong repo. Cô không có mẫu và không giới hạn số trang.
+  - **File:** `bao_cao/bao_cao.md`. Hình ở `bao_cao/hinh/` (8 file PNG, chỉ là biểu đồ số liệu, không chứa ảnh của dataset).
+  - **Cấu trúc**, theo kế hoạch tuần 3:
+    1. Bài toán và quy tắc thí nghiệm.
+    2. Dữ liệu (mục A–D của sổ).
+    3. Hướng A từ A0 đến A7, mỗi mạng có bảng từng lớp: kích thước đầu ra, tham số, receptive field.
+    4. B0.
+    5. Phân tích trên test: Thí nghiệm 5, Thí nghiệm 3, vùng nền.
+    6. H1–H4.
+    7. Hỏi đáp theo danh sách "Câu hỏi báo cáo phải trả lời" của kế hoạch.
+    8. Hạn chế.
+    9. Tái lập.
+    10. Tài liệu tham khảo.
+  - **Nguồn số liệu:** chỉ lấy từ sổ này, `ket_qua/ket_qua.csv` và `ket_qua/bang_tham_so.md`. Đã đối chiếu trung bình ± độ lệch chuẩn của 17 cấu hình với `ket_qua.csv`: khớp. Chỉ lệch chữ số thứ tư ở vài độ lệch chuẩn, vì `ket_qua.csv` làm tròn 4 chữ số trước khi tính (ví dụ A1: 0,0263 trong sổ, 0,0264 khi tính lại từ CSV).
+  - **Script vẽ hình:** `src/ve_hinh_bao_cao.py`, đọc `log.csv` của các lần chạy và `ket_qua/`, không train hay chấm lại gì.
+    - Đường cong: trung bình 3 seed, dải mờ từ seed thấp nhất đến seed cao nhất.
+    - Màu theo bảng màu đã kiểm cho người mù màu (skill dataviz của Claude Code).
+    - Đã mở xem từng hình. Sửa nhãn trục bị đè ở hình val/test, và sửa tiêu đề hình A0–A2: tiêu đề cũ nói "val loss tăng lại", nhưng trung bình 3 seed của A2 gần như đi ngang.
+  - **Phát hiện: hình confusion matrix cũ thiếu cột.**
+    - `src/phan_tich_test.py` chỉ vẽ 41 cột của các lớp có ở test. Vì vậy mọi dự đoán rơi vào lớp chỉ có ở train bị mất khỏi hình, kể cả cặp nhầm nhiều nhất 13 → 48 (77%).
+    - Số in ra màn hình không bị ảnh hưởng, vì confusion matrix tính trên đủ 52 × 52.
+    - Đã sửa: hàng là 41 lớp có ở test, cột là đủ 52 lớp, số của lớp không có ở test tô đỏ. Hình mới: `bao_cao/hinh/h7_cm_test.png`.
+  - **Transfer learning:** đã đọc giáo trình mục 4.10 (trang 86–90). Câu trả lời trong báo cáo ghi rõ là lý thuyết, kỳ vọng với dữ liệu này là suy luận, không có số liệu.
+  - **Việc còn lại cho Dũng:**
+    - Điền MSSV ở đầu báo cáo.
+    - Đọc hết báo cáo, nhất là phần bảng tham số (mục 3) và phần hỏi đáp (mục 6, 7), để tự trả lời được khi cô hỏi.
+    - Báo chỗ nào muốn viết lại, rút gọn hoặc thêm.
+  - **Chưa làm:** đổi sang Word hoặc PDF; slide thuyết trình (kế hoạch chưa nhắc).
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
