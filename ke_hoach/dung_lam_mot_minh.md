@@ -97,6 +97,7 @@ Cách dựng và cách kiểm: [`nguoi_1_dung_du_lieu_va_A0-A2.md`](nguoi_1_dung
 - **Đã đo (2026-11-22):** Tesla T4, 214 giây mỗi epoch, ước tính 100 epoch mất 5,95 giờ. **Làm B0 ở tuần 2.** Chi tiết ở NHAT_KY, mục 2026-11-22.
 - **Đã chạy B0 (2026-11-23):** 1,69 giờ (chép dữ liệu sang `/tmp` nên nhanh hơn ước tính). mAP50-95 test 0,3813, mAP50 0,5027 trên 41 lớp. Chi tiết ở NHAT_KY, mục 2026-11-24.
 - **Đổi (2026-11-24, Dũng đồng ý):** vì mỗi seed chỉ mất khoảng 1,7 giờ, chạy thêm seed 1 và 2 để B0 có 3 seed như các thí nghiệm khác. Lý do ở NHAT_KY, mục 2026-11-24.
+- **Đã chạy đủ 3 seed (2026-11-24):** test mAP50-95 0,343 ± 0,034, mAP50 0,468 ± 0,032 trên 41 lớp. Báo cáo dùng số này thay cho 0,3813 của riêng seed 0. Chi tiết ở NHAT_KY, mục 2026-11-24.
 
 ## Tuần 2 (26/11 – 02/12): huấn luyện và đánh giá
 

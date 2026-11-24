@@ -1,0 +1,286 @@
+{
+  "ngay": "2026-11-24",
+  "gpu": "Tesla T4",
+  "torch": "2.11.0+cu130",
+  "ultralytics": "8.4.191",
+  "md5_nhan": "80a393b981121f57e7080674c2750722",
+  "cau_hinh": {
+    "model": "yolov8s.yaml",
+    "pretrained": false,
+    "epochs": 100,
+    "imgsz": 960,
+    "batch": 16,
+    "fliplr": 0,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "momentum": 0.937,
+    "close_mosaic": 10,
+    "seed": 2,
+    "fraction": 1.0
+  },
+  "so_tham_so": 11155724,
+  "gio_train": 1.77,
+  "epoch_tot_nhat": 43,
+  "val": {
+    "so_lop": 35,
+    "map50": 0.6142,
+    "map50_95": 0.4706,
+    "precision": 0.7168,
+    "recall": 0.5542
+  },
+  "test": {
+    "so_lop": 41,
+    "map50": 0.4628,
+    "map50_95": 0.3284,
+    "precision": 0.599,
+    "recall": 0.4217
+  },
+  "test_tung_lop": [
+    {
+      "class_id": 0,
+      "ten": "Đường người đi bộ cắt ngang",
+      "ap50": 0.9745,
+      "ap50_95": 0.7334
+    },
+    {
+      "class_id": 1,
+      "ten": "Đường giao nhau (ngã ba bên phải)",
+      "ap50": 0.595,
+      "ap50_95": 0.4165
+    },
+    {
+      "class_id": 2,
+      "ten": "Cấm đi ngược chiều",
+      "ap50": 0.8196,
+      "ap50_95": 0.5107
+    },
+    {
+      "class_id": 3,
+      "ten": "Phải đi vòng sang bên phải",
+      "ap50": 0.7673,
+      "ap50_95": 0.4345
+    },
+    {
+      "class_id": 4,
+      "ten": "Giao nhau với đường đồng cấp",
+      "ap50": 0.003,
+      "ap50_95": 0.0021
+    },
+    {
+      "class_id": 5,
+      "ten": "Giao nhau với đường không ưu tiên",
+      "ap50": 0.9335,
+      "ap50_95": 0.7128
+    },
+    {
+      "class_id": 6,
+      "ten": "Chỗ ngoặt nguy hiểm vòng bên trái",
+      "ap50": 0.164,
+      "ap50_95": 0.1332
+    },
+    {
+      "class_id": 7,
+      "ten": "Cấm rẽ trái",
+      "ap50": 0.5634,
+      "ap50_95": 0.4526
+    },
+    {
+      "class_id": 8,
+      "ten": "Bến xe buýt",
+      "ap50": 0.6483,
+      "ap50_95": 0.4806
+    },
+    {
+      "class_id": 9,
+      "ten": "Nơi giao nhau chạy theo vòng xuyến",
+      "ap50": 0.0,
+      "ap50_95": 0.0
+    },
+    {
+      "class_id": 10,
+      "ten": "Cấm dừng và đỗ xe",
+      "ap50": 0.8115,
+      "ap50_95": 0.5122
+    },
+    {
+      "class_id": 11,
+      "ten": "Chỗ quay xe",
+      "ap50": 0.0,
+      "ap50_95": 0.0
+    },
+    {
+      "class_id": 12,
+      "ten": "Biển gộp làn đường theo phương tiện",
+      "ap50": 0.6994,
+      "ap50_95": 0.4506
+    },
+    {
+      "class_id": 13,
+      "ten": "Đi chậm",
+      "ap50": 0.4336,
+      "ap50_95": 0.3489
+    },
+    {
+      "class_id": 14,
+      "ten": "Cấm xe tải",
+      "ap50": 0.2835,
+      "ap50_95": 0.2552
+    },
+    {
+      "class_id": 16,
+      "ten": "Giới hạn chiều cao",
+      "ap50": 0.0383,
+      "ap50_95": 0.0297
+    },
+    {
+      "class_id": 17,
+      "ten": "Cấm quay đầu",
+      "ap50": 0.1396,
+      "ap50_95": 0.1205
+    },
+    {
+      "class_id": 18,
+      "ten": "Cấm ô tô khách và ô tô tải",
+      "ap50": 0.1568,
+      "ap50_95": 0.1005
+    },
+    {
+      "class_id": 19,
+      "ten": "Cấm rẽ phải và quay đầu",
+      "ap50": 0.0772,
+      "ap50_95": 0.0714
+    },
+    {
+      "class_id": 20,
+      "ten": "Cấm ô tô",
+      "ap50": 0.0,
+      "ap50_95": 0.0
+    },
+    {
+      "class_id": 22,
+      "ten": "Gồ giảm tốc phía trước",
+      "ap50": 0.0287,
+      "ap50_95": 0.021
+    },
+    {
+      "class_id": 23,
+      "ten": "Cấm xe hai và ba bánh",
+      "ap50": 0.9793,
+      "ap50_95": 0.7595
+    },
+    {
+      "class_id": 25,
+      "ten": "Chỉ dành cho xe máy*",
+      "ap50": 0.8064,
+      "ap50_95": 0.3561
+    },
+    {
+      "class_id": 26,
+      "ten": "Chú ý chướng ngại vật, vòng tránh hai bên",
+      "ap50": 0.0,
+      "ap50_95": 0.0
+    },
+    {
+      "class_id": 30,
+      "ten": "Chỉ dành cho xe tải*",
+      "ap50": 0.0414,
+      "ap50_95": 0.0279
+    },
+    {
+      "class_id": 31,
+      "ten": "Đường có camera giám sát",
+      "ap50": 0.0026,
+      "ap50_95": 0.0011
+    },
+    {
+      "class_id": 32,
+      "ten": "Cấm rẽ phải",
+      "ap50": 0.0052,
+      "ap50_95": 0.0037
+    },
+    {
+      "class_id": 33,
+      "ten": "Nhiều chỗ ngoặt nguy hiểm liên tiếp, chỗ đầu tiên sang phải",
+      "ap50": 0.995,
+      "ap50_95": 0.7822
+    },
+    {
+      "class_id": 34,
+      "ten": "Cấm xe sơ-mi rơ-moóc",
+      "ap50": 0.995,
+      "ap50_95": 0.5965
+    },
+    {
+      "class_id": 35,
+      "ten": "Cấm rẽ trái và phải",
+      "ap50": 0.995,
+      "ap50_95": 0.7854
+    },
+    {
+      "class_id": 36,
+      "ten": "Cấm đi thẳng và rẽ phải",
+      "ap50": 0.955,
+      "ap50_95": 0.7518
+    },
+    {
+      "class_id": 37,
+      "ten": "Đường giao nhau (ngã ba bên trái)",
+      "ap50": 0.8617,
+      "ap50_95": 0.5893
+    },
+    {
+      "class_id": 38,
+      "ten": "Giới hạn tốc độ (50km/h)",
+      "ap50": 0.7683,
+      "ap50_95": 0.527
+    },
+    {
+      "class_id": 39,
+      "ten": "Giới hạn tốc độ (60km/h)",
+      "ap50": 0.5147,
+      "ap50_95": 0.3635
+    },
+    {
+      "class_id": 40,
+      "ten": "Giới hạn tốc độ (80km/h)",
+      "ap50": 0.9052,
+      "ap50_95": 0.7211
+    },
+    {
+      "class_id": 41,
+      "ten": "Giới hạn tốc độ (40km/h)",
+      "ap50": 0.149,
+      "ap50_95": 0.1197
+    },
+    {
+      "class_id": 43,
+      "ten": "Chiều cao tĩnh không thực tế",
+      "ap50": 0.0,
+      "ap50_95": 0.0
+    },
+    {
+      "class_id": 45,
+      "ten": "Đường một chiều",
+      "ap50": 0.3133,
+      "ap50_95": 0.188
+    },
+    {
+      "class_id": 46,
+      "ten": "Cấm đỗ xe",
+      "ap50": 0.4533,
+      "ap50_95": 0.352
+    },
+    {
+      "class_id": 49,
+      "ten": "Cấm rẽ trái và quay đầu xe",
+      "ap50": 0.995,
+      "ap50_95": 0.6628
+    },
+    {
+      "class_id": 50,
+      "ten": "Chỗ ngoặt nguy hiểm vòng bên phải",
+      "ap50": 0.104,
+      "ap50_95": 0.0891
+    }
+  ]
+}

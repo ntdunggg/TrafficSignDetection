@@ -714,6 +714,53 @@ Sổ chung của nhóm, Dũng giữ. Từ 2026-11-19 nhóm chỉ còn Dũng, k�
     - Cách chạy mới: dán toàn bộ file vào một ô notebook, không cần `wget`.
     - Mọi phần khác của code không đổi. Đã kiểm cú pháp (`py_compile`); chưa chạy thử lại vì chỉ đổi tên biến và tên file.
   - **Trạng thái:** chờ Dũng chạy seed 1 và 2 trên Kaggle.
+- **B0: kết quả 3 seed.** Dũng chạy seed 1 và 2 trên Kaggle ngày 2026-11-24 bằng Save & Run All. Output tải về `/Users/tdu/Downloads/results_v1/`, `results_v2/`.
+  - **Kiểm tra trước khi đọc kết quả:**
+    - `args.yaml` của seed 1 và 2 giống hệt seed 0, trừ `seed`, `name`, `save_dir`. Vẫn `model: yolov8s.yaml`, `pretrained: false`, `fliplr: 0`, `optimizer: SGD`, `lr0: 0.01`, `momentum: 0.937`, `epochs: 100`, `imgsz: 960`, `batch: 16`.
+    - md5 nhãn `80a393b9...` khớp cả hai lần. 11.155.724 tham số.
+  - **Lưu:**
+    - Chép vào repo `ket_qua/b0_ket_qua_s1.json`, `b0_ket_qua_s2.json`, `b0_results_s1.csv`, `b0_results_s2.csv`.
+    - Seed 0 vẫn ở `ket_qua/b0_ket_qua.json` và `b0_results.csv` (tên cũ).
+    - Thêm dòng `b0_s1`, `b0_s2` vào `ket_qua.csv`.
+
+    | Seed | Epoch tốt nhất | Val mAP50 | Val mAP50-95 | Test mAP50 | Test mAP50-95 | Test P | Test R | Giờ train |
+    |---|---|---|---|---|---|---|---|---|
+    | 0 | 74 | 0,6455 | 0,4772 | 0,5027 | 0,3813 | 0,768 | 0,399 | 1,69 |
+    | 1 | 39 | 0,6128 | 0,4502 | 0,4391 | 0,3186 | 0,730 | 0,381 | 1,59 |
+    | 2 | 43 | 0,6142 | 0,4706 | 0,4628 | 0,3284 | 0,599 | 0,422 | 1,77 |
+    | **TB ± std** | | 0,624 ± 0,019 | **0,466 ± 0,014** | 0,468 ± 0,032 | **0,343 ± 0,034** | 0,699 ± 0,089 | 0,401 ± 0,020 | |
+
+    Val tính trên 35 lớp, test trên 41 lớp. Test chấm một lần mỗi seed, không dùng để chọn gì. Độ lệch chuẩn là độ lệch chuẩn mẫu (chia n − 1), như các thí nghiệm khác.
+  - **Đọc kết quả:**
+    - **Báo cáo B0 bằng 0,343 ± 0,034 (test mAP50-95, 41 lớp), không dùng 0,381 nữa.**
+      - Seed 0 tình cờ là seed tốt nhất trong 3 seed, cả trên val lẫn test. Nếu chỉ có 1 seed thì B0 bị báo cao hơn trung bình 0,038.
+      - Đây là bằng chứng cụ thể cho quy tắc chạy 3 seed.
+    - **Thứ tự 3 seed giống nhau trên val và test** (0 > 2 > 1). Vậy seed nào tốt trên val thì cũng tốt trên test.
+    - **Độ dao động giữa các seed lớn hơn trên test.** Std test 0,034, gấp khoảng 2,4 lần std val 0,014. Có thể vì test có 6 lớp không có ở val và nhiều lớp chỉ có vài box (xem dưới).
+    - **Đường cong giống seed 0:** val mAP50-95 đi ngang từ khoảng epoch 30. Đỉnh của mỗi seed rơi vào một epoch khác hẳn nhau (74, 39, 43), vì đỉnh chỉ là chỗ cao nhất của một đường dao động.
+      - Seed 1: 0,418 ở epoch 30, 0,424 ở epoch 50, 0,428 ở epoch 100.
+      - Seed 2: 0,464 ở epoch 30, 0,446 ở epoch 50, 0,442 ở epoch 100.
+      - Val cls loss thấp nhất ở epoch 86, 64, 74 rồi tăng lại đến epoch 100 (seed 0: 1,095 → 1,185; seed 1: 1,168 → 1,304; seed 2: 1,190 → 1,278). Train cls loss vẫn giảm, còn khoảng 0,31 ở epoch 100. Cả 3 seed cùng có dấu hiệu overfitting nhẹ ở cuối.
+    - **Precision dao động nhiều hơn recall:** test P 0,60–0,77, R 0,38–0,42. Mọi seed đều bỏ sót khoảng 60% biển.
+  - **AP từng lớp trên test (trung bình 3 seed, 41 lớp):**
+    - **2 lớp AP50 = 0 ở cả 3 seed:** 20 (cấm ô tô, 22 box) và 26 (18 box). Thêm 3 lớp gần 0 (AP50 dưới 0,001): 9, 11, 31.
+    - Lớp thấp khác (AP50-95 dưới 0,08): 32, 4, 43, 18, 19.
+    - Cao nhất (AP50-95 0,76–0,82): 35, 33, 40, 23, 36.
+    - **AP từng lớp dao động rất mạnh giữa các seed.** Ví dụ lớp 38 (89 box) có AP50-95 là 0,62, 0,19, 0,53; lớp 34 (2 box) là 0,75, 0,13, 0,60.
+    - Độ dao động không đi theo số box của lớp: tương quan hạng (Spearman) giữa số box test và std AP từng lớp là 0,00. Vậy lớp nhiều box vẫn có thể dao động mạnh.
+  - **Cập nhật so sánh với mạng phân loại.**
+    - Tương quan Pearson giữa AP50-95 từng lớp của B0 (trung bình 3 seed) và recall từng lớp của A4-res-sâu (trung bình 3 seed) trên 41 lớp là **0,80** (Spearman 0,80).
+    - Từng seed của B0: 0,78, 0,72, 0,81. Con số 0,78 ghi ở trên là của seed 0.
+    - Kết luận cũ không đổi: hai mạng khác hẳn nhau nhưng kém ở cùng những lớp, nên cái khó nằm ở dữ liệu.
+  - **Chạy lại seed 0 cho kết quả trùng hệt.**
+    - Dũng chạy lại seed 0 bằng script mới (output ở `/Users/tdu/Downloads/results_v0/`).
+    - So với lần 2026-11-23: mọi cột của `results.csv` trong cả 100 epoch (loss, P, R, mAP, lr) khớp từng chữ số, và mọi số val, test trong JSON cũng khớp. Chỉ thời gian khác: 106,0 phút so với 101,2 phút.
+    - Lý do: `args.yaml` có `deterministic: true` (mặc định của Ultralytics), cùng seed và cùng loại GPU (T4).
+    - Hệ quả:
+      - Kết quả B0 tái lập được. Khác biệt giữa 3 seed hoàn toàn do seed, không phải do nhiễu ngẫu nhiên của GPU.
+      - Script có biến `SEED` mới cho đúng kết quả như bản cũ, nên đã kiểm được phần code đã sửa.
+    - Ghi một dòng `b0_s0_chay_lai` trong `ket_qua.csv`. **Không tính dòng này vào trung bình 3 seed.**
+  - **Hạn chế:** không tìm lr; chọn `best.pt` theo mAP50-95 val, tức đỉnh của một đường dao động. So với mạng phân loại chỉ ở mức ý tưởng, vì mAP và macro-F1 là hai thước đo khác nhau.
 
 **2026-11-09**
 - Nhận kết quả catalog: đã xem đủ 683/683 box (599 Đúng, 80 Không rõ, 4 Sai). Chi tiết ở mục G.
@@ -1457,6 +1504,10 @@ Mô hình hiện tại (YOLO) làm cả hai việc cùng lúc: một lần chạ
   2. **Giai đoạn 2 phải xử lý được vùng không có biển.** Phép thử vùng nền: mạng 52 lớp gán 23–32% vùng nền vào một loại biển với xác suất trên 0,9. Ngưỡng softmax chỉ tách được biển thật với nền ở AUROC khoảng 0,74. Vậy nếu giai đoạn 1 đề xuất nhầm vùng nền, giai đoạn 2 hiện tại sẽ biến nó thành báo nhầm có độ tin cậy cao. Muốn ghép hai giai đoạn thì phải thêm lớp "nền" khi train bộ phân loại, giống bộ phân loại của R-CNN.
   3. **Cỡ ảnh cắt không phải nguyên nhân chính của lỗi phân loại** (Thí nghiệm 3: độ chính xác không tăng theo cỡ box). Lợi ích "bộ phân loại nhìn vùng cắt ở độ phân giải cao" vì vậy chưa thấy rõ trên dữ liệu này.
 - B0 (YOLO một giai đoạn) chạy ở bước 2.3. Nếu có kết quả thì so ở mức ý tưởng, vì mAP của B0 và macro-F1 trên box thật của hướng A không cùng thước đo.
+- **Cập nhật 2026-11-24 (B0, 3 seed):**
+  - B0 đạt test mAP50-95 0,343 ± 0,034, mAP50 0,468 ± 0,032 (41 lớp). Recall chỉ 0,40 ± 0,02: hệ một giai đoạn bỏ sót khoảng 60% biển.
+  - AP từng lớp của B0 tương quan 0,80 với recall từng lớp của mạng phân loại A4-res-sâu. Vậy hệ một giai đoạn và giai đoạn 2 của hệ hai giai đoạn khó ở cùng những lớp; tách thành hai giai đoạn chưa chắc sửa được những lớp này.
+  - Chi tiết ở "Lịch sử thay đổi", mục 2026-11-24.
 
 ### H3. Gặp ảnh nằm ngoài phân phối (out-of-distribution) thì sao?
 - YOLO không có lớp "không biết". Với mọi ảnh, nó vẫn chấm điểm 52 lớp cho từng vùng, nên có thể báo nhầm với độ tin cậy cao. Ví dụ rủi ro: biển hiệu cửa hàng tròn màu đỏ bị nhận thành biển cấm.
